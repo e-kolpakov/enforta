@@ -15,19 +15,21 @@ framework.
 """
 import os
 import sys
+import enforta.settings
 
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 sys.path.insert(0, PROJECT_PATH)
 
-import monitor
+if enforta.settings.DEBUG:
+    import monitor
 
-def monitor_file(arg, dirname, names):
-    for file in names:
-        monitor.track(os.path.join(dirname,file))
+    def monitor_file(arg, dirname, names):
+        for file in names:
+            monitor.track(os.path.join(dirname,file))
 
-monitor.start(interval=1.0)
-os.path.walk(PROJECT_PATH, monitor_file, None)
-os.path.walk(os.path.join(PROJECT_PATH, '../DocApproval'), monitor_file, None)
+    monitor.start(interval=1.0)
+    os.path.walk(PROJECT_PATH, monitor_file, None)
+    os.path.walk(os.path.join(PROJECT_PATH, '../DocApproval'), monitor_file, None)
 
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "enforta.settings")

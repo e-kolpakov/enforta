@@ -1,2 +1,15 @@
-<h1>Welcome to Doc Approval application</h1>
-There's little to do here, but the situation should change soon.
+{% load i18n %}
+{% load static from staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+        {% block maintitle %}{% trans "Утверждение документов" %}{% endblock maintitle %}
+        {% block subtitle %}{% endblock subtitle %}
+    </title>
+    <link rel='stylesheet' type='text/css' href="{% static "css/main.css" %}"/>
+</head>
+<body>
+    Test content
+</body>
+</html>

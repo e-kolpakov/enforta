@@ -5,8 +5,10 @@ TEMPLATE_DEBUG = DEBUG
 
 import os
 import django
+
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
+VAR_ROOT = "/var/"
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -138,20 +140,42 @@ LOGGING = {
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
-        }
+        },
+    },
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s %(module)s [%(levelname)s] %(process)d %(thread)d %(message)s'
+        },
+        'generic': {
+            'format': '%(asctime)s %(module)s [%(levelname)s]: %(message)s'
+        },
     },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+        'file':{
+            'level': 'DEBUG',
+            'class' : 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(VAR_ROOT, 'log/doc-approval/django.log'),
+            'maxBytes': 10240,
+            'backupCount': 3,
+            'formatter': 'generic'
+        },
     },
     'loggers': {
+        '': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True
+        },
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': True,
-        },
+        }
     }
 }
+
