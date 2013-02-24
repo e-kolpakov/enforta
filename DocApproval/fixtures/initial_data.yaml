@@ -1,0 +1,61 @@
+#-*- coding: utf-8 -*-
+- model: DocApproval.City
+  pk: 1
+  fields:
+    city_name: "Ростов-на-Дону"
+
+- model: DocApproval.RequestStatus
+  pk: "project"
+  fields:
+    status_name: "Проект"
+- model: DocApproval.RequestStatus
+  pk: "negotiation"
+  fields:
+    status_name: "В согласовании"
+- model: DocApproval.RequestStatus
+  pk: "negotiated_no_payment"
+  fields:
+    status_name: "Согласован, но не оплачен"
+- model: DocApproval.RequestStatus
+  pk: "active"
+  fields:
+    status_name: "В работе"
+- model: DocApproval.RequestStatus
+  pk: "outdated"
+  fields:
+    status_name: "Истек срок действия"
+- model: DocApproval.RequestStatus
+  pk: "bill_required"
+  fields:
+    status_name: "Требуется счет"
+
+#refer to global_constants for type values meaning
+- model: DocApproval.DynamicSettings
+  pk: "max_file_size"
+  fields:
+    name: "Максимальный размер загружаемого файла"
+    type: 0
+    value: 6164480
+- model: DocApproval.DynamicSettings
+  pk: "file_upload_folder"
+  fields:
+    name: "Путь хранения файлов"
+    type: 1
+- model: DocApproval.DynamicSettings
+  pk: "accounting_email"
+  fields:
+    name: "Email адрес бухгалтерии"
+    type: 1
+    value: "accounting@enforta.ru"
+- model: DocApproval.DynamicSettings
+  pk: "notification_timeout"
+  fields:
+    name: "Таймаут напоминаний"
+    type: 2
+    value: "2 days"
+- model: DocApproval.DynamicSettings
+  pk: "notification_frequency"
+  fields:
+    name: "Периодичность автоматических напоминаний"
+    type: 2
+    value: "1 day"

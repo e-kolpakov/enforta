@@ -3,8 +3,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from global_constants import GlobalConstants
 from datetime import timedelta
-import reversion
 import re
+from django.utils.translation import ugettext as _
 
 #Some "dictionaries" first
 class Position(models.Model):
@@ -19,36 +19,46 @@ class City(models.Model):
         verbose_name = u'Город'
         verbose_name_plural = u'Города'
 
+    def __unicode__(self):
+        return self.city_name
+
 class RequestStatus(models.Model):
+    code = models.CharField(u'Код', max_length=GlobalConstants.MAX_CODE_VARCHAR_LENGTH, primary_key=True,
+        editable=False)
     status_name = models.CharField(u'Статус', max_length=GlobalConstants.DEFAULT_VARCHAR_LENGTH)
     class Meta:
         verbose_name = u'Статус заявки'
         verbose_name_plural = u'Статусы заявок'
 
+    def __unicode__(self):
+        return self.status_name
+
 #Dynamic Settings
 class DynamicSettings(models.Model):
-    name = models.CharField(u'Параметр',max_length=GlobalConstants.DEFAULT_VARCHAR_LENGTH)
-    type = models.IntegerField(u'Тип данных',
+    code = models.CharField(u'Код', max_length=GlobalConstants.MAX_CODE_VARCHAR_LENGTH, primary_key=True,
+        editable=False)
+    name = models.CharField(u'Параметр',max_length=GlobalConstants.DEFAULT_VARCHAR_LENGTH, editable=False)
+    type = models.IntegerField(u'Тип данных', editable=False,
         choices=(
             (GlobalConstants.INT_FIELD_VALUE, u'Целочисленный'),
             (GlobalConstants.CHAR_FIELD_VALUE, u'Строковый'),
             (GlobalConstants.TIME_PERIOD_FIELD_VALUE, u'Период времени')
         )
     )
-    value = models.CharField(u'Значение', max_length=GlobalConstants.MAX_VARCHAR_LENGTH)
+    value = models.CharField(u'Значение', max_length=GlobalConstants.MAX_VARCHAR_LENGTH, null=True)
 
     class Meta:
         verbose_name = u'Настройка'
         verbose_name_plural = u'Настройки'
 
     #"static" variable
-    _regex = re.compile(r'^(?:(?P<days>\d+)\sdays?,\s)?(?P<hours>\d+):(?P<minutes>\d+):(?P<seconds>\d+)$')
+    _date_regex = re.compile(r'^(?:(?P<days>\d+)\sdays?,\s)?(?P<hours>\d+):(?P<minutes>\d+):(?P<seconds>\d+)$')
 
     def get_value(self):
         """Gets the typed value of the setting"""
         def parse_string_to_timedelta(string):
             """Parses the default timedelta string representation back to timedelta object"""
-            d = DynamicSettings._regex.match(string).groupdict(0)
+            d = DynamicSettings._date_regex.match(string).groupdict(0)
             return timedelta(**dict(( (key, int(value)) for key, value in d.items() )))
 
         result = None
@@ -59,6 +69,9 @@ class DynamicSettings(models.Model):
         else:
             result = self.value
         return result
+
+    def __unicode__(self):
+        return self.name
 
 
 
@@ -88,18 +101,30 @@ class UserData(models.Model):
         eff_middle_accusative = self.middle_name_accusative if self.middle_name_accusative else self.middle_name
         return "{0} {1} {2}".format(eff_last_accusative, eff_first_accusative, eff_middle_accusative)
 
+    def __unicode__(self):
+        return "{0} {1}".format(_("Пользователь"), self.get_full_name())
+
     class Meta:
         verbose_name = u'Пользовательские данные'
         verbose_name_plural = u'Пользовательские данные'
 
 class Document(models.Model):
+    def upload_to(self):
+        return 'documents/new'
+
+    def upload_to_signed(self):
+        return 'documents/signed'
+
     date = models.DateField(u'Дата договора')
     active_period = models.IntegerField(u'Срок действия')
     prolongation = models.BooleanField(u'Возможность рролонгации', blank=True, default=False)
     paid_date = models.DateField(u'Дата оплаты')
 
-    contents = models.FileField(u'Документ', upload_to='documents/new')
-    contents_signed = models.FileField(u'Подписанный документ', upload_to='documents/signed', null=True, blank=True)
+    contents = models.FileField(u'Документ', upload_to=upload_to)
+    contents_signed = models.FileField(u'Подписанный документ', upload_to=upload_to_signed, null=True, blank=True)
+
+    def __unicode__(self):
+        return "{0} {2} {1} {3}".format(_("Документ №"), _("от"), self.pk, self.date)
 
 class Request(models.Model):
     name = models.CharField(u'Наименование', max_length=GlobalConstants.MAX_NAME_LENGTH)
@@ -116,3 +141,6 @@ class Request(models.Model):
     class Meta:
         verbose_name = u'Заявка'
         verbose_name_plural = u'Заявки'
+
+    def __unicode__(self):
+        return "{0} {2} {1} {3}".format(_("Заявка"), _("от"),self.name, self.created)

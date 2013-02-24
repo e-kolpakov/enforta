@@ -14,11 +14,26 @@ class CityAdmin(admin.ModelAdmin):
     pass
 
 class RequestStatusAdmin(admin.ModelAdmin):
-    pass
+    fields = ("status_name",)
+    readonly_fields = ("code",) #code is not editable anyway, it's included for the sake of completeness
+    actions = None
+
+    def has_add_permission(self, request):
+        return False
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 #Dynamic Settings
 class DynamicSettingsAdmin(admin.ModelAdmin):
-    pass
+    fields = ("code", "name", "type", "value")
+    readonly_fields = ("code","name", "type") #these are not editable anyway, it's included for the sake of completeness
+    list_display = ("name", "value")
+    actions = None
+
+    def has_add_permission(self, request):
+        return False
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 #Primary data objects
 class RequestAdmin(reversion.VersionAdmin):

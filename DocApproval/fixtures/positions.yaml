@@ -1,0 +1,19 @@
+#-*- coding: utf-8 -*-
+-model: Position
+  fields:
+    position_name: "Великий Босс"
+-model: Position
+  fields:
+    position_name: "Босс чуть поменьше"
+-model: Position
+  fields:
+    position_name: "Линейный менеджер"
+-model: Position
+  fields:
+    position_name: "Нелинейный менеджер"
+-model: Position
+  fields:
+    position_name: "Рядовой сотрудник"
+-model: Position
+  fields:
+    position_name: "Сотрудник-сержант"
