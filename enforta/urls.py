@@ -10,7 +10,8 @@ urlpatterns = patterns('',
     #admin section
     #url(r'^admin/?', include(admin.site.urls)),
     #url(r'^admin/doc/?', include('django.contrib.admindocs.urls')),
-    url('^/?$', "DocApproval.views.index")
+    url('^/?$', "DocApproval.views.index"),
+    url('^quicktest/?$', "DocApproval.views.quicktest")
 )
 
 urlpatterns += staticfiles_urlpatterns()

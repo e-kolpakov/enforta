@@ -1,0 +1,26 @@
+{% load i18n %}
+{% load static from staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+        {% block maintitle %}{% trans "Утверждение документов" %}{% endblock maintitle %}
+        {% block subtitle %}{% endblock subtitle %}
+    </title>
+    <link rel='stylesheet' type='text/css' href="{% static "css/main.css" %}"/>
+    {% block styles %}{% endblock styles %}
+    <script type="text/javascript" language="JavaScript" src="{% static "js/jquery-1.9.1.js" %}"></script>
+    {% block scripts %}{% endblock scripts %}
+</head>
+<body>
+    <div class="main-header">
+        {% include header_template|default:"headers/main_header.html" %}
+    </div>
+    <div class="main-menu">
+        {% include menu_template|default:"menus/main_menu.html" %}
+    </div>
+    <div class="main-content">
+        {% block maincontent %}I'm just placeholder for main content{% endblock maincontent %}
+    </div>
+</body>
+</html>
