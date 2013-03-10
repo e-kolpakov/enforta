@@ -1,3 +1,31 @@
-body {
-  background-color: #f0f0f0;
+@import "variables.less";
+@import "mixins.less";
+
+div.clear-float {
+  clear: both;
 }
+
+div.horizontal-separator {
+  border-bottom: 2px solid @separator-color;
+}
+
+body.main-body {
+  background-color: #f0f0f0;
+  #fonts > .main-text;
+
+  padding: 10px 30px;
+  .main-header {
+    .logo-container {
+      float: left;
+      img#logo {
+        width: 120px;
+        height: 40px;
+      }
+    }
+
+    .user-actions {
+      float: right;
+    }
+  }
+}
+

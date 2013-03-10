@@ -1,1 +1,8 @@
-I'm main header
+{% load static from staticfiles %}
+<div class='logo-container'>
+    <img id="logo" src={% static 'img/hdr_logo.gif' %}/>
+</div>
+<div class='user-actions'>
+    {% include header_template|default:"headers/user_actions.html" %}
+</div>
+<div class='clear-float horizontal-separator'></div>

@@ -1,1 +1,6 @@
 {% extends "base_layout.html" %}
+
+{% block maincontent %}
+    I'm quicktest. User is {% if not iser.is_authenticated %} not {% endif %}authenticated.
+    Login: {{ user.login }}
+{% endblock %}
