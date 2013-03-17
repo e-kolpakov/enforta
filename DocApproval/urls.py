@@ -1,18 +1,31 @@
 from django.conf.urls import patterns, include, url
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.contrib import admin
 
-import DocApproval.views
+import enforta.settings as settings
+import authentication_urls
 import DocApproval.views.common as common_views
 
-from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-       #admin section
-       url(r'^admin/?', include(admin.site.urls)),
-       #url(r'^admin/doc/?', include('django.contrib.admindocs.urls')),
-       url('^/?$', common_views.index),
-       url('^quicktest/?$', common_views.quicktest)
+                       #admin section
+                       url(r'^admin/?', include(admin.site.urls)),
+                       #url(r'^admin/doc/?', include('django.contrib.admindocs.urls')),
+                       url(r'^/?$', common_views.index, name="common.home_page"),
+                       url(r'^quicktest/$', common_views.quicktest, name="common.quick_test"),
+
+                       url(r'^accounts/', include(authentication_urls))
+                       #url(r'^accounts/login/$', 'django.contrib.auth.views.login', name="Authentication.Login"),
+                       #url(r'^accounts/logout/$', 'django.contrib.auth.views.login', name="Authentication.Login"),
+
 )
 
-urlpatterns += staticfiles_urlpatterns()
+if settings.DEBUG:
+    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
+    urlpatterns += staticfiles_urlpatterns()
+
+import logging
+
+logger = logging.getLogger(__name__)
+logger.debug(urlpatterns)

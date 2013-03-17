@@ -14,23 +14,21 @@ framework.
 
 """
 import os
-import sys
 import enforta.settings
 
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
-sys.path.insert(0, PROJECT_PATH)
+#sys.path.insert(0, PROJECT_PATH)
 
 if enforta.settings.DEBUG:
-    import monitor
+    import enforta.monitor as monitor
 
     def monitor_file(arg, dirname, names):
-        for file in names:
-            monitor.track(os.path.join(dirname,file))
+        for filename in names:
+            monitor.track(os.path.join(dirname, filename))
 
     monitor.start(interval=1.0)
     os.path.walk(PROJECT_PATH, monitor_file, None)
     os.path.walk(os.path.join(PROJECT_PATH, '../DocApproval'), monitor_file, None)
-
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "enforta.settings")
 
@@ -38,6 +36,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "enforta.settings")
 # file. This includes Django's development server, if the WSGI_APPLICATION
 # setting points here.
 from django.core.wsgi import get_wsgi_application
+
 application = get_wsgi_application()
 
 # Apply WSGI middleware here.

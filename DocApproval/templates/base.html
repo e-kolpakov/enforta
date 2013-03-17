@@ -1,0 +1,18 @@
+{% load i18n %}
+{% load static from staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+        {% block maintitle %}{% trans "Утверждение документов" %}{% endblock maintitle %}
+        {% block subtitle %}{% endblock subtitle %}
+    </title>
+    <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}css/main.css"/>
+    {% block styles %}{% endblock styles %}
+    <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/jquery-1.9.1.js"></script>
+    {% block scripts %}{% endblock scripts %}
+</head>
+<body class='{% block body_class %}main-body{% endblock %}'>
+{% block content %}{% endblock content %}
+</body>
+</html>

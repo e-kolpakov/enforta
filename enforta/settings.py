@@ -7,24 +7,19 @@ TEMPLATE_DEBUG = DEBUG
 
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
-VAR_ROOT = "/var/"
 
+# Administrator defined options - feel free to customize as needed
 ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
+# ('Your Name', 'your_email@example.com'),
 )
 
-MANAGERS = ADMINS
+LOGGING_DIRECTORY = "/var/log/"
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'docapproval',
-        'USER': 'john',
-        'PASSWORD': '1234',
-        'HOST': 'localhost',
-        'PORT': '',
-    }
-}
+DB_HOST = 'localhost'
+DB_NAME = 'docapproval'
+DB_USER = 'john'
+DB_PASS = '1234'
+DB_PORT = '' #leave blank for default
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -35,6 +30,25 @@ TIME_ZONE = 'Europe/Moscow'
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'ru-ru'
+
+# Absolute filesystem path to the directory that will hold user-uploaded files.
+# Example: "/home/media/media.lawrence.com/media/"
+MEDIA_ROOT = os.path.join(PROJECT_PATH, 'media')
+
+# End of administrator defined options
+
+MANAGERS = ADMINS
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
+    }
+}
 
 SITE_ID = 1
 
@@ -49,10 +63,6 @@ USE_L10N = True
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
 
-# Absolute filesystem path to the directory that will hold user-uploaded files.
-# Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = os.path.join(PROJECT_PATH,'media')
-
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
@@ -62,7 +72,7 @@ MEDIA_URL = '/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = os.path.join(PROJECT_PATH,'static')
+STATIC_ROOT = os.path.join(PROJECT_PATH, 'static')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -70,9 +80,9 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
+# Put strings here, like "/home/html/static" or "C:/www/django/static".
+# Always use forward slashes, even on Windows.
+# Don't forget to use absolute paths, not relative paths.
 )
 
 # List of finder classes that know how to find static files in
@@ -80,7 +90,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -90,7 +100,7 @@ SECRET_KEY = '!^8n+z3%*^2_d9b3ef58#!x-u9d$we5djt!7^vhkg-!e6uqtgi'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    #     'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -100,10 +110,18 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.transaction.TransactionMiddleware',
-    'reversion.middleware.RevisionMiddleware'
+    'reversion.middleware.RevisionMiddleware',
+    'DocApproval.middleware.RequireLoginMiddleware'
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
+
+# Authentication related
+# using named urls
+LOGIN_URL = "/accounts/login/"
+LOGIN_REDIRECT_URL = 'common.home_page' # we want to land on index after login
+LOGIN_REQUIRED_URLS = (".*",)
+LOGIN_REQUIRED_URLS_EXCEPTIONS = (LOGIN_URL, STATIC_URL, MEDIA_URL)
 
 ROOT_URLCONF = 'enforta.urls'
 
@@ -111,7 +129,7 @@ ROOT_URLCONF = 'enforta.urls'
 WSGI_APPLICATION = 'enforta.wsgi.application'
 
 TEMPLATE_DIRS = (
-    os.path.join(PROJECT_PATH,'DocApproval/templates')
+    os.path.join(PROJECT_PATH, 'DocApproval/templates')
 )
 
 INSTALLED_APPS = (
@@ -127,6 +145,8 @@ INSTALLED_APPS = (
     'DocApproval',
     'reversion'
 )
+
+LOG_DIR = LOGGING_DIRECTORY if not DEBUG else "/home/john/log"
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -146,7 +166,7 @@ LOGGING = {
             'format': '%(asctime)s %(module)s [%(levelname)s] %(process)d %(thread)d %(message)s'
         },
         'generic': {
-            'format': '%(asctime)s %(module)s [%(levelname)s]: %(message)s'
+            'format': '%(asctime)s %(name)s->%(funcName)s:%(lineno)d [%(levelname)s]: %(message)s'
         },
     },
     'handlers': {
@@ -155,21 +175,26 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
-        # 'file':{
-        #     'level': 'DEBUG',
-        #     'class' : 'logging.handlers.RotatingFileHandler',
-        #     'filename': os.path.join(VAR_ROOT, 'log/doc-approval/django.log'),
-        #     'maxBytes': 10240,
-        #     'backupCount': 1,
-        #     'formatter': 'generic'
-        # },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOG_DIR, 'doc-approval/django.log'),
+            'maxBytes': 102400,
+            'backupCount': 1,
+            'formatter': 'generic'
+        },
     },
     'loggers': {
-        # '': {
-        #     'handlers': ['file'],
-        #     'level': 'ERROR',
-        #     'propagate': True
-        # },
+        '': {
+            'handlers': ['file'],
+            'level': 'DEBUG' if DEBUG else 'ERROR',
+            'propagate': True
+        },
+        'RequireLoginMiddleware': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True
+        },
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',

@@ -1,1 +1,11 @@
-User actions here
+{% load i18n %}
+<div class='floating-layout child-float-left'>
+    <div class='user-profile'>
+        {% if user.is_authenticated %}
+            {{ user.username }}
+        {% endif %}
+    </div>
+    <div class='login-logout-button'>
+        <a href="{% url 'authentication.logout' %}">Logout</a>
+    </div>
+</div>

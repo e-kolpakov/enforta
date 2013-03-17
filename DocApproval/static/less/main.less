@@ -29,3 +29,18 @@ body.main-body {
   }
 }
 
+div.floating-layout {
+  psoition: relative;
+
+  & > div {
+    margin-left: 10px;
+  }
+
+  &.child-float-left > div {
+    float: left;
+  }
+  &.child-float-right > div {
+    float: right;
+  }
+}
+
