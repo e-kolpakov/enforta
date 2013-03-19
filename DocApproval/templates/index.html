@@ -1,1 +1,15 @@
 {% extends "base_layout.html" %}
+
+{% block maincontent %}
+    Here's a datepicker.
+    <div class='datepicker-wrapper'><input type="text" id="123"/></div>
+    This means jquery ui works
+{% endblock maincontent %}
+
+{% block scripts_for_execution %}
+    <script language="JavaScript" type="text/javascript">
+        $(function () {
+            $("#123").datepicker_ui_button();
+        });
+    </script>
+{% endblock %}

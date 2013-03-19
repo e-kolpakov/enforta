@@ -2,7 +2,8 @@
 <div class='floating-layout child-float-left'>
     <div class='user-profile'>
         {% if user.is_authenticated %}
-            {{ user.username }}
+            <div id="user-profile">{{ user.username }}</div>
+            <div id="user-profile-menu" class="popup-menu"></div>
         {% endif %}
     </div>
     <div class='login-logout-button'>

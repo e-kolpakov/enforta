@@ -8,18 +8,24 @@ TEMPLATE_DEBUG = DEBUG
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
 
-# Administrator defined options - feel free to customize as needed
-ADMINS = (
-# ('Your Name', 'your_email@example.com'),
-)
+# Administrator defined settings - feel free to customize as needed
+# Mandatory settings
+# FQDN or IP required here
+ALLOWED_HOSTS = ''
 
-LOGGING_DIRECTORY = "/var/log/"
-
+# Database settings
 DB_HOST = 'localhost'
 DB_NAME = 'docapproval'
 DB_USER = 'john'
 DB_PASS = '1234'
-DB_PORT = '' #leave blank for default
+DB_PORT = ''  # leave blank for default
+
+# Optional settings
+ADMINS = (
+    # ('Your Name', 'your_email@example.com'),
+)
+
+LOGGING_DIRECTORY = "/var/log"
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -80,9 +86,9 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-# Put strings here, like "/home/html/static" or "C:/www/django/static".
-# Always use forward slashes, even on Windows.
-# Don't forget to use absolute paths, not relative paths.
+    # Put strings here, like "/home/html/static" or "C:/www/django/static".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
 )
 
 # List of finder classes that know how to find static files in
@@ -175,26 +181,26 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(LOG_DIR, 'doc-approval/django.log'),
-            'maxBytes': 102400,
-            'backupCount': 1,
-            'formatter': 'generic'
-        },
+        # 'file': {
+        #     'level': 'DEBUG',
+        #     'class': 'logging.handlers.RotatingFileHandler',
+        #     'filename': os.path.join(LOG_DIR, 'doc-approval/django.log'),
+        #     'maxBytes': 102400,
+        #     'backupCount': 1,
+        #     'formatter': 'generic'
+        # },
     },
     'loggers': {
-        '': {
-            'handlers': ['file'],
-            'level': 'DEBUG' if DEBUG else 'ERROR',
-            'propagate': True
-        },
-        'RequireLoginMiddleware': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True
-        },
+        # '': {
+        #     'handlers': ['file'],
+        #     'level': 'DEBUG' if DEBUG else 'ERROR',
+        #     'propagate': True
+        # },
+        # 'RequireLoginMiddleware': {
+        #     'handlers': ['file'],
+        #     'level': 'DEBUG',
+        #     'propagate': True
+        # },
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
@@ -202,4 +208,3 @@ LOGGING = {
         }
     }
 }
-

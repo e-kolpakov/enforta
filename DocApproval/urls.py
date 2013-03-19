@@ -1,7 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
-import enforta.settings as settings
 import authentication_urls
 import DocApproval.views.common as common_views
 
@@ -20,10 +19,8 @@ urlpatterns = patterns('',
 
 )
 
-if settings.DEBUG:
-    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-
-    urlpatterns += staticfiles_urlpatterns()
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+urlpatterns += staticfiles_urlpatterns()
 
 import logging
 
