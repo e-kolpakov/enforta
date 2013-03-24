@@ -1,18 +1,43 @@
-// Font parameters
+//General
+
+//Gerenal.Fonts
 @base-font-size: 14px;
 @base-font-color: #000;
 @base-font-family: Arial, Helvetica, sans-serif;
 
-// Layout parameters
+//Genereal.Layout
 @header-height: 120px;
 @footer-height: 30px;
 
+//General.Controls
 @datepicker-width: 120px;
 
-// Colors
+// General.Colors
 @separator-color: #ccc;
 @base-background-color: #f0f0f0;
 
-// Popup windows
+// Genereal.Popups
 @popup-padding: 10px;
 @popup-background: @base-background-color;
+
+//End General
+
+// Menu
+
+//Menu.Colors
+@level-step: 7%;
+@hover-lighten: 5%;
+@menu-item-color: #f70;
+@menu-l1-border-color: #fff;
+
+@menu-item-l1-bg-color: darken(@base-background-color, 15%);
+@menu-item-l1-hover-bg-color: lighten(@menu-item-l1-bg-color, @hover-lighten);
+
+@menu-item-l2-bg-color: darken(@menu-item-l1-bg-color, @level-step);
+@menu-item-l2-hover-bg-color: lighten(@menu-item-l2-bg-color, @hover-lighten);
+
+@menu-item-l3-bg-color: darken(@menu-item-l2-bg-color, @level-step);
+@menu-item-l3-hover-bg-color: lighten(@menu-item-l3-bg-color, @hover-lighten);
+
+
+// End Menu

@@ -1,5 +1,11 @@
-@import "variables.less";
-@import "mixins.less";
+@import-once "variables";
+@import "mixins";
+
+html.JS {
+  ul.menu {
+    display: none;
+  }
+}
 
 div.clear-float {
   clear: both;
@@ -10,8 +16,9 @@ div.horizontal-separator {
 }
 
 body.main-body {
-  background-color: @base-background-color;
   #fonts > .main-text;
+  background-color: @base-background-color;
+
 
   padding: 10px 30px;
   .main-header {
@@ -30,7 +37,7 @@ body.main-body {
 }
 
 div.floating-layout {
-  psoition: relative;
+  position: relative;
 
   & > div {
     margin-left: 10px;
@@ -43,4 +50,5 @@ div.floating-layout {
     float: right;
   }
 }
+
 

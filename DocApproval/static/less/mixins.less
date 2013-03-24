@@ -1,29 +1,37 @@
-@import "variables.less";
+@import-once "variables";
 
-@size: @base-font-size;
-@weight: normal;
-@color: @base-font-color;
-@family: @base-font-family;
-#fonts() {
-  .define() {
+#fonts {
+  @size: @base-font-size;
+  @color: @base-font-color;
+  @family: @base-font-family;
+  @weight: normal;
+  .define(@size, @color, @family, @weight) {
     font-size: @size;
     color: @color;
     font-family: @family;
     font-weight: @weight;
   }
-
-  .main-text {
-    #fonts > .define;
-  }
-}
-
-#main-layout() {
-  .footer {
-    height: 1px;
+  .main-text() {
+    .define(@size, @color, @family, @weight);
   }
 }
 
 .popup-mixin {
   padding: 10px;
   border: 1px;
+}
+
+#menus() {
+  @empty-url: '';
+  .background-img-mixin(@url) when (@url = @empty-url){
+  }
+  .background-img-mixin(@url) {
+    background-image: url(@url);
+  }
+  .background(@color: @default-menu-background, @img, @repeat: inherited, @position: inherited) {
+    background-color: @color;
+    background-repeat: @repeat;
+    background-position: @position;
+    .background-img-mixin(@img);
+  }
 }

@@ -7,17 +7,24 @@
         {% block maintitle %}{% trans "Утверждение документов" %}{% endblock maintitle %}
         {% block subtitle %}{% endblock subtitle %}
     </title>
-    <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}css/main.css"/>
     <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}js/jquery-ui/jquery-ui-1.10.2.custom.css"/>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/jquery-ui-customizations.css"/>
+
+    <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}css/main.css"/>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/menus.css"/>
     {% block styles %}{% endblock styles %}
+
     <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/jquery-1.9.1.js"></script>
     <script type="text/javascript" language="JavaScript"
             src="{{ STATIC_URL }}js/jquery-ui/jquery-ui-1.10.2.custom.min.js"></script>
     <script type="text/javascript" language="JavaScript"
             src="{{ STATIC_URL }}js/jquery-ui/localization/jquery.ui.datepicker-ru.js"></script>
+    <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/superfish.js"></script>
     <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/global_settings.js"></script>
     <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/jquery-ui/enhancements.js"></script>
+    <script type="text/javascript" language="JavaScript">
+        //$("html").addClass('JS');
+    </script>
     {% block scripts %}{% endblock scripts %}
 </head>
 <body class='{% block body_class %}main-body{% endblock body_class %}'>

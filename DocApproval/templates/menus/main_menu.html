@@ -1,1 +1,27 @@
-I'm main menu
+{% load recursive %}
+
+<ul class='sf-menu' id="nav">
+{% for item in menu %}
+    {% defrecurse item %}
+    <li
+        {% if item.html_id %} id="{{ item.html_id }}" {% endif %}
+        {% if item.css_class %} class="{{ item.css_class }}" {% endif %}
+    >
+        <a href="{{ item.url|default:"#" }}">{{ item.caption }}</a>
+        {% if item.children %}
+            <ul class="submenu">
+                {% for sub_menu in item.children %}
+                {% recurse sub_menu %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </li>
+    {% enddefrecurse %}
+{% endfor %}
+</ul>
+<div class='clear-float'></div>
+<script type="text/javascript" language="JavaScript">
+    $(function(){
+        $("ul.sf-menu").superfish();
+    })
+</script>
