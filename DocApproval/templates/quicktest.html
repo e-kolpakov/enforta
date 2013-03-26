@@ -1,6 +1,10 @@
 {% extends "base_layout.html" %}
 
 {% block maincontent %}
-    I'm quicktest. User is {% if not user.is_authenticated %} not {% endif %}authenticated.
-    Login: {{ user.username }}
+    <form action="/quicktest/" method="post">{% csrf_token %}
+        <table>
+            {{ form.as_table }}
+        </table>
+        <input type="submit" value="Submit" />
+    </form>
 {% endblock %}

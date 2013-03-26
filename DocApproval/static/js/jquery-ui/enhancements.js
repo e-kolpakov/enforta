@@ -1,6 +1,9 @@
 (function ($) {
     "use strict";
-    $.fn.datepicker_ui_button = function (options) {
-        $(this).datepicker(options).next('button').text('').button({icons: {primary : 'ui-icon-calendar'}});
+    $.fn.wrapped_datepicker = function (options) {
+        $(this).datepicker(options).end().wrap("<div class='datepicker-wrapper'/>");
+        if ($(this).attr('id')) {
+            $(this).parents(".datepicker-wrapper").attr({id: $(this).attr('id') + '-wrapper'});
+        }
     };
 }(window.jQuery));

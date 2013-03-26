@@ -7,20 +7,11 @@ html.JS {
   }
 }
 
-div.clear-float {
-  clear: both;
-}
-
-div.horizontal-separator {
-  border-bottom: 2px solid @separator-color;
-}
-
 body.main-body {
   #fonts > .main-text;
   background-color: @base-background-color;
+  padding: @body-padding;
 
-
-  padding: 10px 30px;
   .main-header {
     .logo-container {
       float: left;
@@ -34,6 +25,29 @@ body.main-body {
       float: right;
     }
   }
+
+  div.main-content {
+    margin: @content-margin;
+    padding: @content-padding;
+    border: 1px solid @content-border-color;
+    min-height: @content-min-height;
+    background-color: @content-background-color;
+    vertical-align: top;
+    .rounded-borders-mixin;
+  }
+
+  div.main-footer {
+    margin-top: 10px;
+    margin-left: 0px;
+    margin-right: 0px;
+    border-top: 2px inset @default-border-color;
+    padding: @footer-padding;
+    bottom: 0px;
+  }
+}
+
+div.clear-float {
+  clear: both;
 }
 
 div.floating-layout {

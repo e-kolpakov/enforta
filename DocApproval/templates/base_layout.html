@@ -10,4 +10,7 @@
     <div class="main-content">
         {% block maincontent %}I'm just placeholder for main content{% endblock maincontent %}
     </div>
+    <div class="main-footer">
+        {% include header_template|default:"footers/main_footer.html" %}
+    </div>
 {% endblock content %}

@@ -6,19 +6,25 @@
 @base-font-family: Arial, Helvetica, sans-serif;
 
 //Genereal.Layout
-@header-height: 120px;
-@footer-height: 30px;
+@body-padding: 5px 10px;
+@content-padding: 10px;
+@content-margin: 5px 0px;
+@content-min-height: 400px;
+@footer-padding: 5px 0px;
 
 //General.Controls
 @datepicker-width: 120px;
 
 // General.Colors
-@separator-color: #ccc;
 @base-background-color: #f0f0f0;
+@default-border-color: #ccc;
+@content-border-color: @default-border-color;
+@content-background-color: #fff;
 
 // Genereal.Popups
 @popup-padding: 10px;
 @popup-background: @base-background-color;
+@popup-border-color: @default-border-color;
 
 //End General
 
@@ -27,11 +33,12 @@
 //Menu.Colors
 @level-step: 7%;
 @hover-lighten: 5%;
+@menu-background-color:  @base-background-color;
 @menu-item-color: #f70;
 @menu-l1-border-color: #fff;
 @menu-border-color: #ccc;
 
-@menu-item-l1-bg-color: @base-background-color;
+@menu-item-l1-bg-color: @menu-background-color;
 @menu-item-l1-hover-bg-color: lighten(@menu-item-l1-bg-color, @hover-lighten);
 
 @menu-item-l2-bg-color: darken(@menu-item-l1-bg-color, @level-step);

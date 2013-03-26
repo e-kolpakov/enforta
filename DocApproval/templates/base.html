@@ -17,14 +17,17 @@
     <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/jquery-1.9.1.js"></script>
     <script type="text/javascript" language="JavaScript"
             src="{{ STATIC_URL }}js/jquery-ui/jquery-ui-1.10.2.custom.min.js"></script>
+    <script type="text/javascript" language="JavaScript">
+        $("html").addClass('JS'); // allows to hide the content to be shown by JS while the page is loading
+        window.globals = {
+            static_root: {{ STATIC_URL }} //need a way to pass the static_root to JS.
+        };
+    </script>
     <script type="text/javascript" language="JavaScript"
             src="{{ STATIC_URL }}js/jquery-ui/localization/jquery.ui.datepicker-ru.js"></script>
     <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/superfish.js"></script>
     <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/global_settings.js"></script>
     <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/jquery-ui/enhancements.js"></script>
-    <script type="text/javascript" language="JavaScript">
-        //$("html").addClass('JS');
-    </script>
     {% block scripts %}{% endblock scripts %}
 </head>
 <body class='{% block body_class %}main-body{% endblock body_class %}'>
@@ -34,5 +37,10 @@
 {% block scripts_for_execution %}
 
 {% endblock %}
+<script type="text/javascript" language="JavaScript">
+    $(function(){
+       $(".datepicker").wrapped_datepicker();
+    });
+</script>
 </body>
 </html>

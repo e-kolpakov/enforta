@@ -1,8 +1,8 @@
 @import-once "variables";
-@import-once "mixins";
+@import "mixins";
 
 div.main-menu {
-  background-color: @menu-item-l1-bg-color;
+  background-color: @menu-background-color;
   margin: 1px 0px 5px 0px;
   border-top: 1px solid @menu-border-color;
   border-bottom: 1px solid @menu-border-color;
@@ -13,6 +13,8 @@ div.main-menu {
   position: absolute;
   padding: @popup-padding;
   background-color: @popup-background;
+  border: 1px solid @popup-border-color;
+  .rounded-borders-mixin;
 }
 
 /*** Superfish essential styles ***/
