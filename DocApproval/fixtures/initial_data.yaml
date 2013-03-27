@@ -1,4 +1,27 @@
 #-*- coding: utf-8 -*-
+- model: auth.User
+  pk: null
+  fields:
+    username: admin
+    password: pbkdf2_sha256$10000$iy035aduKGU9$ii60aMUwpFpkQx60TFxKOghbmNSDZ2AnWLlaky15vLA= # &FJ2>Vvzyhm,#xM
+    first_name: admin
+    is_superuser: true
+    is_staff: true
+    is_active: true
+
+- model: auth.Group
+  pk: null
+  fields:
+    name: Администраторы
+- model: auth.Group
+  pk: null
+  fields:
+    name: Пользователи
+- model: auth.Group
+  pk: null
+  fields:
+    name: Администраторы
+
 - model: DocApproval.City
   pk: 1
   fields:

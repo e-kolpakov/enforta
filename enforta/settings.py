@@ -138,7 +138,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = 'common.home_page' # we want to land on index after login
 LOGIN_REQUIRED_URLS = (".*",)
-LOGIN_REQUIRED_URLS_EXCEPTIONS = (LOGIN_URL, STATIC_URL, MEDIA_URL)
+LOGIN_REQUIRED_URLS_EXCEPTIONS = (LOGIN_URL, "/admin", STATIC_URL, MEDIA_URL)
 
 ROOT_URLCONF = 'enforta.urls'
 
