@@ -1,11 +1,9 @@
 #-*- coding: utf-8 -*-
 import re
-from datetime import timedelta
-
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
+from datetime import timedelta
 from django.utils.translation import ugettext as _
-
 
 class ModelConstants:
     MAX_NAME_LENGTH = 500
@@ -94,7 +92,10 @@ class DynamicSettings(models.Model):
             ValueError.__init__(*args, **kwargs)
 
 #Primary objects
-class UserProfile(AbstractUser):
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, primary_key=True, verbose_name='Учетная запись')
+    first_name = models.CharField(_(u'Имя'), max_length=ModelConstants.MAX_NAME_LENGTH)
+    last_name = models.CharField(_(u'Фамилия'), max_length=ModelConstants.MAX_NAME_LENGTH)
     middle_name = models.CharField(_(u'Отчество'), max_length=ModelConstants.MAX_NAME_LENGTH)
 
     first_name_accusative = models.CharField(_(u'Имя (вин.)'), max_length=ModelConstants.MAX_NAME_LENGTH, blank=True, null=True)
@@ -103,6 +104,7 @@ class UserProfile(AbstractUser):
 
     position = models.ForeignKey(Position, verbose_name=_(u'Должность'))
     sign = models.ImageField(_(u'Подпись'), max_length=ModelConstants.DEFAULT_VARCHAR_LENGTH, upload_to='signs')
+    email = models.EmailField(_(u'Email'), max_length=ModelConstants.DEFAULT_VARCHAR_LENGTH)
     manager = models.ForeignKey('self', verbose_name=_(u'Руководитель'),null=True)
 
     def get_full_name(self):
