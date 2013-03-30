@@ -1,6 +1,6 @@
 #-*- coding: utf-8 -*-
 - model: auth.User
-  pk: null
+  pk: 1
   fields:
     username: admin
     password: pbkdf2_sha256$10000$iy035aduKGU9$ii60aMUwpFpkQx60TFxKOghbmNSDZ2AnWLlaky15vLA= # &FJ2>Vvzyhm,#xM

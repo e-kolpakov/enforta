@@ -25,7 +25,7 @@
     position_name: "Сотрудник-сержант"
 
 - model: auth.User
-  pk: null
+  pk: 2
   fields:
     username: user1
     password: pbkdf2_sha256$10000$dQdTtTivwGQe$XCMEK03xyv0q4ecoArJwipGdeXDXW7/j3AFj4opKa8Y= # 1234
@@ -35,7 +35,7 @@
     is_staff: false
     is_active: true
 - model: auth.User
-  pk: null
+  pk: 3
   fields:
     username: user2
     password: pbkdf2_sha256$10000$dQdTtTivwGQe$XCMEK03xyv0q4ecoArJwipGdeXDXW7/j3AFj4opKa8Y= # 1234
@@ -45,7 +45,7 @@
     is_staff: false
     is_active: true
 - model: auth.User
-  pk: null
+  pk: 4
   fields:
     username: user3
     password: pbkdf2_sha256$10000$dQdTtTivwGQe$XCMEK03xyv0q4ecoArJwipGdeXDXW7/j3AFj4opKa8Y= # 1234
@@ -55,7 +55,7 @@
     is_staff: false
     is_active: true
 - model: auth.User
-  pk: null
+  pk: 5
   fields:
     username: user4
     password: pbkdf2_sha256$10000$dQdTtTivwGQe$XCMEK03xyv0q4ecoArJwipGdeXDXW7/j3AFj4opKa8Y= # 1234
@@ -65,7 +65,7 @@
     is_staff: false
     is_active: true
 - model: auth.User
-  pk: null
+  pk: 6
   fields:
     username: approver1
     password: pbkdf2_sha256$10000$dQdTtTivwGQe$XCMEK03xyv0q4ecoArJwipGdeXDXW7/j3AFj4opKa8Y= # 1234
@@ -75,7 +75,7 @@
     is_staff: false
     is_active: true
 - model: auth.User
-  pk: null
+  pk: 7
   fields:
     username: approver2
     password: pbkdf2_sha256$10000$dQdTtTivwGQe$XCMEK03xyv0q4ecoArJwipGdeXDXW7/j3AFj4opKa8Y= # 1234
@@ -85,7 +85,7 @@
     is_staff: false
     is_active: true
 - model: auth.User
-  pk: null
+  pk: 8
   fields:
     username: accountant1
     password: pbkdf2_sha256$10000$dQdTtTivwGQe$XCMEK03xyv0q4ecoArJwipGdeXDXW7/j3AFj4opKa8Y= # 1234
@@ -95,7 +95,7 @@
     is_staff: false
     is_active: true
 - model: auth.User
-  pk: null
+  pk: 9
   fields:
     username: accountant2
     password: pbkdf2_sha256$10000$dQdTtTivwGQe$XCMEK03xyv0q4ecoArJwipGdeXDXW7/j3AFj4opKa8Y= # 1234
@@ -104,3 +104,51 @@
     is_superuser: false
     is_staff: false
     is_active: true
+
+
+- model: DocApproval.UserProfile
+  pk: 6
+  fields:
+    first_name: Василий
+    last_name: Иванов
+    middle_name: Васильевич
+    first_name_accusative: Василия
+    last_name_accusative: Иванова
+    middle_name_accusative: Василиевича
+    position: 1
+    email: vasya.ivanov@localhost
+- model: DocApproval.UserProfile
+  pk: 7
+  fields:
+    first_name: Петр
+    last_name: Иванов
+    middle_name: Петрович
+    first_name_accusative: Петра
+    last_name_accusative: Иванова
+    middle_name_accusative: Петровича
+    position: 3
+    email: petya.ivanov@localhost
+- model: DocApproval.UserProfile
+  pk: 2
+  fields:
+    first_name: Василий
+    last_name: Пупкин
+    middle_name: Васильевич
+    first_name_accusative: Василия
+    last_name_accusative: Пупкина
+    middle_name_accusative: Василиевича
+    position: 5
+    email: vasya.pupkin@localhost
+    manager: 6
+- model: DocApproval.UserProfile
+  pk: 3
+  fields:
+    first_name: Петр
+    last_name: Пупкин
+    middle_name: Петрович
+    first_name_accusative: Петра
+    last_name_accusative: Пупкина
+    middle_name_accusative: Петровича
+    position: 5
+    email: petya.pupkin@localhost
+    manager: 6

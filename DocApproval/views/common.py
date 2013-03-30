@@ -11,24 +11,22 @@ def index(request):
 
 @public_view
 def quicktest(request):
-    if request.method == 'POST': # If the form has been submitted...
-        form = RequestForm(request.POST) # A form bound to the POST data
-        if form.is_valid(): # All validation rules pass
-            # Process the data in form.cleaned_data
-            # ...
-            return HttpResponseRedirect('/thanks/') # Redirect after POST
-    else:
-        form = RequestForm() # An unbound form
-
-    return render(request, 'quicktest.html', {
-        'form': form,
-    })
+    return render(request, "quicktest.html")
 
 
 class RequestEditView(FormView):
     form_class = RequestForm
-    template_name = 'quicktest.html'
-    success_url = '/thanks/'
+    template_name = 'request_edit.html'
+    success_url = '/quicktest/'
 
-    def form_valid(self, form):
-        return super(RequestEditView, self).form_valid(form)
+    def post(self, request, *args, **kwargs):
+        form = RequestForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(self.success_url)
+        else:
+            return render(request, self.template_name, {'form': form})
+
+    def get(self, request, *args, **kwargs):
+        form = RequestForm()
+        return render(request, self.template_name, {'form': form})
