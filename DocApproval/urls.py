@@ -11,7 +11,7 @@ urlpatterns = patterns('',
                        url(r'^admin/?', include(admin.site.urls)),
                        #url(r'^admin/doc/?', include('django.contrib.admindocs.urls')),
                        url(r'^/?$', common.index, name="common.home_page"),
-                       url(r'^quicktest/$', common.PositionEditView.as_view(), name="common.quick_test"),
+                       url(r'^quicktest/$', common.RequestEditView.as_view(), name="common.quick_test"),
                        url(r'^thanks/$', common.quicktest, name="common.thanks"),
 
                        url(r'^accounts/', include(authentication_urls))

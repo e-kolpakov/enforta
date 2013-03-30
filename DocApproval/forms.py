@@ -1,16 +1,22 @@
 from django import forms
-from models import Position
+from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.contrib.auth.models import Permission
+from django.contrib.auth.forms import UserChangeForm
+from models import *
+from django.utils.translation import ugettext as _
 import widgets
 
 
-class PositionForm(forms.ModelForm):
+class RequestForm(forms.ModelForm):
     class Meta:
-        model = Position
+        model = Request
 
 
-class ContactForm(forms.Form):
-    subject = forms.CharField(max_length=100)
-    message = forms.CharField()
-    sender = forms.EmailField()
-    cc_myself = forms.BooleanField(required=False)
-    qweqwe = forms.DateField(widget=widgets.DatepickerWidget)
+class AdminCustomizedUserForm(UserChangeForm):
+    user_permissions = forms.ModelMultipleChoiceField(
+        Permission.objects.filter(codename__startswith='docapproval'),
+        widget=FilteredSelectMultiple(_('permissions'), False))
+
+    def __init__(self, *args, **kwargs):
+        super(AdminCustomizedUserForm, self).__init__(*args, **kwargs)
+        self.fields['user_permissions'].label = unicode.capitalize(_("user permissions"))

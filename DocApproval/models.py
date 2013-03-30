@@ -17,6 +17,9 @@ class Position(models.Model):
     class Meta:
         verbose_name = _(u'Должность')
         verbose_name_plural = _(u'Должности')
+        permissions = (
+            ("docapproval.can_change_position",_(u"Может изменять должность")),
+        )
 
 class City(models.Model):
     city_name = models.CharField(_(u'Название города'), max_length=ModelConstants.MAX_VARCHAR_LENGTH)
@@ -142,6 +145,10 @@ class Document(models.Model):
     def __unicode__(self):
         return "{0} {2} {1} {3}".format(_("Документ №"), _("от"), self.pk, self.date)
 
+    class Meta:
+        verbose_name=_(u"Документ")
+        verbose_name_plural = _(u"Документы")
+
 class Request(models.Model):
     name = models.CharField(_(u'Наименование'), max_length=ModelConstants.MAX_NAME_LENGTH)
     comments = models.CharField(_(u'Комментарии'), max_length=ModelConstants.MAX_VARCHAR_LENGTH)
@@ -157,6 +164,10 @@ class Request(models.Model):
     class Meta:
         verbose_name = _(u'Заявка')
         verbose_name_plural = _(u'Заявки')
+        permissions = (
+            ("docapproval.can_create_requests", _(u"Может создавать запросы на утверждение")),
+            ("docapproval.can_approve_requests", _(u"Может утверждать документы"))
+        )
 
     def __unicode__(self):
         return "{0} {2} {1} {3}".format(_("Заявка"), _("от"),self.name, self.created)

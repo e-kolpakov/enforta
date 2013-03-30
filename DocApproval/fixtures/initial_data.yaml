@@ -20,7 +20,11 @@
 - model: auth.Group
   pk: null
   fields:
-    name: Администраторы
+    name: Бухгалтера
+- model: auth.Group
+  pk: null
+  fields:
+    name: Утверждающие
 
 - model: DocApproval.City
   pk: 1
