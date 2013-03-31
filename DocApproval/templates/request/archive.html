@@ -1,0 +1,11 @@
+{% extends "base_layout.html" %}
+{% load i18n %}
+
+{% block maintitle %}
+    {% trans "Архив заявок" %}
+{% endblock maintitle %}
+{% block maincontent %}
+    Parameters passed:
+    <div>Year: {{ year }}</div>
+    <div>Month: {{ month }}</div>
+{% endblock maincontent%}

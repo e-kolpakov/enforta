@@ -99,7 +99,7 @@ class MenuManager(object):
     def _build_request_actions_menu(self):
         root_item = HtmlMenuItem(caption=_(u"Заявки"))
         child_items = [
-            NavigableMenuItem(caption=_(u"Все заявки"), image="icons/list.png", url=reverse(url_names.Request.LIST))
+            NavigableMenuItem(caption=_(u"Все заявки"), image="icons/list.png", url=reverse(url_names.Request.LIST)),
         ]
         if self.user.has_perm(Permissions.Request.CAN_CREATE_REQUESTS):
             child_items.insert(
@@ -116,6 +116,11 @@ class MenuManager(object):
                 NavigableMenuItem(caption=_(u"Ожидают утверждения"), image="icons/my_approvals.png",
                                   url=reverse(url_names.Request.MY_APPROVALS))
             )
+
+        child_items.append(
+            NavigableMenuItem(caption=_(u"Архив заявок"), image="icons/archive.png",
+                              url=reverse(url_names.Request.ARCHIVE))
+        )
         root_item.add_children(child_items)
         return root_item if root_item.has_children() else None
 

@@ -25,6 +25,10 @@ class Request:
     MY_REQUESTS = "my_requests_list"
     MY_APPROVALS = "my_approval_list"
 
+    ARCHIVE = "archive"
+    ARCHIVE_YEAR = "archive.year"
+    ARCHIVE_MONTH = "archive.month"
+
 
 class Profile:
     __metaclass__ = _NamesMeta
