@@ -163,8 +163,6 @@ INSTALLED_APPS = (
     'reversion'
 )
 
-LOG_DIR = LOGGING_DIRECTORY if not DEBUG else "/home/john/log"
-
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.
@@ -192,28 +190,23 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
-        # 'file': {
-        #     'level': 'DEBUG',
-        #     'class': 'logging.handlers.RotatingFileHandler',
-        #     'filename': os.path.join(LOG_DIR, 'doc-approval/django.log'),
-        #     'maxBytes': 102400,
-        #     'backupCount': 1,
-        #     'formatter': 'generic'
-        # },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOGGING_DIRECTORY, 'doc-approval/django.log'),
+            'maxBytes': 102400,
+            'backupCount': 1,
+            'formatter': 'generic'
+        },
     },
     'loggers': {
-        # '': {
-        #     'handlers': ['file'],
-        #     'level': 'DEBUG' if DEBUG else 'ERROR',
-        #     'propagate': True
-        # },
-        # 'RequireLoginMiddleware': {
-        #     'handlers': ['file'],
-        #     'level': 'DEBUG',
-        #     'propagate': True
-        # },
+        '': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True
+        },
         'django.request': {
-            'handlers': ['mail_admins'],
+            'handlers': ['mail_admins', 'file'],
             'level': 'ERROR',
             'propagate': True,
         }

@@ -61,13 +61,17 @@ div.main-menu {
 .sf-menu {
   float: left;
 
+  img {
+    #menus > .menu-item-icon();
+  }
+
   li {
     background: @menu-item-l1-bg-color;
     white-space: nowrap; /* no need for Supersubs plugin */
     *white-space: normal; /* ...unless you support IE7 (let it wrap) */
     -webkit-transition: background .2s;
     transition: background .2s;
-    border-right: 1px solid @menu-l1-border-color;
+    border-right: 1px solid @menu-border-color;
 
     &:last-child{
       border-right: none;
@@ -117,6 +121,7 @@ div.main-menu {
 
   a {
     color: @menu-item-color;
+    line-height: @menu-line-height;
 
     padding: .75em 1em;
     text-decoration:none;

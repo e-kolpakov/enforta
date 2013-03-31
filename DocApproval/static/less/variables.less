@@ -29,14 +29,16 @@
 //End General
 
 // Menu
+@menu-line-height: 16px;
+@icon-height: @menu-line-height;
+@icon-default-margin: 0px 5px 0px 0px;
 
 //Menu.Colors
-@level-step: 7%;
-@hover-lighten: 5%;
+@level-step: 5%;
+@hover-lighten: 10%;
 @menu-background-color:  @base-background-color;
 @menu-item-color: #f70;
-@menu-l1-border-color: #fff;
-@menu-border-color: #ccc;
+@menu-border-color: darken(@default-border-color,10%);
 
 @menu-item-l1-bg-color: @menu-background-color;
 @menu-item-l1-hover-bg-color: lighten(@menu-item-l1-bg-color, @hover-lighten);

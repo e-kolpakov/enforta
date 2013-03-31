@@ -7,6 +7,14 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 
 
+class Permissions:
+    class Request:
+        CAN_CREATE_REQUESTS = "docapproval.can_create_requests"
+        CAN_APPROVE_REQUESTS = "docapproval.can_approve_requests"
+
+    class Position:
+        CAN_CHANGE_POSITION = "docapproval.can_change_position"
+
 class ModelConstants:
     MAX_NAME_LENGTH = 500
     MAX_VARCHAR_LENGTH = 4000
@@ -22,7 +30,7 @@ class Position(models.Model):
         verbose_name = _(u'Должность')
         verbose_name_plural = _(u'Должности')
         permissions = (
-            ("docapproval.can_change_position", _(u"Может изменять должность")),
+            (Permissions.Position.CAN_CHANGE_POSITION, _(u"Может изменять должность")),
         )
 
     def __unicode__(self):
@@ -167,6 +175,7 @@ class Document(models.Model):
 
 
 class Request(models.Model):
+
     name = models.CharField(_(u'Наименование'), max_length=ModelConstants.MAX_NAME_LENGTH)
     comments = models.CharField(_(u'Комментарии'), max_length=ModelConstants.MAX_VARCHAR_LENGTH)
     created = models.DateField(_(u'Дата заведения заявки'), auto_now_add=True)
@@ -182,8 +191,8 @@ class Request(models.Model):
         verbose_name = _(u'Заявка')
         verbose_name_plural = _(u'Заявки')
         permissions = (
-            ("docapproval.can_create_requests", _(u"Может создавать запросы на утверждение")),
-            ("docapproval.can_approve_requests", _(u"Может утверждать документы"))
+            (Permissions.Request.CAN_CREATE_REQUESTS, _(u"Может создавать запросы на утверждение")),
+            (Permissions.Request.CAN_APPROVE_REQUESTS, _(u"Может утверждать документы"))
         )
 
     def __unicode__(self):

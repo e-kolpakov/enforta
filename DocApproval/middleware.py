@@ -38,25 +38,24 @@ class RequireLoginMiddleware(object):
         ))
         # No need to process URLs if user already logged in
         if request.user.is_authenticated():
-            self.logger.debug("Already authenticated")
-            self.logger.debug(request.user.username)
+            self.logger.debug("Already authenticated as {0}".format(request.user.username))
             return None
 
         if hasattr(view_func, 'is_public') and view_func.is_public:
-            self.logger.debug("Marked as public")
+            self.logger.debug("View is public")
             return None
 
         # An exception match should immediately return None
         for url in self.exceptions:
             if url.match(request.path):
-                self.logger.debug("Matched exception %s" % url.pattern)
+                self.logger.debug("URL matched exception %s" % url.pattern)
                 return None
 
         # Requests matching a restricted URL pattern are returned
         # wrapped with the login_required decorator
         for url in self.required:
             if url.match(request.path):
-                self.logger.debug("Attaching login_required")
+                self.logger.debug("Login required")
                 return login_required(view_func)(request, *view_args, **view_kwargs)
 
         # Explicitly return None for all non-matching requests

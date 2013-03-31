@@ -1,27 +1,40 @@
 {% load recursive %}
 
 <ul class='sf-menu' id="nav">
-{% for item in menu %}
-    {% defrecurse item %}
-    <li
-        {% if item.html_id %} id="{{ item.html_id }}" {% endif %}
-        {% if item.css_class %} class="{{ item.css_class }}" {% endif %}
-    >
-        <a href="{{ item.url|default:"#" }}">{{ item.caption }}</a>
-        {% if item.children %}
-            <ul class="submenu">
-                {% for sub_menu in item.children %}
-                {% recurse sub_menu %}
-                {% endfor %}
-            </ul>
-        {% endif %}
-    </li>
-    {% enddefrecurse %}
-{% endfor %}
+    {% for item in menu %}
+        {% defrecurse item %}
+            <li
+                    {% if item.html_id %} id="{{ item.html_id }}" {% endif %}
+                    {% if item.css_class %} class="{{ item.css_class }}" {% endif %}
+                    >
+                <a href="{{ item.url|default:"#" }}">
+                    {% with caption=item.get_caption image=item.get_image %}
+                        {% if image.url %}
+                            <img src="{{ STATIC_URL }}img/{{ image.url }}"
+                                 {% if image.class %}
+                                 class="{{ image.class }}"
+                                 {% endif %}
+                            />
+                        {% endif %}
+                        {% if caption %}
+                            <span>{{ caption }}</span>
+                        {% endif %}
+                    {% endwith %}
+                </a>
+                {% if item.get_children %}
+                    <ul class="submenu">
+                        {% for sub_menu in item.get_children %}
+                            {% recurse sub_menu %}
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </li>
+        {% enddefrecurse %}
+    {% endfor %}
 </ul>
 <div class='clear-float'></div>
 <script type="text/javascript" language="JavaScript">
-    $(function(){
+    $(function () {
         $("ul.sf-menu").superfish();
     })
 </script>
