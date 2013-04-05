@@ -15,12 +15,12 @@ def quicktest(request):
 
 
 class RequestEditView(FormView):
-    form_class = RequestForm
+    form_class = CreateRequestForm
     template_name = 'request_edit.html'
     success_url = '/quicktest/'
 
     def post(self, request, *args, **kwargs):
-        form = RequestForm(request.POST)
+        form = CreateRequestForm(request.POST)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(self.success_url)
@@ -28,5 +28,5 @@ class RequestEditView(FormView):
             return render(request, self.template_name, {'form': form})
 
     def get(self, request, *args, **kwargs):
-        form = RequestForm()
+        form = CreateRequestForm()
         return render(request, self.template_name, {'form': form})

@@ -22,6 +22,7 @@ class Request:
     __metaclass__ = _NamesMeta
     LIST = "all_list"
     CREATE = "create"
+    DETAILS = "details"
     MY_REQUESTS = "my_requests_list"
     MY_APPROVALS = "my_approval_list"
 

@@ -8,6 +8,9 @@ from django.utils.translation import ugettext as _
 
 
 class Permissions:
+    #keep in sync
+    PREFIX = 'docapproval'
+
     class Request:
         CAN_CREATE_REQUESTS = "docapproval.can_create_requests"
         CAN_APPROVE_REQUESTS = "docapproval.can_approve_requests"
@@ -49,6 +52,13 @@ class City(models.Model):
 
 
 class RequestStatus(models.Model):
+    PROJECT = "project"
+    NEGOTIATION = "negotiation"
+    NEGOTIATED_NO_PAYMENT = "negotiated_no_payment"
+    ACTIVE = "active"
+    OUTDATED = "outdated"
+    BILL_REQUIRED = "bill_required"
+
     code = models.CharField(_(u'Код'), max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH, primary_key=True,
                             editable=False)
     status_name = models.CharField(_(u'Статус'), max_length=ModelConstants.DEFAULT_VARCHAR_LENGTH)
@@ -177,7 +187,7 @@ class Document(models.Model):
 class Request(models.Model):
 
     name = models.CharField(_(u'Наименование'), max_length=ModelConstants.MAX_NAME_LENGTH)
-    comments = models.CharField(_(u'Комментарии'), max_length=ModelConstants.MAX_VARCHAR_LENGTH)
+    comments = models.CharField(_(u'Комментарии'), max_length=ModelConstants.MAX_VARCHAR_LENGTH, null=True, blank=True)
     created = models.DateField(_(u'Дата заведения заявки'), auto_now_add=True)
     accepted = models.DateField(_(u'Дата согласования'), blank=True, null=True)
 

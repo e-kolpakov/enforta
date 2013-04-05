@@ -7,18 +7,22 @@ from django.utils.translation import ugettext as _
 from models import *
 
 
-class RequestForm(forms.ModelForm):
+class CreateRequestForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(CreateRequestForm, self).__init__(*args, **kwargs)
+        self.fields.keyOrder = ['name', 'city', 'send_on_approval', 'comments']
+
     class Meta:
         model = Request
-        exclude = ('document',)
+        exclude = ('document', 'status', 'creator', 'created', 'accepted')
         widgets = {
-            'comments': forms.Textarea(attrs={'cols': 60, 'rows': 10}),
+            'comments': forms.Textarea(attrs={'rows': 10}),
         }
 
 
 class AdminCustomizedUserForm(UserChangeForm):
     user_permissions = forms.ModelMultipleChoiceField(
-        Permission.objects.filter(codename__startswith='docapproval'),
+        Permission.objects.filter(codename__startswith=Permissions.PREFIX),
         widget=FilteredSelectMultiple(_('permissions'), False))
 
     def __init__(self, *args, **kwargs):
