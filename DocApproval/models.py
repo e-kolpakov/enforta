@@ -188,7 +188,7 @@ class Request(models.Model):
 
     name = models.CharField(_(u'Наименование'), max_length=ModelConstants.MAX_NAME_LENGTH)
     comments = models.CharField(_(u'Комментарии'), max_length=ModelConstants.MAX_VARCHAR_LENGTH, null=True, blank=True)
-    created = models.DateField(_(u'Дата заведения заявки'), auto_now_add=True)
+    created = models.DateField(_(u'Дата создания заявки'), auto_now_add=True)
     accepted = models.DateField(_(u'Дата согласования'), blank=True, null=True)
 
     city = models.ForeignKey(City, verbose_name=_(u'Город действия'))

@@ -1,4 +1,9 @@
 #-*- coding: utf-8 -*-
+- model: DocApproval.City
+  pk: 1
+  fields:
+    city_name: "Ростов-на-Дону"
+
 - model: DocApproval.Position
   pk: 1
   fields:
@@ -28,7 +33,7 @@
   pk: 2
   fields:
     username: user1
-    password: pbkdf2_sha256$10000$dQdTtTivwGQe$XCMEK03xyv0q4ecoArJwipGdeXDXW7/j3AFj4opKa8Y= # 1234
+    password: md5$1uecxwP85Ci8$d01c7631b65d481642d015b8e0609d4c # 1234
     first_name: Вася
     last_name: Пупкин
     is_superuser: false
@@ -38,7 +43,7 @@
   pk: 3
   fields:
     username: user2
-    password: pbkdf2_sha256$10000$dQdTtTivwGQe$XCMEK03xyv0q4ecoArJwipGdeXDXW7/j3AFj4opKa8Y= # 1234
+    password: md5$1uecxwP85Ci8$d01c7631b65d481642d015b8e0609d4c # 1234
     first_name: Петя
     last_name: Пупкин
     is_superuser: false
@@ -48,7 +53,7 @@
   pk: 4
   fields:
     username: user3
-    password: pbkdf2_sha256$10000$dQdTtTivwGQe$XCMEK03xyv0q4ecoArJwipGdeXDXW7/j3AFj4opKa8Y= # 1234
+    password: md5$1uecxwP85Ci8$d01c7631b65d481642d015b8e0609d4c # 1234
     first_name: Саша
     last_name: Пупкин
     is_superuser: false
@@ -58,7 +63,7 @@
   pk: 5
   fields:
     username: user4
-    password: pbkdf2_sha256$10000$dQdTtTivwGQe$XCMEK03xyv0q4ecoArJwipGdeXDXW7/j3AFj4opKa8Y= # 1234
+    password: md5$1uecxwP85Ci8$d01c7631b65d481642d015b8e0609d4c # 1234
     first_name: Леша
     last_name: Пупкин
     is_superuser: false
@@ -68,7 +73,7 @@
   pk: 6
   fields:
     username: approver1
-    password: pbkdf2_sha256$10000$dQdTtTivwGQe$XCMEK03xyv0q4ecoArJwipGdeXDXW7/j3AFj4opKa8Y= # 1234
+    password: md5$1uecxwP85Ci8$d01c7631b65d481642d015b8e0609d4c # 1234
     first_name: Вася
     last_name: Иванов
     is_superuser: false
@@ -78,7 +83,7 @@
   pk: 7
   fields:
     username: approver2
-    password: pbkdf2_sha256$10000$dQdTtTivwGQe$XCMEK03xyv0q4ecoArJwipGdeXDXW7/j3AFj4opKa8Y= # 1234
+    password: md5$1uecxwP85Ci8$d01c7631b65d481642d015b8e0609d4c # 1234
     first_name: Петя
     last_name: Иванов
     is_superuser: false
@@ -88,7 +93,7 @@
   pk: 8
   fields:
     username: accountant1
-    password: pbkdf2_sha256$10000$dQdTtTivwGQe$XCMEK03xyv0q4ecoArJwipGdeXDXW7/j3AFj4opKa8Y= # 1234
+    password: md5$1uecxwP85Ci8$d01c7631b65d481642d015b8e0609d4c # 1234
     first_name: Люда
     last_name: Сидорова
     is_superuser: false
@@ -98,13 +103,12 @@
   pk: 9
   fields:
     username: accountant2
-    password: pbkdf2_sha256$10000$dQdTtTivwGQe$XCMEK03xyv0q4ecoArJwipGdeXDXW7/j3AFj4opKa8Y= # 1234
+    password: md5$1uecxwP85Ci8$d01c7631b65d481642d015b8e0609d4c # 1234
     first_name: Света
     last_name: Сидорова
     is_superuser: false
     is_staff: false
     is_active: true
-
 
 - model: DocApproval.UserProfile
   pk: 6
@@ -152,3 +156,14 @@
     position: 5
     email: petya.pupkin@localhost
     manager: 6
+
+- model: DocApproval.Request
+  pk: null
+  fields:
+    city: 1
+    name: "Request1"
+    send_on_approval: 7
+    comments: "Test comments"
+    created: "2013-01-01"
+    creator: 3
+    status: "project"

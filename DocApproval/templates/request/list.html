@@ -1,0 +1,16 @@
+{% extends "base_layout.html" %}
+{% load i18n %}
+
+{% block maincontent %}
+    <table class='data-list'>
+        {% for item in object_list %}
+            <tr>
+                <td>Test {{ item.pk }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td>No data</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

@@ -5,9 +5,10 @@ from ..views import (common, request)
 
 urlpatterns = patterns(
     '',
-    url(r"^list", common.quicktest, name=request_names.LIST),
+    url(r"^list", request.ListRequestView.as_view(), name=request_names.LIST),
     url(r"^create", request.CreateRequestView.as_view(), name=request_names.CREATE),
-    url(r"^request", request.CreateRequestView.as_view(), name=request_names.DETAILS),
+    url(r"^details/(?P<pk>\d+)", request.DetailRequestView.as_view(), name=request_names.DETAILS),
+    url(r"^edit/(?P<pk>\d+)", request.UpdateRequestView.as_view(), name=request_names.UPDATE),
     url(r"^my_requests/", common.quicktest, name=request_names.MY_REQUESTS),
     url(r"^my_approvals/", common.quicktest, name=request_names.MY_APPROVALS),
 

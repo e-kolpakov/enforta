@@ -1,13 +1,16 @@
+#-*- coding: utf-8 -*-
 from django.core.urlresolvers import reverse
 from django.shortcuts import (render, HttpResponseRedirect)
-from django.views.generic import TemplateView
+from django.views.generic import (TemplateView, ListView, UpdateView, CreateView)
+from django.contrib import messages
 
-from ..models import (RequestStatus, UserProfile)
+from ..models import (Request, RequestStatus, UserProfile)
 from ..forms import (CreateRequestForm,)
-from ..url_naming.names import (Request)
+from ..url_naming.names import Request as RequestUrl
+from ..messages import RequestMessages
 
 
-class CreateRequestView(TemplateView):
+class CreateRequestView(CreateView):
     form_class = CreateRequestForm
     template_name = 'request/create.html'
     # TODO: add initialization of defaults, e.g. city, approver, etc.
@@ -24,11 +27,32 @@ class CreateRequestView(TemplateView):
             new_request.status = RequestStatus.objects.get(pk=RequestStatus.PROJECT)
             new_request.creator = UserProfile.objects.get(user__exact=request.user)
             new_request.save()
-            HttpResponseRedirect(reverse(Request.DETAILS))
+            HttpResponseRedirect(reverse(RequestUrl.DETAILS, kwargs={'pk': new_request.pk}))
 
         return render(request, self.template_name, {'form': form})
 
 
+class ListRequestView(ListView):
+    template_name = 'request/list.html'
+    model = Request
 
-def archive(request, year = None, month=None):
+
+class UpdateRequestView(UpdateView):
+    template_name = 'request/update.html'
+    model = Request
+
+
+class DetailRequestView(TemplateView):
+    template_name = 'request/details.html'
+
+    def get(self, request, pk=None):
+        try:
+            req = Request.objects.get(pk=pk)
+        except Request.DoesNotExist:
+            req = None
+            messages.error(request, RequestMessages.DOES_NOT_EXIST)
+
+        return render(request, self.template_name, {'request': req})
+
+def archive(request, year=None, month=None):
     return render(request, "request/archive.html", {'year':year, 'month':month})

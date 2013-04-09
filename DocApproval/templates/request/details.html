@@ -1,0 +1,40 @@
+{% extends "base_layout.html" %}
+{% load i18n %}
+
+{% block maincontent %}
+    {% if request %}
+        <h3>{{ request.name }}</h3>
+        <table>
+            <tr>
+                <td class='field-caption'>{% trans "Город" %}</td>
+                <td class='field-value'>{{ request.city }}</td>
+            </tr>
+            <tr>
+                <td class='field-caption'>{% trans "Статус" %}</td>
+                <td class='field-value'>{{ request.status }}</td>
+            </tr>
+            <tr>
+                <td class='field-caption'>{% trans "Инициатор" %}</td>
+                <td class='field-value'>{{ request.creator }}</td>
+            </tr>
+            <tr>
+                <td class='field-caption'>{% trans "Дата создания" %}</td>
+                <td class='field-value'>{{ request.created }}</td>
+            </tr>
+            <tr>
+                <td class='field-caption'>{% trans "Отправить на подпись" %}</td>
+                <td class='field-value'>{{ request.send_on_approval }}</td>
+            </tr>
+            {% if request.accepted %}
+                <tr>
+                    <td class='field-caption'>{% trans "Дата согласования" %}</td>
+                    <td class='field-value'>{{ request.accepted }}</td>
+                </tr>
+            {% endif %}
+            <tr>
+                <td class='field-caption'>{% trans "Комментарии" %}</td>
+                <td class='field-value'>{{ request.comments }}</td>
+            </tr>
+        </table>
+    {% endif %}
+{% endblock %}

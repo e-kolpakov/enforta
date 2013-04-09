@@ -20,8 +20,9 @@ class Authentication:
 
 class Request:
     __metaclass__ = _NamesMeta
-    LIST = "all_list"
     CREATE = "create"
+    LIST = "all_list" #aka (R)equest
+    UPDATE = "edit"
     DETAILS = "details"
     MY_REQUESTS = "my_requests_list"
     MY_APPROVALS = "my_approval_list"

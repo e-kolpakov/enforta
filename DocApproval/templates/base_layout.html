@@ -8,6 +8,15 @@
         {% include menu_template|default:"menus/main_menu.html" %}
     </div>
     <div class="main-content">
+        {% if messages %}
+            <div class="main-messages">
+                {% block messages %}
+                    {% for message in messages %}
+                        <div class="message-item {{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                {% endblock %}
+            </div>
+        {% endif %}
         {% block maincontent %}I'm just placeholder for main content{% endblock maincontent %}
     </div>
     <div class="main-footer">

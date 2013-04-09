@@ -20,6 +20,15 @@
     .define(@size, @color, @family, @weight);
     text-align: left;
   }
+
+  .base-message() {
+    .define(@size, @color, @family, @weight);
+  }
+
+  .message-error() {
+    @color: #f33;
+    .define(@size, @color, @family, @weight);
+  }
 }
 
 .rounded-borders-mixin(@radius: 5px){

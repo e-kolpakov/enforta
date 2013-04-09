@@ -1,0 +1,12 @@
+@import-once "variables";
+@import "mixins";
+
+.main-messages {
+  .error {
+    padding:  5px 10px;
+    #fonts > .message-error;
+    .rounded-borders-mixin();
+    border:  1px solid @messages-error-border;
+    background:  1px solid @messages-error-background;
+  }
+}
