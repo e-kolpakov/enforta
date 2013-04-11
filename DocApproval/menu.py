@@ -126,10 +126,10 @@ class MenuManager(object):
 
     def _build_profile_menu(self):
         root_item = NavigableMenuItem(
-            caption=self.user.username, url=reverse(url_names.Profile.PROFILE),
+            caption=self.user.username, url=reverse(url_names.Profile.MY_PROFILE),
             children=(
                 NavigableMenuItem(caption=_(u"Профиль"), image="icons/user_profile.png",
-                                  url=reverse(url_names.Profile.PROFILE)),
+                                  url=reverse(url_names.Profile.MY_PROFILE)),
                 NavigableMenuItem(caption=_(u"Выход"), image="icons/logout.png",
                                   url=reverse(url_names.Authentication.LOGOUT)),
             ))

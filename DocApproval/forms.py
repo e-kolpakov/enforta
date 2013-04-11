@@ -4,7 +4,7 @@ from django.contrib.auth.models import Permission
 from django.contrib.auth.forms import UserChangeForm
 from django.utils.translation import ugettext as _
 
-from models import *
+from models import (UserProfile, Request, Permissions)
 
 
 class CreateRequestForm(forms.ModelForm):
@@ -19,6 +19,27 @@ class CreateRequestForm(forms.ModelForm):
             'comments': forms.Textarea(attrs={'rows': 10}),
         }
 
+
+class UserProfileForm(forms.ModelForm):
+    def __init__(self, can_change_position=False, can_change_manager=False, *args, **kwargs):
+        super(UserProfileForm, self).__init__(*args, **kwargs)
+        self.fields.keyOrder = [
+            'last_name', 'first_name', 'middle_name',
+            'email', 'sign',
+            'last_name_accusative', 'first_name_accusative', 'middle_name_accusative',
+        ]
+        self._process_permission('position', can_change_position)
+        self._process_permission('manager', can_change_manager)
+
+    def _process_permission(self, field, permitted):
+        if permitted:
+            self.fields.keyOrder.append(field)
+        else:
+            self.Meta.exclude.append(field)
+
+    class Meta:
+        model = UserProfile
+        exclude = []
 
 class AdminCustomizedUserForm(UserChangeForm):
     user_permissions = forms.ModelMultipleChoiceField(

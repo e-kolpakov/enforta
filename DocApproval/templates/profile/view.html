@@ -1,0 +1,17 @@
+{% extends "base_layout.html" %}
+{% load i18n %}
+
+{% block subtitle %}
+    {% if user_profile %}
+    - {% trans "Профиль" %} {{ user_profile }} {% if account %}({{ account.username }}){% endif %}
+    {% endif %}
+{% endblock subtitle %}
+
+{% block maincontent %}
+    {% if user_profile %}
+        {{ user_profile.first_name }}
+        {{ user_profile.pk }}
+    {% else %}
+        {% trans "Профиль указанного пользователя не найден" %}
+    {% endif %}
+{% endblock %}

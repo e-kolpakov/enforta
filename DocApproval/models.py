@@ -15,8 +15,13 @@ class Permissions:
         CAN_CREATE_REQUESTS = "docapproval.can_create_requests"
         CAN_APPROVE_REQUESTS = "docapproval.can_approve_requests"
 
-    class Position:
+    class UserProfile:
         CAN_CHANGE_POSITION = "docapproval.can_change_position"
+        CAN_CHANGE_MANAGER = "docapproval.can_change_manager"
+
+        CAN_CHANGE_ANY_POSITION = "docapproval.can_change_any_position"
+        CAN_CHANGE_ANY_MANAGER = "docapproval.can_change_any_manager"
+
 
 class ModelConstants:
     MAX_NAME_LENGTH = 500
@@ -32,9 +37,6 @@ class Position(models.Model):
     class Meta:
         verbose_name = _(u'Должность')
         verbose_name_plural = _(u'Должности')
-        permissions = (
-            (Permissions.Position.CAN_CHANGE_POSITION, _(u"Может изменять должность")),
-        )
 
     def __unicode__(self):
         return self.position_name
@@ -137,10 +139,10 @@ class UserProfile(models.Model):
     middle_name_accusative = models.CharField(_(u'Отчество (вин.)'), max_length=ModelConstants.MAX_NAME_LENGTH,
                                               blank=True, null=True)
 
-    position = models.ForeignKey(Position, verbose_name=_(u'Должность'))
     sign = models.ImageField(_(u'Подпись'), max_length=ModelConstants.DEFAULT_VARCHAR_LENGTH, upload_to='signs',
                              blank=True, null=True)
     email = models.EmailField(_(u'Email'), max_length=ModelConstants.DEFAULT_VARCHAR_LENGTH)
+    position = models.ForeignKey(Position, verbose_name=_(u'Должность'))
     manager = models.ForeignKey('self', verbose_name=_(u'Руководитель'), blank=True, null=True)
 
     def get_full_name(self):
@@ -159,6 +161,13 @@ class UserProfile(models.Model):
     class Meta:
         verbose_name = _(u'Пользовательские данные')
         verbose_name_plural = _(u'Пользовательские данные')
+        permissions = (
+            (Permissions.UserProfile.CAN_CHANGE_POSITION, _(u"Может изменять должность")),
+            (Permissions.UserProfile.CAN_CHANGE_MANAGER, _(u"Может изменять руководителя")),
+
+            (Permissions.UserProfile.CAN_CHANGE_ANY_POSITION, _(u"Может изменять должность других пользователей")),
+            (Permissions.UserProfile.CAN_CHANGE_ANY_MANAGER, _(u"Может изменять руководителя других пользователей")),
+        )
 
 
 class Document(models.Model):

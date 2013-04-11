@@ -22,16 +22,18 @@ class Request:
     __metaclass__ = _NamesMeta
     CREATE = "create"
     LIST = "all_list" #aka (R)equest
+    LIST_JSON = "list_json"
     UPDATE = "edit"
     DETAILS = "details"
     MY_REQUESTS = "my_requests_list"
     MY_APPROVALS = "my_approval_list"
 
     ARCHIVE = "archive"
-    ARCHIVE_YEAR = "archive.year"
-    ARCHIVE_MONTH = "archive.month"
+    ARCHIVE_YEAR = "archive_year"
+    ARCHIVE_MONTH = "archive_month"
 
 
 class Profile:
     __metaclass__ = _NamesMeta
     PROFILE = "profile"
+    MY_PROFILE = "my_profile"

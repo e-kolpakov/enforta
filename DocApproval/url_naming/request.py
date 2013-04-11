@@ -5,6 +5,9 @@ from ..views import (common, request)
 
 urlpatterns = patterns(
     '',
+
+    url(r"^list.json", request.RequestListJson.as_view(), name=request_names.LIST_JSON),
+
     url(r"^list", request.ListRequestView.as_view(), name=request_names.LIST),
     url(r"^create", request.CreateRequestView.as_view(), name=request_names.CREATE),
     url(r"^details/(?P<pk>\d+)", request.DetailRequestView.as_view(), name=request_names.DETAILS),

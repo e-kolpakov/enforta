@@ -22,7 +22,7 @@
     <script type="text/javascript" language="JavaScript">
         $("html").addClass('JS'); // allows to hide the content to be shown by JS while the page is loading
         window.globals = {
-            static_root: {{ STATIC_URL }} //need a way to pass the static_root to JS.
+            static_root: "{{ STATIC_URL }}" //need a way to pass the static_root to JS.
         };
     </script>
     <script type="text/javascript" language="JavaScript"

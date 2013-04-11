@@ -19,6 +19,9 @@ class BaseTest(TestCase):
     def login(self):
         self.user = self.client.login(username='user1', password='1234')
 
+    def _get_user_profile(self, user_id):
+        return models.UserProfile.objects.get(pk=user_id)
+
     def _request_and_check(self, url_name, expected_status_code, is_url=False, **view_kwargs):
         url = reverse(url_name, kwargs=view_kwargs) if not is_url else url_name
         resp = self.client.get(url, **view_kwargs)
@@ -46,7 +49,8 @@ class URLSmokeTest(BaseTest):
         self._request_and_check(Request.MY_REQUESTS, 200)
 
     def test_profile(self):
-        self._request_and_check(Profile.PROFILE, 200)
+        self._request_and_check(Profile.MY_PROFILE, 200)
+        self._request_and_check(Profile.PROFILE, 200, pk=1)
 
     def test_auth(self):
         self._request_and_check(Authentication.LOGIN, 200)
@@ -84,7 +88,7 @@ class RequestCreateTest(BaseTest):
         self.assertTrue('form' in resp.context)
 
     def test_post(self):
-        any_user_profile = models.UserProfile.objects.get(pk=6)
+        any_user_profile = self._get_user_profile(6)
         # Junk Post
         resp = self.client.post(reverse(Request.CREATE), {'qwe': 'rty'})
         self.assertEqual(resp.status_code, 200)
@@ -104,8 +108,7 @@ class RequestCreateTest(BaseTest):
         #Valid post
         resp = self.client.post(reverse(Request.CREATE),
                                 {'name': '123', 'city': 1, 'send_on_approval': any_user_profile.pk, 'comments': 'test'})
-        self.assertEqual(resp.status_code, 200)
-        self._check_form_errors(resp, 'form', {'name': 0, 'city': 0, 'send_on_approval': 0, 'comments': 0})
+        self.assertEqual(resp.status_code, 302)
 
 
 class TestRequestDetails(BaseTest):
@@ -126,3 +129,26 @@ class TestRequestDetails(BaseTest):
         resp = self.client.get(reverse(Request.DETAILS, kwargs={'pk': 1}), pk=1)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.context['request'], req)
+
+
+class ProfileTest(BaseTest):
+    def setUp(self):
+        super(ProfileTest, self).setUp()
+
+    def test_refuse_not_logged_in(self):
+        trgt_user = self._get_user_profile(2)
+        resp = self.client.get(reverse(Profile.PROFILE, kwargs={'pk': trgt_user.pk}), pk=trgt_user.pk)
+        self.assertEqual(resp.status_code, 302)
+
+    def test_non_existing_profile(self):
+        self.login()
+        resp = self.client.get(reverse(Profile.PROFILE, kwargs={'pk': 10000}), pk=10000)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context['user_profile'], None)
+
+    def test_allow_logged_in(self):
+        self.login()
+        trgt_user = self._get_user_profile(2)
+        resp = self.client.get(reverse(Profile.MY_PROFILE))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context['user_profile'], trgt_user)

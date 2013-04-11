@@ -1,16 +1,24 @@
 {% extends "base_layout.html" %}
 {% load i18n %}
 
+{% block scripts %}
+    <script language="Javascript" type="text/javascript" src="{{ STATIC_URL }}js/jqgrid/grid.locale-ru.js"></script>
+    <script language="Javascript" type="text/javascript" src="{{ STATIC_URL }}js/jqgrid/jquery.jqGrid.min.js"></script>
+{% endblock scripts %}
+
+{% block styles %}
+    <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}js/jqgrid/ui.jqgrid.css"/>
+{% endblock styles %}
+
 {% block maincontent %}
-    <table class='data-list'>
-        {% for item in object_list %}
-            <tr>
-                <td>Test {{ item.pk }}</td>
-            </tr>
-        {% empty %}
-            <tr>
-                <td>No data</td>
-            </tr>
-        {% endfor %}
-    </table>
+    <table id="list"><tr><td/></tr></table>
+    <div id="pager"></div>
 {% endblock %}
+
+{% block scripts_for_execution %}
+    <script language="JavaScript" type="text/javascript">
+        $("#list").jqGrid({
+            url: "{% url list_json_backend %}"
+        });
+    </script>
+{% endblock scripts_for_execution%}

@@ -1,7 +1,10 @@
 #-*- coding: utf-8 -*-
+from django.core import serializers
+
+from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import (render, HttpResponseRedirect)
-from django.views.generic import (TemplateView, ListView, UpdateView, CreateView)
+from django.views.generic import (TemplateView, UpdateView, CreateView)
 from django.contrib import messages
 
 from ..models import (Request, RequestStatus, UserProfile)
@@ -27,14 +30,16 @@ class CreateRequestView(CreateView):
             new_request.status = RequestStatus.objects.get(pk=RequestStatus.PROJECT)
             new_request.creator = UserProfile.objects.get(user__exact=request.user)
             new_request.save()
-            HttpResponseRedirect(reverse(RequestUrl.DETAILS, kwargs={'pk': new_request.pk}))
+            return HttpResponseRedirect(reverse(RequestUrl.DETAILS, kwargs={'pk': new_request.pk}))
 
         return render(request, self.template_name, {'form': form})
 
 
-class ListRequestView(ListView):
+class ListRequestView(TemplateView):
     template_name = 'request/list.html'
-    model = Request
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name, {'list_json_backend': RequestUrl.LIST_JSON})
 
 
 class UpdateRequestView(UpdateView):
@@ -53,6 +58,19 @@ class DetailRequestView(TemplateView):
             messages.error(request, RequestMessages.DOES_NOT_EXIST)
 
         return render(request, self.template_name, {'request': req})
+
+
+class RequestListJson(TemplateView):
+
+    def _get_data(self):
+        data = serializers.serialize("json", Request.objects.all())
+        return data
+
+    def get(self, request, *args, **kwargs):
+        return HttpResponse(self._get_data(), mimetype="application/json")
+
+    def post(self, request, *args, **kwargs):
+        return HttpResponse(self._get_data(), mimetype="application/json")
 
 def archive(request, year=None, month=None):
     return render(request, "request/archive.html", {'year':year, 'month':month})

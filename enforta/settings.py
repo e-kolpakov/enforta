@@ -159,8 +159,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'reversion',
     'DocApproval',
-    'reversion'
 )
 
 # A sample logging configuration. The only tangible logging
@@ -202,7 +202,7 @@ LOGGING = {
     'loggers': {
         '': {
             'handlers': ['file'],
-            'level': 'ERROR',
+            'level': 'WARNING',
             'propagate': True
         },
         'django.request': {
