@@ -5,6 +5,8 @@ from ..views import profile
 
 urlpatterns = patterns(
     '',
-    url(r"^profile/(?P<pk>\d+)", profile.UserProfileView.as_view(), name=profile_names.PROFILE),
-    url(r"^profile/", profile.UserProfileView.as_view(), name=profile_names.MY_PROFILE),
+    url(r"^profile/(?P<pk>\d+)", profile.UserProfileDetailsView.as_view(), name=profile_names.PROFILE),
+    url(r"^profile/", profile.UserProfileDetailsView.as_view(), name=profile_names.MY_PROFILE),
+
+    url(r"^update/(?P<pk>\d+)", profile.UserProfileUpdateView.as_view(), name=profile_names.UPDATE),
 )

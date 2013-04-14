@@ -37,3 +37,4 @@ class Profile:
     __metaclass__ = _NamesMeta
     PROFILE = "profile"
     MY_PROFILE = "my_profile"
+    UPDATE = "edit"

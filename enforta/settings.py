@@ -39,7 +39,7 @@ LANGUAGE_CODE = 'ru-ru'
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = os.path.join(PROJECT_PATH, 'media')
+MEDIA_ROOT = "/var/uploads/doc-approval"
 
 # End of administrator defined options
 
@@ -117,7 +117,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.transaction.TransactionMiddleware',
     'reversion.middleware.RevisionMiddleware',
-    'DocApproval.middleware.RequireLoginMiddleware'
+    'DocApproval.middleware.RequireLoginMiddleware',
+    'DocApproval.middleware.MenuMiddleware'
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -201,6 +202,11 @@ LOGGING = {
     },
     'loggers': {
         '': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': True
+        },
+        'DocApproval.middleware':{
             'handlers': ['file'],
             'level': 'WARNING',
             'propagate': True

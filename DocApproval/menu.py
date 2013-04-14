@@ -79,11 +79,22 @@ class MenuManager(object):
         self.user = user
         self._root_items = []
         self._menu_built = False
+        self._delayed_items = []
+
+    def __iter__(self):
+        for item in self.get_menu():
+            yield item
 
     def get_menu(self):
         if not self._menu_built:
             self._build_menu()
         return self._root_items
+
+    def add_item(self, item):
+        if not self._menu_built:
+            self._delayed_items.append(item)
+        else:
+            self._add_root_item(item)
 
     def _add_root_item(self, item):
         if item is not None:
@@ -95,6 +106,10 @@ class MenuManager(object):
         )
         self._add_root_item(self._build_request_actions_menu())
         self._add_root_item(self._build_profile_menu())
+        for item in self._delayed_items:
+            self._add_root_item(item)
+        self._delayed_items[:] = []
+        self._menu_built = True
 
     def _build_request_actions_menu(self):
         root_item = HtmlMenuItem(caption=_(u"Заявки"))
@@ -136,24 +151,30 @@ class MenuManager(object):
         return root_item
 
 
+class UserProfileContextMenuManagerExtension:
+    def __init__(self, request, allow_edit):
+        self._user = request.user
+        self._target_menu_manager = request.menu_manager
+        self._allow_edit = allow_edit
+
+    def extend(self, profile_id):
+        self._target_menu_manager.add_item(self._build_root_item(profile_id))
+
+    def _build_root_item(self, profile_id):
+        root_item = None
+        child_items = []
+        if self._allow_edit:
+            child_items.append(
+                NavigableMenuItem(caption=_(u"Редактировать"), image='icons/edit.png',
+                                  url=reverse(url_names.Profile.UPDATE, kwargs={'pk': profile_id}))
+            )
+        if len(child_items) > 0:
+            root_item = HtmlMenuItem(caption=_(u"Действия"), image="icons/actions.png")
+            root_item.add_children(child_items)
+        return root_item
+
+
 def menu_context_processor(request):
-    manager = MenuManager(request.user)
+    manager = request.menu_manager
 
-    return {'menu': manager.get_menu()}
-
-    # return {'menu': (
-    #     HtmlMenuItem(caption='Test1', html_id="QWE", children=(
-    #         HtmlMenuItem(caption="Test1.1", children=(
-    #             HtmlMenuItem(caption="Test1.1.1"),
-    #             HtmlMenuItem(caption="Test1.1.2", children=(
-    #                 HtmlMenuItem(caption="Test1.1.2.1"),
-    #             ))
-    #         )),
-    #         HtmlMenuItem(caption="Test1.2")
-    #     )),
-    #     HtmlMenuItem(caption='Test2', css_class="ASD", image="home.png"),
-    #     NavigableMenuItem(caption="To quicktest", url=reverse("common.quick_test"), children=(
-    #         HtmlMenuItem(caption="Nav1.1"),
-    #         HtmlMenuItem(caption="Nav1.2"),
-    #     ))
-    # )}
+    return {'menu': manager}

@@ -1,40 +1,51 @@
 {% extends "base_layout.html" %}
 {% load i18n %}
+{% load model_details %}
 
 {% block maincontent %}
-    {% if request %}
-        <h3>{{ request.name }}</h3>
+    {% if doc_request %}
+        <h3>{{ doc_request.name }}</h3>
+        <table>
+            {% model_details doc_request exclude_fields %}
+                <tr>
+                    <td class="{{ field_caption_class }}">{{ caption }}</td>
+                    <td class="{{ field_value_class }}">{{ value }}</td>
+                </tr>
+            {% endmodel_details %}
+        </table>
+
         <table>
             <tr>
                 <td class='field-caption'>{% trans "Город" %}</td>
-                <td class='field-value'>{{ request.city }}</td>
+                <td class='field-value'>{{ doc_request.city }}</td>
             </tr>
             <tr>
                 <td class='field-caption'>{% trans "Статус" %}</td>
-                <td class='field-value'>{{ request.status }}</td>
+                <td class='field-value'>{{ doc_request.status }}</td>
             </tr>
             <tr>
                 <td class='field-caption'>{% trans "Инициатор" %}</td>
-                <td class='field-value'>{{ request.creator }}</td>
+                <td class='field-value'>{{ doc_request.creator }}</td>
             </tr>
             <tr>
                 <td class='field-caption'>{% trans "Дата создания" %}</td>
-                <td class='field-value'>{{ request.created }}</td>
+                <td class='field-value'>{{ doc_request.created }}</td>
             </tr>
             <tr>
                 <td class='field-caption'>{% trans "Отправить на подпись" %}</td>
-                <td class='field-value'>{{ request.send_on_approval }}</td>
+                <td class='field-value'>{{ doc_request.send_on_approval }}</td>
             </tr>
-            {% if request.accepted %}
+            {% if doc_request.accepted %}
                 <tr>
                     <td class='field-caption'>{% trans "Дата согласования" %}</td>
-                    <td class='field-value'>{{ request.accepted }}</td>
+                    <td class='field-value'>{{ doc_request.accepted }}</td>
                 </tr>
             {% endif %}
             <tr>
                 <td class='field-caption'>{% trans "Комментарии" %}</td>
-                <td class='field-value'>{{ request.comments }}</td>
+                <td class='field-value'>{{ doc_request.comments }}</td>
             </tr>
         </table>
+
     {% endif %}
 {% endblock %}

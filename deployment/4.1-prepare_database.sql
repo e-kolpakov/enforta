@@ -1,0 +1,5 @@
+CREATE ROLE john SUPERUSER LOGIN CREATEDB password '1234';
+CREATE ROLE DocApprovalUser LOGIN PASSWORD '12345';
+CREATE DATABASE DocApproval;
+GRANT CONNECT ON Database DocApproval to DocApprovalUser;
+GRANT ALL ON DATABASE DocApproval to john;

@@ -5,6 +5,9 @@ from datetime import timedelta
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
+from django.core.urlresolvers import reverse
+
+from url_naming.names import (Profile as ProfileUrls, Request as RequestUrls)
 
 
 class Permissions:
@@ -127,15 +130,15 @@ class DynamicSettings(models.Model):
 
 #Primary objects
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, primary_key=True, verbose_name='Учетная запись')
-    first_name = models.CharField(_(u'Имя'), max_length=ModelConstants.MAX_NAME_LENGTH)
+    user = models.OneToOneField(User, primary_key=True, verbose_name=_(u'Учетная запись'))
     last_name = models.CharField(_(u'Фамилия'), max_length=ModelConstants.MAX_NAME_LENGTH)
+    first_name = models.CharField(_(u'Имя'), max_length=ModelConstants.MAX_NAME_LENGTH)
     middle_name = models.CharField(_(u'Отчество'), max_length=ModelConstants.MAX_NAME_LENGTH)
 
+    last_name_accusative = models.CharField(_(u'Фамилия (вин.)'), max_length=ModelConstants.MAX_NAME_LENGTH, blank=True,
+                                        null=True)
     first_name_accusative = models.CharField(_(u'Имя (вин.)'), max_length=ModelConstants.MAX_NAME_LENGTH, blank=True,
                                              null=True)
-    last_name_accusative = models.CharField(_(u'Фамилия (вин.)'), max_length=ModelConstants.MAX_NAME_LENGTH, blank=True,
-                                            null=True)
     middle_name_accusative = models.CharField(_(u'Отчество (вин.)'), max_length=ModelConstants.MAX_NAME_LENGTH,
                                               blank=True, null=True)
 
@@ -144,6 +147,9 @@ class UserProfile(models.Model):
     email = models.EmailField(_(u'Email'), max_length=ModelConstants.DEFAULT_VARCHAR_LENGTH)
     position = models.ForeignKey(Position, verbose_name=_(u'Должность'))
     manager = models.ForeignKey('self', verbose_name=_(u'Руководитель'), blank=True, null=True)
+
+    def get_absolute_url(self):
+        return reverse(ProfileUrls.PROFILE, kwargs={'pk': self.pk})
 
     def get_full_name(self):
         return u"{0} {1} {2}".format(self.last_name, self.first_name, self.middle_name)
@@ -213,6 +219,9 @@ class Request(models.Model):
             (Permissions.Request.CAN_CREATE_REQUESTS, _(u"Может создавать запросы на утверждение")),
             (Permissions.Request.CAN_APPROVE_REQUESTS, _(u"Может утверждать документы"))
         )
+
+    def get_absolute_url(self):
+        return reverse(RequestUrls.DETAILS, kwargs={'pk': self.pk})
 
     def __unicode__(self):
         return u"{0} {2} {1} {3}".format(_(u"Заявка"), _(u"от"), self.name, self.created)

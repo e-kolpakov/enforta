@@ -122,13 +122,13 @@ class TestRequestDetails(BaseTest):
     def test_non_existing_id(self):
         resp = self.client.get(reverse(Request.DETAILS, kwargs={'pk': 10000}), pk=10000)
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.context['request'], None)
+        self.assertEqual(resp.context['doc_request'], None)
 
     def test_existing_id(self):
         req = models.Request.objects.get(pk=1)
         resp = self.client.get(reverse(Request.DETAILS, kwargs={'pk': 1}), pk=1)
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.context['request'], req)
+        self.assertEqual(resp.context['doc_request'], req)
 
 
 class ProfileTest(BaseTest):

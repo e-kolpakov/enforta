@@ -1,5 +1,6 @@
 {% extends "base_layout.html" %}
 {% load i18n %}
+{% load model_details %}
 
 {% block subtitle %}
     {% if user_profile %}
@@ -9,8 +10,14 @@
 
 {% block maincontent %}
     {% if user_profile %}
-        {{ user_profile.first_name }}
-        {{ user_profile.pk }}
+        <table>
+            {% model_details user_profile exclude_fields %}
+                <tr>
+                    <td class="{{ field_caption_class }}">{{ caption }}</td>
+                    <td class="{{ field_value_class }}">{{ value }}</td>
+                </tr>
+            {% endmodel_details %}
+        </table>
     {% else %}
         {% trans "Профиль указанного пользователя не найден" %}
     {% endif %}

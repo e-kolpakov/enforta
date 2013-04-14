@@ -4,6 +4,9 @@ import logging
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 
+from .menu import MenuManager
+
+
 #taken from http://stackoverflow.com/questions/2164069/best-way-to-make-djangos-login-required-the-default
 class RequireLoginMiddleware(object):
     """
@@ -30,7 +33,7 @@ class RequireLoginMiddleware(object):
     def __init__(self):
         self.required = tuple(re.compile(url) for url in settings.LOGIN_REQUIRED_URLS)
         self.exceptions = tuple(re.compile(url) for url in settings.LOGIN_REQUIRED_URLS_EXCEPTIONS)
-        self.logger = logging.getLogger("RequireLoginMiddleware")
+        self.logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         self.logger.debug("Processing view '%s' with args %s and kwargs %s" % (
@@ -59,4 +62,16 @@ class RequireLoginMiddleware(object):
                 return login_required(view_func)(request, *view_args, **view_kwargs)
 
         # Explicitly return None for all non-matching requests
+        return None
+
+
+class MenuMiddleware(object):
+    def __init__(self):
+        self.logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        self.logger.debug("Processing view '%s' with args %s and kwargs %s" % (
+            view_func.__name__, view_args, view_kwargs
+        ))
+        request.menu_manager = MenuManager(request.user)
         return None

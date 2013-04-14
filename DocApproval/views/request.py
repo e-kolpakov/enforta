@@ -51,13 +51,19 @@ class DetailRequestView(TemplateView):
     template_name = 'request/details.html'
 
     def get(self, request, pk=None):
+        exclude_fields = ['id', 'document']
         try:
             req = Request.objects.get(pk=pk)
+            if not req.accepted:
+                exclude_fields.append('accepted')
         except Request.DoesNotExist:
             req = None
             messages.error(request, RequestMessages.DOES_NOT_EXIST)
 
-        return render(request, self.template_name, {'request': req})
+        return render(request, self.template_name, {
+            'doc_request': req,
+            'exclude_fields': exclude_fields
+        })
 
 
 class RequestListJson(TemplateView):

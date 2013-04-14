@@ -1,0 +1,28 @@
+<VirtualHost *:80>
+	ServerName 	DocApproval.ru
+
+	WSGIScriptAlias / /home/john/GitRoot/Enforta/enforta/enforta/wsgi.py
+	WSGIDaemonProcess docApproval processes=1 maximum-requests=10 threads=1 python-path=/home/john/GitRoot/Enforta/enforta:/home/john/.virtualenvs/DocApproval/lib/python2.7/site-packages
+        WSGIProcessGroup docApproval
+
+	Alias /media 		/var/uploads/doc-approval
+
+	LogLevel error
+	ErrorLog ${APACHE_LOG_DIR}/docapproval.error.log
+	CustomLog ${APACHE_LOG_DIR}/docapproval.access.log combined
+	ServerSignature On
+
+	<Directory /var/www/docapproval/>
+	<Files wsgi.py>
+	Order deny,allow
+	Allow from all
+	</Files>
+	</Directory>
+
+	<Location "/media">
+		Options +Indexes
+	    SetHandler None
+	</Location>
+
+
+</VirtualHost>

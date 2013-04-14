@@ -1,0 +1,7 @@
+{% extends "base_layout.html" %}
+{% load i18n %}
+
+{% block maincontent %}
+    <h3>{% trans "Редактирование профиля" %}</h3>
+    {%  include "common/generic_edit_form.html" with submit_label="Сохранить" action="" %}
+{% endblock %}

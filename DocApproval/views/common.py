@@ -1,5 +1,4 @@
-from django.shortcuts import (render )
-
+from django.shortcuts import (render, )
 from DocApproval.extensions.authentication_helper import public_view
 
 
@@ -10,3 +9,4 @@ def index(request):
 @public_view
 def quicktest(request):
     return render(request, "quicktest.html")
+
