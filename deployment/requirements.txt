@@ -2,6 +2,7 @@ Babel==0.9.6
 Django==1.5
 PIL==1.1.7
 PyYAML==3.10
+South==0.7.6
 argparse==1.2.1
 django-reversion==1.7
 psycopg2==2.4.6

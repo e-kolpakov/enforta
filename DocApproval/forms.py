@@ -21,25 +21,20 @@ class CreateRequestForm(forms.ModelForm):
 
 
 class UserProfileForm(forms.ModelForm):
-    def __init__(self, can_change_position=False, can_change_manager=False, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(UserProfileForm, self).__init__(*args, **kwargs)
-        self.fields.keyOrder = [
-            'last_name', 'first_name', 'middle_name',
-            'email', 'sign',
-            'last_name_accusative', 'first_name_accusative', 'middle_name_accusative',
-        ]
-        self._process_permission('position', can_change_position)
-        self._process_permission('manager', can_change_manager)
+        self._process_permission('position', True)
+        self._process_permission('manager', True)
 
     def _process_permission(self, field, permitted):
-        if permitted:
-            self.fields.keyOrder.append(field)
-        else:
-            self.Meta.exclude.append(field)
+        if not permitted:
+            self.fields.pop(field)
 
     class Meta:
         model = UserProfile
-        exclude = []
+        fields = ['last_name', 'first_name', 'middle_name',
+                  'email', 'sign', 'position', 'manager',
+                  'last_name_accusative', 'first_name_accusative', 'middle_name_accusative']
 
 class AdminCustomizedUserForm(UserChangeForm):
     user_permissions = forms.ModelMultipleChoiceField(

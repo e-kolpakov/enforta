@@ -1,5 +1,5 @@
 import django.core.files.uploadhandler as uploadhandler
-import file_upload_settings
+
 
 class BasicFileUploadHandler(uploadhandler.FileUploadHandler):
     file_upload_settings = None

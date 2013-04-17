@@ -31,8 +31,6 @@ class UserProfileDetailsView(DetailView):
 
         exclude_fields = ("user",)
 
-
-
         return render(request, self.template_name, {
             'user_profile': user_profile,
             'exclude_fields': exclude_fields
@@ -43,7 +41,7 @@ class UserProfileUpdateView(UpdateView):
     model = UserProfile
     template_name = "profile/update.html"
     form_class = UserProfileForm
-    #
+
     # can_change_position = request.user.has_perm(Permissions.UserProfile.CAN_CHANGE_ANY_POSITION) or (
     #     request.user.has_perm(Permissions.UserProfile.CAN_CHANGE_POSITION) and user_id == request.user.pk
     # )

@@ -4,6 +4,7 @@
 {% block scripts %}
     <script language="Javascript" type="text/javascript" src="{{ STATIC_URL }}js/jqgrid/grid.locale-ru.js"></script>
     <script language="Javascript" type="text/javascript" src="{{ STATIC_URL }}js/jqgrid/jquery.jqGrid.min.js"></script>
+    <script language="Javascript" type="text/javascript" src="{{ STATIC_URL }}js/jqgrid/jqgrid_extensions.js"></script>
 {% endblock scripts %}
 
 {% block styles %}
@@ -17,8 +18,11 @@
 
 {% block scripts_for_execution %}
     <script language="JavaScript" type="text/javascript">
-        $("#list").jqGrid({
-            url: "{% url list_json_backend %}"
+
+        $(function () {
+            $.getJSON("{% url grid_config %}", function(data){
+                $("#list").jqGrid(data);
+            });
         });
     </script>
 {% endblock scripts_for_execution%}

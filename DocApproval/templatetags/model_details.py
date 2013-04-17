@@ -1,6 +1,9 @@
 from django import template
 from django.db import models
-from ..extensions import common as common_extensions
+from django.utils.safestring import mark_safe
+
+from ..messages import Common
+from ..models import ModelConstants
 
 register = template.Library()
 
@@ -11,12 +14,21 @@ class ModelDetailsNode(template.Node):
         self._exclude_fields = exclude_fields
         self._children = child_nodes
 
-    def _render_field(self, model, field, context):
+    def _render_image(self, url, css_class):
+        try:
+            value = mark_safe("<img src='{0}' class='{1}'/>".format(url, css_class))
+        except ValueError:
+            value = Common.IMAGE_MISSING
+        return value
+
+    def _render_field(self, model, field, image_class):
         raw_value = getattr(model, field.name)
         if isinstance(field, models.ImageField):
-            value = common_extensions.render_image_from_db(raw_value, context)
+            value = self._render_image(raw_value.url, image_class)
         elif isinstance(field, (models.ForeignKey, models.ManyToManyField)) and raw_value is None:
-            value = common_extensions.render_empty_relationship()
+            value = "-----"
+        elif isinstance(field, models.CharField) and field.max_length > ModelConstants.DEFAULT_VARCHAR_LENGTH:
+            value = mark_safe("<pre>" + raw_value + "</pre>")
         else:
             value = raw_value
         return value
@@ -25,7 +37,7 @@ class ModelDetailsNode(template.Node):
     def render(self, context):
         model = context[self._model]
         exclude_fields = context.get(self._exclude_fields, ())
-        all_fields = common_extensions.get_model_fields(model)
+        all_fields = model._meta.fields
         fields = [field for field in all_fields if field.name not in exclude_fields]
         output = []
 
@@ -56,9 +68,8 @@ class ModelDetailsNode(template.Node):
         return "".join(output)
 
 
-
 @register.tag('model_details')
-def  def_model_details(parser, token):
+def def_model_details(parser, token):
     params = token.split_contents()
     tag_name = params[0]
     if len(params) < 2:

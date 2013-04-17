@@ -25,8 +25,7 @@ if enforta.settings.DEBUG:
     def monitor_file(arg, dirname, names):
         for filename in names:
             filename, extension = os.path.splitext(filename)
-            if extension != 'pyc':
-                monitor.track(os.path.join(dirname, filename))
+            monitor.track(os.path.join(dirname, filename))
 
     monitor.start(interval=1.0)
     os.path.walk(PROJECT_PATH, monitor_file, None)

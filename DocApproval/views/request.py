@@ -1,6 +1,4 @@
 #-*- coding: utf-8 -*-
-from django.core import serializers
-
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import (render, HttpResponseRedirect)
@@ -11,6 +9,7 @@ from ..models import (Request, RequestStatus, UserProfile)
 from ..forms import (CreateRequestForm,)
 from ..url_naming.names import Request as RequestUrl
 from ..messages import RequestMessages
+from ..grids import RequestGrid
 
 
 class CreateRequestView(CreateView):
@@ -39,7 +38,7 @@ class ListRequestView(TemplateView):
     template_name = 'request/list.html'
 
     def get(self, request, *args, **kwargs):
-        return render(request, self.template_name, {'list_json_backend': RequestUrl.LIST_JSON})
+        return render(request, self.template_name, {'grid_config': RequestUrl.LIST_JSON_CONF})
 
 
 class UpdateRequestView(UpdateView):
@@ -67,16 +66,15 @@ class DetailRequestView(TemplateView):
 
 
 class RequestListJson(TemplateView):
-
-    def _get_data(self):
-        data = serializers.serialize("json", Request.objects.all())
-        return data
-
     def get(self, request, *args, **kwargs):
-        return HttpResponse(self._get_data(), mimetype="application/json")
+        grid = RequestGrid()
+        return HttpResponse(grid.get_json(request), mimetype="application/json")
 
-    def post(self, request, *args, **kwargs):
-        return HttpResponse(self._get_data(), mimetype="application/json")
+
+def get_list_conf(request):
+    grid = RequestGrid()
+    return HttpResponse(grid.get_config(), mimetype="application/json")
+
 
 def archive(request, year=None, month=None):
     return render(request, "request/archive.html", {'year':year, 'month':month})

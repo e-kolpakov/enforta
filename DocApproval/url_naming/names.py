@@ -23,6 +23,7 @@ class Request:
     CREATE = "create"
     LIST = "all_list" #aka (R)equest
     LIST_JSON = "list_json"
+    LIST_JSON_CONF = "list_json_conf"
     UPDATE = "edit"
     DETAILS = "details"
     MY_REQUESTS = "my_requests_list"
