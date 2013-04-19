@@ -31,7 +31,7 @@ if portal.settings.DEBUG:
     os.path.walk(PROJECT_PATH, monitor_file, None)
     os.path.walk(os.path.join(PROJECT_PATH, '../DocApproval'), monitor_file, None)
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "enforta.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "portal.settings")
 
 # This application object is used by any WSGI server configured to use this
 # file. This includes Django's development server, if the WSGI_APPLICATION

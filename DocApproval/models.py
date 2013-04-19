@@ -6,9 +6,21 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
+from django.db.models import signals
+from django.contrib.auth.management import create_superuser
+from django.contrib.auth import models as auth_app
 
 from url_naming.names import (Profile as ProfileUrls, Request as RequestUrls)
 
+
+# Prevent interactive question about wanting a superuser created.  (This
+# code has to go in this otherwise empty "models" module so that it gets
+# processed by the "syncdb" command during database creation.)
+
+signals.post_syncdb.disconnect(
+    create_superuser,
+    sender=auth_app,
+    dispatch_uid = "django.contrib.auth.management.create_superuser")
 
 class Permissions:
     #keep in sync

@@ -14,9 +14,9 @@ class ModelDetailsNode(template.Node):
         self._exclude_fields = exclude_fields
         self._children = child_nodes
 
-    def _render_image(self, url, css_class):
+    def _render_image(self, image, css_class):
         try:
-            value = mark_safe("<img src='{0}' class='{1}'/>".format(url, css_class))
+            value = mark_safe("<img src='{0}' class='{1}'/>".format(image.url, css_class))
         except ValueError:
             value = Common.IMAGE_MISSING
         return value
@@ -24,7 +24,7 @@ class ModelDetailsNode(template.Node):
     def _render_field(self, model, field, image_class):
         raw_value = getattr(model, field.name)
         if isinstance(field, models.ImageField):
-            value = self._render_image(raw_value.url, image_class)
+            value = self._render_image(raw_value, image_class)
         elif isinstance(field, (models.ForeignKey, models.ManyToManyField)) and raw_value is None:
             value = "-----"
         elif isinstance(field, models.CharField) and field.max_length > ModelConstants.DEFAULT_VARCHAR_LENGTH:

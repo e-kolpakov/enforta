@@ -1,5 +1,5 @@
-- model: auth.User
-  pk: 1
+﻿- model: auth.User
+  pk: null
   fields:
     username: admin
     password: pbkdf2_sha256$10000$iy035aduKGU9$ii60aMUwpFpkQx60TFxKOghbmNSDZ2AnWLlaky15vLA= # &FJ2>Vvzyhm,#xM

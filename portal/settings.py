@@ -141,10 +141,10 @@ LOGIN_REDIRECT_URL = 'common.home_page' # we want to land on index after login
 LOGIN_REQUIRED_URLS = (".*",)
 LOGIN_REQUIRED_URLS_EXCEPTIONS = (LOGIN_URL, "/admin", STATIC_URL, MEDIA_URL)
 
-ROOT_URLCONF = 'enforta.urls'
+ROOT_URLCONF = 'portal.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'enforta.wsgi.application'
+WSGI_APPLICATION = 'portal.wsgi.application'
 
 TEMPLATE_DIRS = (
     os.path.join(PROJECT_PATH, 'DocApproval/templates')

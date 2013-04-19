@@ -1,7 +1,7 @@
 <VirtualHost *:80>
 	ServerName 	DocApproval.ru
 
-	WSGIScriptAlias / /home/john/GitRoot/Enforta/enforta/enforta/wsgi.py
+	WSGIScriptAlias / /home/john/GitRoot/Enforta/enforta/portal/wsgi.py
 	WSGIDaemonProcess docApproval processes=1 maximum-requests=10 threads=1 python-path=/home/john/GitRoot/Enforta/enforta:/home/john/.virtualenvs/DocApproval/lib/python2.7/site-packages
         WSGIProcessGroup docApproval
 
