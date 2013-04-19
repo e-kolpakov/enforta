@@ -74,7 +74,7 @@
   fields:
     name: Email адрес бухгалтерии
     field_type: 1
-    value: "accounting@enforta.ru"
+    value: "accounting@portal.ru"
     description: Основной e-mail адрес для оповощения бухгалтерии
 - model: DocApproval.DynamicSettings
   pk: "notification_timeout"

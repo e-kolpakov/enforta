@@ -1,9 +1,9 @@
 <VirtualHost *:80>
-	WSGIScriptAlias / /home/enfortit/docapproval/portal/wsgi.py
-	WSGIDaemonProcess docApproval processes=1 maximum-requests=10 threads=1 python-path=/home/enfortit/docapproval:/home/enfortit/.virtualenvs/DocApproval/lib/python2.7/site-packages
+	WSGIScriptAlias / /home/john/GitRoot/Enforta/enforta/portal/wsgi.py
+    WSGIDaemonProcess docApproval processes=1 maximum-requests=10 threads=1 python-path=/home/john/GitRoot/Enforta/enforta:/home/john/.virtualenvs/DocApproval/lib/python2.7/site-packages
     WSGIProcessGroup docApproval
 
-	Alias /static 		/home/enfortit/docapproval/portal/static
+	Alias /static 		/home/john/GitRoot/Enforta/enforta/portal/static
 	Alias /media 		/var/uploads/doc-approval
 
 	LogLevel debug
@@ -20,7 +20,6 @@
 	</Directory>
 
 	<Directory "/media">
-		Options +Indexes
 	    SetHandler None
 	</Directory>
 

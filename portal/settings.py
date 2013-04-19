@@ -2,7 +2,7 @@
 import os
 import django
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
@@ -11,13 +11,13 @@ DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
 # Administrator defined settings - feel free to customize as needed
 # Mandatory settings
 # FQDN or IP required here
-ALLOWED_HOSTS = ''
+ALLOWED_HOSTS = '*'
 
 # Database settings
 DB_HOST = 'localhost'
 DB_NAME = 'docapproval'
-DB_USER = 'john'
-DB_PASS = '1234'
+DB_USER = 'docapprovaluser'
+DB_PASS = '12345'
 DB_PORT = ''  # leave blank for default
 
 # Optional settings

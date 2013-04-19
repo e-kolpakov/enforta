@@ -3,3 +3,4 @@ CREATE ROLE DocApprovalUser LOGIN PASSWORD '12345';
 CREATE DATABASE DocApproval;
 GRANT CONNECT ON Database DocApproval to DocApprovalUser;
 GRANT ALL ON DATABASE DocApproval to john;
+GRANT SELECT, UPDATE, DELETE, TRIGGER ON ALL TABLES IN SCHEMA public to DocApprovalUser;
