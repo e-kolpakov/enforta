@@ -1,4 +1,4 @@
-# Django settings for enforta project.
+# Django settings for portal project.
 import os
 import django
 
@@ -161,6 +161,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'reversion',
+    'south',
     'DocApproval',
 )
 

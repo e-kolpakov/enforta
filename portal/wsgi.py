@@ -1,5 +1,5 @@
 """
-WSGI config for enforta project.
+WSGI config for portal project.
 
 This module contains the WSGI application used by Django's development server
 and any production WSGI deployments. It should expose a module-level variable
@@ -14,13 +14,13 @@ framework.
 
 """
 import os
-import enforta.settings
+import portal.settings
 
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 #sys.path.insert(0, PROJECT_PATH)
 
-if enforta.settings.DEBUG:
-    import enforta.monitor as monitor
+if portal.settings.DEBUG:
+    import portal.monitor as monitor
 
     def monitor_file(arg, dirname, names):
         for filename in names:

@@ -1,4 +1,4 @@
-# Django settings for enforta project.
+# Django settings for portal project.
 import os
 import django
 
