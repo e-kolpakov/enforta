@@ -19,18 +19,23 @@ class MenuException(Exception):
 
 class BaseMenuItem(object):
     COMMON_MENU_ITEM_CLASS = "menu-item"
+    MENU_ITEM_CLASS_DROPDOWN = "dropdown"
+    MENU_ITEM_CLASS_SUBMENU = "dropdown-submenu"
 
-    def __init__(self, children=None, css_class=None, html_id=None, *args, **kwargs):
+    def __init__(self, children=None, css_class=None, html_id=None, parent=None, *args, **kwargs):
+        self.parent = parent
         self.css_class = self.COMMON_MENU_ITEM_CLASS
         if css_class:
             self.css_class += " " + css_class
         self.html_id = html_id
-        self._children = children if children is not None else []
+        self._children = []
+        self.add_children(children if children is not None else [])
         super(BaseMenuItem, self).__init__(*args, **kwargs)
 
     def add_child(self, child):
         if not isinstance(child, BaseMenuItem):
             raise MenuException(MenuException.ERROR_MESSAGE_TEMPLATE.format("BaseMenuItem", child.__class__.__name__))
+        child.parent = self
         self._children.append(child)
 
     def add_children(self, children, continue_on_error=False):
@@ -46,8 +51,17 @@ class BaseMenuItem(object):
     def has_children(self):
         return len(self._children) > 0
 
+    def has_parent(self):
+        return self.parent is not None
+
     def get_children(self):
         return self._children
+
+    def get_dropdown_class(self):
+        result = None
+        if self.has_children():
+            result = self.MENU_ITEM_CLASS_SUBMENU if self.has_parent() else self.MENU_ITEM_CLASS_DROPDOWN
+        return result
 
 
 class NavigableMixin(object):
@@ -57,17 +71,16 @@ class NavigableMixin(object):
 
 
 class HtmlMenuItem(BaseMenuItem):
-    def __init__(self, caption=None, image=None, image_class=None, *args, **kwargs):
+    def __init__(self, caption=None, image=None, *args, **kwargs):
         super(HtmlMenuItem, self).__init__(*args, **kwargs)
         self.caption = caption
         self.image = image
-        self.image_class = image_class
 
     def get_caption(self):
         return self.caption
 
     def get_image(self):
-        return {'url': self.image, 'class': self.image_class}
+        return {'url': self.image}
 
 
 class NavigableMenuItem(HtmlMenuItem, NavigableMixin):
@@ -176,5 +189,22 @@ class UserProfileContextMenuManagerExtension:
 
 def menu_context_processor(request):
     manager = request.menu_manager
+
+    # return {'menu': (
+    #     HtmlMenuItem(caption='Test1', html_id="QWE", children=(
+    #         HtmlMenuItem(caption="Test1.1", children=(
+    #             HtmlMenuItem(caption="Test1.1.1"),
+    #             HtmlMenuItem(caption="Test1.1.2", children=(
+    #                 HtmlMenuItem(caption="Test1.1.2.1"),
+    #             ))
+    #         )),
+    #         HtmlMenuItem(caption="Test1.2")
+    #     )),
+    #     HtmlMenuItem(caption='Test2', css_class="ASD", image="home.png"),
+    #     NavigableMenuItem(caption="To quicktest", url=reverse("common.quick_test"), children=(
+    #         HtmlMenuItem(caption="Nav1.1"),
+    #         HtmlMenuItem(caption="Nav1.2"),
+    #     ))
+    # )}
 
     return {'menu': manager}

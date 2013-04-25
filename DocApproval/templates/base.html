@@ -7,6 +7,7 @@
         {% block maintitle %}{% trans "Утверждение документов" %}{% endblock maintitle %}
         {% block subtitle %}{% endblock subtitle %}
     </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}js/jquery-ui/jquery-ui-1.10.2.custom.css"/>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/jquery-ui-customizations.css"/>
 
@@ -14,28 +15,37 @@
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/menus.css"/>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/controls.css"/>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/messages.css"/>
+
+    <link rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/bootstrap.min.css" >
     {% block styles %}{% endblock styles %}
 
     <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/jquery-1.9.1.js"></script>
     <script type="text/javascript" language="JavaScript"
             src="{{ STATIC_URL }}js/jquery-ui/jquery-ui-1.10.2.custom.min.js"></script>
+    <script type="text/javascript" language="JavaScript"
+            src="{{ STATIC_URL }}js/jquery-ui/localization/jquery.ui.datepicker-ru.js"></script>
+    <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
+
+
+
     <script type="text/javascript" language="JavaScript">
         $("html").addClass('JS'); // allows to hide the content to be shown by JS while the page is loading
         window.globals = {
             static_root: "{{ STATIC_URL }}" //need a way to pass the static_root to JS.
         };
     </script>
-    <script type="text/javascript" language="JavaScript"
-            src="{{ STATIC_URL }}js/jquery-ui/localization/jquery.ui.datepicker-ru.js"></script>
-    <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/superfish.js"></script>
-    <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/global_settings.js"></script>
     <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/jquery-ui/enhancements.js"></script>
+    <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/global_settings.js"></script>
+    <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/superfish.js"></script>
+
     {% block scripts %}{% endblock scripts %}
 </head>
 <body class='{% block body_class %}main-body{% endblock body_class %}'>
+<div class='container'>
 {% block content %}
 
 {% endblock content %}
+</div>
 {% block scripts_for_execution %}
 
 {% endblock %}
