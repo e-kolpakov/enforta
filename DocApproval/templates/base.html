@@ -9,13 +9,7 @@
     </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}js/jquery-ui/jquery-ui-1.10.2.custom.css"/>
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/jquery-ui-customizations.css"/>
-
-    <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}css/main.css"/>
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/menus.css"/>
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/controls.css"/>
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/messages.css"/>
-
+    <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}css/main_bundle.css"/>
     <link rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/bootstrap.min.css" >
     {% block styles %}{% endblock styles %}
 
@@ -36,8 +30,6 @@
     </script>
     <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/jquery-ui/enhancements.js"></script>
     <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/global_settings.js"></script>
-    <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/superfish.js"></script>
-
     {% block scripts %}{% endblock scripts %}
 </head>
 <body class='{% block body_class %}main-body{% endblock body_class %}'>
