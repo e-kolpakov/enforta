@@ -11,6 +11,6 @@
         }
     };
 
-    $.extend(settings.datepicker_defaults, $.datepicker.regional["ru"]);
+    $.extend(settings.datepicker_defaults, $.datepicker.regional.ru);
     $.datepicker.setDefaults(settings.datepicker_defaults);
 }(window.jQuery, window.globals));

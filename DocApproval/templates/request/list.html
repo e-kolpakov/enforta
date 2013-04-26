@@ -1,28 +1,50 @@
 {% extends "base_layout.html" %}
+{% load static from staticfiles %}
 {% load i18n %}
 
 {% block scripts %}
-    <script language="Javascript" type="text/javascript" src="{{ STATIC_URL }}js/jqgrid/grid.locale-ru.js"></script>
-    <script language="Javascript" type="text/javascript" src="{{ STATIC_URL }}js/jqgrid/jquery.jqGrid.min.js"></script>
-    <script language="Javascript" type="text/javascript" src="{{ STATIC_URL }}js/jqgrid/jqgrid_extensions.js"></script>
+    <script type="text/javascript" src="{% static "js/jquery.cookie.js" %}"></script>
+    <script type='text/javascript' src="{% static "js/datatables/jquery.dataTables.min.js" %}"></script>
+    <script type='text/javascript' src="{% static "js/datatables/dt_bootstrap.js" %}"></script>
 {% endblock scripts %}
 
 {% block styles %}
-    <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}js/jqgrid/ui.jqgrid.css"/>
+    <link rel='stylesheet' type="text/css" href="{% static "js/datatables/jquery.dataTables.css" %}"/>
+    <link rel='stylesheet' type="text/css" href="{% static "js/datatables/dt_bootstrap.css" %}"/>
 {% endblock styles %}
 
 {% block maincontent %}
-    <table id="list"><tr><td/></tr></table>
-    <div id="pager"></div>
+    <table id="grid">
+        <thead>
+        <tr>
+            <th>Наименование</th>
+            <th>Город</th>
+            <th>Статус</th>
+            <th>Инициатор</th>
+            <th>Отправить на подпись</th>
+            <th>Создана</th>
+            <th>Утверждена</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 {% endblock %}
 
 {% block scripts_for_execution %}
-    <script language="JavaScript" type="text/javascript">
-
+    <script type="text/javascript" language="JavaScript">
         $(function () {
-            $.getJSON("{% url grid_config %}", function(data){
-                $("#list").jqGrid(data);
+            $.ajaxSetup({
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
+                }
+            });
+
+            $('#grid').dataTable({
+                bProcessing: true,
+                bServerSide: true,
+                sServerMethod: 'POST',
+                sAjaxSource: "{% url ajax_backend_url %}"
             });
         });
     </script>
-{% endblock scripts_for_execution%}
+{% endblock scripts_for_execution %}

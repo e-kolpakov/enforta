@@ -8,9 +8,9 @@
         {% block subtitle %}{% endblock subtitle %}
     </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}js/jquery-ui/jquery-ui-1.10.2.custom.css"/>
+    <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}js/jquery-ui/jquery-ui-1.10.2.custom.min.css"/>
+    <link rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/bootstrap.min.css">
     <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}css/main_bundle.css"/>
-    <link rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/bootstrap.min.css" >
     {% block styles %}{% endblock styles %}
 
     <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/jquery-1.9.1.js"></script>
@@ -19,8 +19,6 @@
     <script type="text/javascript" language="JavaScript"
             src="{{ STATIC_URL }}js/jquery-ui/localization/jquery.ui.datepicker-ru.js"></script>
     <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
-
-
 
     <script type="text/javascript" language="JavaScript">
         $("html").addClass('JS'); // allows to hide the content to be shown by JS while the page is loading
@@ -34,16 +32,16 @@
 </head>
 <body class='{% block body_class %}main-body{% endblock body_class %}'>
 <div class='container'>
-{% block content %}
+    {% block content %}
 
-{% endblock content %}
+    {% endblock content %}
 </div>
 {% block scripts_for_execution %}
 
 {% endblock %}
 <script type="text/javascript" language="JavaScript">
-    $(function(){
-       $(".datepicker").wrapped_datepicker();
+    $(function () {
+        $(".datepicker").wrapped_datepicker();
     });
 </script>
 </body>

@@ -1,8 +1,9 @@
 #-*- coding: utf-8 -*-
+import logging
+
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 
-import logging
 from models import Permissions
 from url_naming import names as url_names
 
@@ -22,7 +23,7 @@ class BaseMenuItem(object):
     MENU_ITEM_CLASS_DROPDOWN = "dropdown"
     MENU_ITEM_CLASS_SUBMENU = "dropdown-submenu"
 
-    def __init__(self, children=None, css_class=None, html_id=None, parent=None, *args, **kwargs):
+    def __init__(self, children=None, css_class=None, html_id=None, parent=None, **kwargs):
         self.parent = parent
         self.css_class = self.COMMON_MENU_ITEM_CLASS
         if css_class:
@@ -30,7 +31,7 @@ class BaseMenuItem(object):
         self.html_id = html_id
         self._children = []
         self.add_children(children if children is not None else [])
-        super(BaseMenuItem, self).__init__(*args, **kwargs)
+        super(BaseMenuItem, self).__init__(**kwargs)
 
     def add_child(self, child):
         if not isinstance(child, BaseMenuItem):
@@ -65,9 +66,9 @@ class BaseMenuItem(object):
 
 
 class NavigableMixin(object):
-    def __init__(self, url=None, *args, **kwargs):
+    def __init__(self, url=None, **kwargs):
         self.url = url
-        super(NavigableMixin, self).__init__(*args, **kwargs)
+        super(NavigableMixin, self).__init__(**kwargs)
 
 
 class HtmlMenuItem(BaseMenuItem):

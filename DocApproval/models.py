@@ -20,7 +20,8 @@ from url_naming.names import (Profile as ProfileUrls, Request as RequestUrls)
 signals.post_syncdb.disconnect(
     create_superuser,
     sender=auth_app,
-    dispatch_uid = "django.contrib.auth.management.create_superuser")
+    dispatch_uid="django.contrib.auth.management.create_superuser")
+
 
 class Permissions:
     #keep in sync
@@ -120,7 +121,6 @@ class DynamicSettings(models.Model):
             d = DynamicSettings._date_regex.match(string).groupdict(0)
             return timedelta(**dict(( (key, int(value)) for key, value in d.items() )))
 
-        result = None
         if self.field_type == DynamicSettings.INT_FIELD_VALUE:
             result = int(self.value)
         elif self.field_type == DynamicSettings.TIME_PERIOD_FIELD_VALUE:
@@ -148,7 +148,7 @@ class UserProfile(models.Model):
     middle_name = models.CharField(_(u'Отчество'), max_length=ModelConstants.MAX_NAME_LENGTH)
 
     last_name_accusative = models.CharField(_(u'Фамилия (вин.)'), max_length=ModelConstants.MAX_NAME_LENGTH, blank=True,
-                                        null=True)
+                                            null=True)
     first_name_accusative = models.CharField(_(u'Имя (вин.)'), max_length=ModelConstants.MAX_NAME_LENGTH, blank=True,
                                              null=True)
     middle_name_accusative = models.CharField(_(u'Отчество (вин.)'), max_length=ModelConstants.MAX_NAME_LENGTH,
@@ -212,7 +212,6 @@ class Document(models.Model):
 
 
 class Request(models.Model):
-
     name = models.CharField(_(u'Наименование'), max_length=ModelConstants.MAX_NAME_LENGTH)
     comments = models.CharField(_(u'Комментарии'), max_length=ModelConstants.MAX_VARCHAR_LENGTH, null=True, blank=True)
     created = models.DateField(_(u'Дата создания заявки'), auto_now_add=True)
@@ -220,7 +219,8 @@ class Request(models.Model):
 
     city = models.ForeignKey(City, verbose_name=_(u'Город действия'))
     status = models.ForeignKey(RequestStatus, verbose_name=_(u'Статус'))
-    document = models.OneToOneField(Document, verbose_name=_(u'Документ'), related_name='document', blank=True, null=True)
+    document = models.OneToOneField(Document, verbose_name=_(u'Документ'), related_name='document', blank=True,
+                                    null=True)
     creator = models.ForeignKey(UserProfile, verbose_name=_(u'Инициатор'), related_name='created_by')
     send_on_approval = models.ForeignKey(UserProfile, verbose_name=_(u'Отправить на подпись'))
 

@@ -1,5 +1,6 @@
 @import-once "variables.less";
-#fonts{
+
+#fonts {
   @size: @base-font-size;
   @color: @base-font-color;
   @family: @base-font-family;
@@ -14,14 +15,17 @@
     .define(@size, @color, @family, @weight);
   }
 
-  .menu-item {
-    color: #f70;
+  .menu-item() {
+    @color: #f70;
+    .define(@size, @color, @family, @weight);
   }
-  .menu-item-focused{
-    color: #fff;
+  .menu-item-focused() {
+    @color: #fff;
+    .define(@size, @color, @family, @weight);
   }
-  .menu-item-top-level-focused{
-    color: #e60;
+  .menu-item-top-level-focused() {
+    @color: #e60;
+    .define(@size, @color, @family, @weight);
   }
 
   .form-label() {
@@ -40,12 +44,13 @@
   }
 }
 
-.rounded-borders-mixin(@radius: 5px){
+.rounded-borders-mixin(@radius: 5px) {
   border-radius: @radius;
   -moz-border-radius: @radius;
   -webkit-border-radius: @radius;
 }
-.rounded-borders-mixin(@top-left, @top-right, @bottom-left, @bottom-right){
+
+.rounded-borders-mixin(@top-left, @top-right, @bottom-left, @bottom-right) {
   border-top-left-radius: @top-left;
   -moz-border-top-left-radius: @top-left;
   -webkit-border-top-left-radius: @top-left;
@@ -64,10 +69,10 @@
 }
 
 #menus() {
-  .menu-item-icon(@height: @icon-height, @margin: @icon-default-margin){
-    height:  @height;
-    margin:  @margin;
-    vertical-align:top;
+  .menu-item-icon(@height: @icon-height, @margin: @icon-default-margin) {
+    height: @height;
+    margin: @margin;
+    vertical-align: top;
   }
 }
 
