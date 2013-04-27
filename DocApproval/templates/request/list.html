@@ -6,6 +6,7 @@
     <script type="text/javascript" src="{% static "js/jquery.cookie.js" %}"></script>
     <script type='text/javascript' src="{% static "js/datatables/jquery.dataTables.min.js" %}"></script>
     <script type='text/javascript' src="{% static "js/datatables/dt_bootstrap.js" %}"></script>
+    <script type='text/javascript' src="{% static "js/datatables/ajax_configurable_datatables.js" %}"></script>
 {% endblock scripts %}
 
 {% block styles %}
@@ -15,17 +16,7 @@
 
 {% block maincontent %}
     <table id="grid">
-        <thead>
-        <tr>
-            <th>Наименование</th>
-            <th>Город</th>
-            <th>Статус</th>
-            <th>Инициатор</th>
-            <th>Отправить на подпись</th>
-            <th>Создана</th>
-            <th>Утверждена</th>
-        </tr>
-        </thead>
+        <thead></thead>
         <tbody></tbody>
     </table>
 {% endblock %}
@@ -33,17 +24,10 @@
 {% block scripts_for_execution %}
     <script type="text/javascript" language="JavaScript">
         $(function () {
-            $.ajaxSetup({
-                beforeSend: function (xhr, settings) {
-                    xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
-                }
-            });
-
-            $('#grid').dataTable({
-                bProcessing: true,
-                bServerSide: true,
-                sServerMethod: 'POST',
-                sAjaxSource: "{% url ajax_backend_url %}"
+            $('#grid').ajaxConfigurableDatatables({
+                data_url: '{% url datatables_data %}',
+                config_url: '{% url datatables_config %}',
+                csrftoken: $.cookie('csrftoken')
             });
         });
     </script>

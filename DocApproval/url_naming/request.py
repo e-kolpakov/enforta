@@ -3,9 +3,12 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 
 from names import Request as request_names
 from ..views import (common, request)
+from ..extensions.datatables import JsonConfigurableDatatablesBaseView as JCDBV
 
 urlpatterns = patterns(
     '',
+    url(r"^list.json.config", request.RequestListJson.as_view(), {JCDBV.CONFIG_MARKER: True},
+        name=request_names.LIST_JSON_CONF),
     url(r"^list.json", request.RequestListJson.as_view(), name=request_names.LIST_JSON),
 
     url(r"^list", ensure_csrf_cookie(request.ListRequestView.as_view()), name=request_names.LIST),

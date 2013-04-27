@@ -4,12 +4,13 @@ from django.shortcuts import (render, HttpResponseRedirect)
 from django.views.generic import (TemplateView, UpdateView, CreateView)
 from django.contrib import messages
 
-from django_datatables_view.base_datatable_view import BaseDatatableView
-
 from ..models import (Request, RequestStatus, UserProfile)
 from ..forms import (CreateRequestForm, )
 from ..url_naming.names import Request as RequestUrl
 from ..messages import RequestMessages
+
+from ..extensions.utility import get_url_base
+from ..extensions.datatables import JsonConfigurableDatatablesBaseView
 
 
 class CreateRequestView(CreateView):
@@ -38,7 +39,11 @@ class ListRequestView(TemplateView):
     template_name = 'request/list.html'
 
     def get(self, request, *args, **kwargs):
-        return render(request, self.template_name, {'ajax_backend_url': RequestUrl.LIST_JSON})
+        return render(request, self.template_name, {
+            'datatables_data': RequestUrl.LIST_JSON,
+            'datatables_config': RequestUrl.LIST_JSON_CONF
+        }
+        )
 
 
 class UpdateRequestView(UpdateView):
@@ -66,40 +71,36 @@ class DetailRequestView(TemplateView):
         })
 
 
-class RequestListJson(BaseDatatableView):
-    order_columns = ['name', 'city', 'status', 'creator', 'send_on_approval', 'created', 'accepted']
+class RequestListJson(JsonConfigurableDatatablesBaseView):
+    model = Request
+    link_field = 'name'
+    display_fields = ('name', 'city', 'status', 'creator', 'send_on_approval', 'created', 'accepted')
+
+    def get_links_config(self):
+        return {'name': {'base_url': get_url_base(reverse(RequestUrl.DETAILS, kwargs={'pk': 0}))}}
 
     def get_initial_queryset(self):
-        # return queryset used as base for futher sorting/filtering
-        # these are simply objects displayed in datatable
-        return Request.objects.all()
+        return self.model.objects.all()
 
     def filter_queryset(self, qs):
-        # use request parameters to filter queryset
-
-        # simple example:
         sSearch = self.request.POST.get('sSearch', None)
         if sSearch:
             qs = qs.filter(name__istartswith=sSearch)
 
         return qs
 
-    def prepare_results(self, qs):
-        # prepare list with output column data
-        # queryset is already paginated here
-        json_data = []
-        for item in qs:
-            accepted = item.accepted.strftime("%Y-%m-%d") if item.accepted is not None else "---"
-            json_data.append([
-                item.name,
-                item.city.city_name,
-                item.status.status_name,
-                item.creator.get_full_name(),
-                item.send_on_approval.get_full_name(),
-                item.created.strftime("%Y-%m-%d"),
-                accepted
-            ])
-        return json_data
+    def prepare_single_item(self, item):
+        accepted = item.accepted.strftime("%Y-%m-%d") if item.accepted is not None else "---"
+        return {
+            'pk': item.pk,
+            'name': item.name,
+            'city': item.city.city_name,
+            'status': item.status.status_name,
+            'creator': item.creator.get_full_name(),
+            'send_on_approval': item.send_on_approval.get_full_name(),
+            'created': item.created.strftime("%Y-%m-%d"),
+            'accepted': accepted
+        }
 
 
 def archive(request, year=None, month=None):
