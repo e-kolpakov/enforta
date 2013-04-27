@@ -1,22 +1,25 @@
 /*globals $*/
 
 (function ($) {
-    function get_header(target) {
+    function get_header_row(target) {
         var header = target.children('thead');
         if (header.length === 0) {
-            header = $("<thead></thead>");
-            header.appendTo(target);
+            header = $("<thead></thead>").appendTo(target);
         }
-        return header;
+        var row = header.children('tr');
+        if (row.length === 0) {
+            row = $("<tr></tr>").appendTo(header);
+        }
+        return row;
     }
 
     function create_header(target, headers, headers_order) {
-        var header = get_header(target);
+        var header_row = get_header_row(target);
         for (var i = 0; i < headers_order.length; i++) {
             var key = headers_order[i];
             if (!headers.hasOwnProperty(key))
                 continue;
-            $("<th></th>").text(headers[key]).appendTo(header);
+            $("<th></th>").text(headers[key]).appendTo(header_row);
         }
     }
 
