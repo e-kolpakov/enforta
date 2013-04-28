@@ -22,7 +22,7 @@ DB_PORT = ''  # leave blank for default
 
 # Optional settings
 ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
+# ('Your Name', 'your_email@example.com'),
 )
 
 LOGGING_DIRECTORY = "/var/log"
@@ -86,9 +86,9 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
+# Put strings here, like "/home/html/static" or "C:/www/django/static".
+# Always use forward slashes, even on Windows.
+# Don't forget to use absolute paths, not relative paths.
 )
 
 # List of finder classes that know how to find static files in
@@ -205,12 +205,17 @@ LOGGING = {
         '': {
             'handlers': ['file'],
             'level': 'WARNING',
-            'propagate': True
+            'propagate': False
         },
-        'DocApproval.middleware':{
+        'DocApproval.views.request.ListRequestView': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+        'DocApproval.middleware': {
             'handlers': ['file'],
             'level': 'WARNING',
-            'propagate': True
+            'propagate': False
         },
         'django.request': {
             'handlers': ['mail_admins', 'file'],
@@ -219,20 +224,3 @@ LOGGING = {
         }
     }
 }
-
-
-import sys
-if 'test' in sys.argv:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': 'test_sqlite.db'
-        }
-    }
-
-    PASSWORD_HASHERS = (
-        'django.contrib.auth.hashers.MD5PasswordHasher',
-        'django.contrib.auth.hashers.SHA1PasswordHasher',
-    )
-
-    LOGGING = {}

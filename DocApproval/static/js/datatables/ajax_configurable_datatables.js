@@ -1,81 +1,118 @@
 /*globals $*/
 
 (function ($) {
-    function get_header_row(target) {
-        var header = target.children('thead');
-        if (header.length === 0) {
-            header = $("<thead></thead>").appendTo(target);
-        }
-        var row = header.children('tr');
-        if (row.length === 0) {
-            row = $("<tr></tr>").appendTo(header);
-        }
-        return row;
-    }
 
-    function create_header(target, headers, headers_order) {
-        var header_row = get_header_row(target);
-        for (var i = 0; i < headers_order.length; i++) {
-            var key = headers_order[i];
-            if (!headers.hasOwnProperty(key))
-                continue;
-            $("<th></th>").text(headers[key]).appendTo(header_row);
-        }
-    }
-
-    function create_table(target, table_options) {
-        target.dataTable(table_options);
-    }
-
-    function get_column_config(data) {
-        var order = data.column_order;
-        var links = data.links;
-        var result = [];
-        for (var i = 0; i < order.length; i++) {
-            var col = order[i];
-            var column = {'mData': col, 'sName': col};
-            if (links.hasOwnProperty(col)) {
-                var base_url = links[col];
-                column['mRender'] = CustomColumnRenderersFactory.createEntityLinkRenderer(base_url);
+    var html_helper = {
+        _create_header: function (target) {
+            var header = target.children('thead');
+            if (header.length === 0) {
+                header = $("<thead></thead>").appendTo(target);
             }
-            result.push(column);
+            var row = header.children('tr');
+            if (row.length === 0) {
+                row = $("<tr></tr>").appendTo(header);
+            }
+            return row;
+        },
+
+        make_header: function (target, headers, headers_order) {
+            var header_row = this._create_header(target);
+            for (var i = 0; i < headers_order.length; i++) {
+                var key = headers_order[i];
+                if (!headers.hasOwnProperty(key))
+                    continue;
+                $("<th></th>").text(headers[key]).appendTo(header_row);
+            }
+        },
+
+        create_table: function (target, table_options) {
+            target.dataTable(table_options);
         }
-        return result;
-    }
+    };
+
+
+    var config_parser = function (options) {
+        function get_column_config(data) {
+            var order = data.column_order;
+            var links = data.links;
+            var result = [];
+            for (var i = 0; i < order.length; i++) {
+                var col = order[i];
+                var column = {'mData': col, 'sName': col};
+                if (links.hasOwnProperty(col)) {
+                    var link_spec = links[col];
+                    column['mRender'] = CustomColumnRenderersFactory.createEntityLinkRenderer(link_spec);
+                }
+                result.push(column);
+            }
+            return result;
+        }
+
+        function transform_extra_params(extra_params) {
+            var result = [];
+            for (var key in extra_params) {
+                if (!extra_params.hasOwnProperty(key))
+                    continue;
+                result.push({'name': key, 'value': extra_params[key]});
+            }
+            return result;
+        }
+
+        return {
+            parse_config: function (datables_config, datatables_options) {
+                var new_options = {
+                    sAjaxSource: options.data_url,
+                    aoColumns: get_column_config(datables_config)
+                };
+                if (options.extra_server_params) {
+                    var extra_params = transform_extra_params(options.extra_server_params);
+                    new_options['fnServerData'] = function (sSource, aoData, fnCallback) {
+                        aoData.push.apply(aoData, extra_params);
+                        $.getJSON(sSource, aoData, function (json) {
+                            fnCallback(json)
+                        });
+                    }
+                }
+                return {
+                    options: $.extend({}, default_options, new_options, datatables_options),
+                    columns: datables_config.columns,
+                    column_order: datables_config.column_order
+                }
+            }
+        }
+    };
 
     var CustomColumnRenderersFactory = {
-        createEntityLinkRenderer: function (base_url) {
+        createEntityLinkRenderer: function (link_spec) {
             return function (data, type, full) {
-                return "<a href='" + base_url + "/" + full['pk'] + "'>" + data + "</a>";
+                var base_url = link_spec.base_url || "";
+                var entity_key = link_spec.entity_key || 'pk';
+                var link_url = base_url + "/" + full[entity_key];
+                return "<a href='" + link_url + "'>" + data + "</a>";
             }
         }
     };
 
-    var default_options = {
-        bProcessing: true,
-        bServerSide: true,
-        sServerMethod: 'POST'
-    };
-
-    $.fn.ajaxConfigurableDatatables = function (options) {
+    $.fn.ajaxConfigurableDatatables = function (options, datatables_opts) {
         var self = this;
-        $.ajaxSetup({
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader("X-CSRFToken", options.csrftoken);
-            }
-        });
+        var datatables_options = datatables_opts || {};
+        var csrf = options.csrftoken || $.cookie('csrftoken');
+        var parser = config_parser(options);
+        if (csrf) {
+            $.ajaxSetup({
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", csrf);
+                }
+            });
+        }
         $.ajax({
             url: options.config_url,
             type: 'get',
             dataType: 'json',
-            success: function (data) {
-                var new_options = {
-                    sAjaxSource: options.data_url,
-                    aoColumns: get_column_config(data)
-                };
-                var effective_options = $.extend(default_options, new_options);
-                create_header(self, data.columns, data.column_order);
-                create_table(self, effective_options);
+            success: function (datatables_config) {
+                var config = parser.parse_config(datatables_config, datatables_options);
+                html_helper.make_header(self, config.columns, config.column_order);
+                html_helper.create_table(self, config.options);
             }
         });
     };

@@ -1,6 +1,6 @@
 import logging
 
-from django.views.generic import (UpdateView,  DetailView)
+from django.views.generic import (UpdateView, DetailView)
 from django.shortcuts import (render, )
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
@@ -25,7 +25,7 @@ class UserProfileDetailsView(DetailView):
             self._modify_menu(request, user_id, allow_edit)
         except ObjectDoesNotExist, e:
             logger = logging.getLogger(__name__)
-            logger.warning("User profile {0} not found. {1}".format(user_id, e.message))
+            logger.warning("User profile {0} not found. {1}".format(user_id, e))
             messages.error(request, ProfileMessages.DOES_NOT_EXIST)
             user_profile = None
 

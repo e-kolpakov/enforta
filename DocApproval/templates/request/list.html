@@ -1,33 +1,21 @@
-{% extends "base_layout.html" %}
+{% extends "base_datatables_layout.html" %}
 {% load static from staticfiles %}
 {% load i18n %}
 
-{% block scripts %}
-    <script type="text/javascript" src="{% static "js/jquery.cookie.js" %}"></script>
-    <script type='text/javascript' src="{% static "js/datatables/jquery.dataTables.min.js" %}"></script>
-    <script type='text/javascript' src="{% static "js/datatables/dt_bootstrap.js" %}"></script>
-    <script type='text/javascript' src="{% static "js/datatables/ajax_configurable_datatables.js" %}"></script>
-{% endblock scripts %}
-
-{% block styles %}
-    <link rel='stylesheet' type="text/css" href="{% static "js/datatables/jquery.dataTables.css" %}"/>
-    <link rel='stylesheet' type="text/css" href="{% static "js/datatables/dt_bootstrap.css" %}"/>
-{% endblock styles %}
-
 {% block maincontent %}
-    <table id="grid">
-        <thead></thead>
-        <tbody></tbody>
-    </table>
+    <table id="grid" class="table"></table>
 {% endblock %}
 
 {% block scripts_for_execution %}
+    {{ block.super }}
     <script type="text/javascript" language="JavaScript">
         $(function () {
             $('#grid').ajaxConfigurableDatatables({
                 data_url: '{% url datatables_data %}',
                 config_url: '{% url datatables_config %}',
-                csrftoken: $.cookie('csrftoken')
+                {% if show_only %}
+                    extra_server_params: {'show_only': '{{ show_only }}'}
+                {% endif %}
             });
         });
     </script>

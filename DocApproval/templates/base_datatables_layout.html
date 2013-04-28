@@ -1,0 +1,15 @@
+{% extends "base_layout.html" %}
+{% load static from staticfiles %}
+
+{% block styles %}
+    <link rel='stylesheet' type="text/css" href="{% static "js/datatables/jquery.dataTables.css" %}"/>
+    <link rel='stylesheet' type="text/css" href="{% static "js/datatables/dt_bootstrap.css" %}"/>
+{% endblock styles %}
+
+{% block scripts %}
+    <script type="text/javascript" src="{% static "js/jquery.cookie.js" %}"></script>
+    <script type='text/javascript' src="{% static "js/datatables/jquery.dataTables.min.js" %}"></script>
+    <script type='text/javascript' src="{% static "js/datatables/dt_bootstrap.js" %}"></script>
+    <script type='text/javascript' src="{% static "js/datatables/ajax_configurable_datatables.js" %}"></script>
+    <script type='text/javascript' src="{% static "js/datatables/localization/datatables-ru.js" %}"></script>
+{% endblock scripts %}

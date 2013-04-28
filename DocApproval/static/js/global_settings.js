@@ -1,3 +1,4 @@
+/*global globals*/
 (function ($, globals) {
     "use strict";
     var settings = {
