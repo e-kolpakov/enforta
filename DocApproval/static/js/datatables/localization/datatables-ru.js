@@ -4,7 +4,7 @@ $.extend(true, $.fn.dataTable.defaults, {
         "sProcessing": "Загрузка...",
         "sLengthMenu": "Показать _MENU_ записей",
         "sZeroRecords": "Записи отсутствуют.",
-        "sInfo": "Записи с _START_ до _END_ из _TOTAL_ записей",
+        "sInfo": "Записи с _START_ по _END_ из _TOTAL_ записей",
         "sInfoEmpty": "Записи с 0 до 0 из 0 записей",
         "sInfoFiltered": "(отфильтровано из _MAX_ записей)",
         "sInfoPostFix": "",

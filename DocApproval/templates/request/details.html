@@ -13,39 +13,5 @@
                 </tr>
             {% endmodel_details %}
         </table>
-
-        <table>
-            <tr>
-                <td class='field-caption'>{% trans "Город" %}</td>
-                <td class='field-value'>{{ doc_request.city }}</td>
-            </tr>
-            <tr>
-                <td class='field-caption'>{% trans "Статус" %}</td>
-                <td class='field-value'>{{ doc_request.status }}</td>
-            </tr>
-            <tr>
-                <td class='field-caption'>{% trans "Инициатор" %}</td>
-                <td class='field-value'>{{ doc_request.creator }}</td>
-            </tr>
-            <tr>
-                <td class='field-caption'>{% trans "Дата создания" %}</td>
-                <td class='field-value'>{{ doc_request.created }}</td>
-            </tr>
-            <tr>
-                <td class='field-caption'>{% trans "Отправить на подпись" %}</td>
-                <td class='field-value'>{{ doc_request.send_on_approval }}</td>
-            </tr>
-            {% if doc_request.accepted %}
-                <tr>
-                    <td class='field-caption'>{% trans "Дата согласования" %}</td>
-                    <td class='field-value'>{{ doc_request.accepted }}</td>
-                </tr>
-            {% endif %}
-            <tr>
-                <td class='field-caption'>{% trans "Комментарии" %}</td>
-                <td class='field-value'>{{ doc_request.comments }}</td>
-            </tr>
-        </table>
-
     {% endif %}
 {% endblock %}

@@ -8,7 +8,8 @@
         {% for field in form.visible_fields %}
             <tr>
                 <th>
-                    {% if field.errors %}<div>{% endif %} {# line A #}
+                    {% if field.errors %}
+                        <div>{% endif %} {# line A #}
                     {{ field.label_tag }}
                     {% if field.errors %}
                         <span class='field_errors' title=''>*</span>
@@ -17,7 +18,7 @@
                                 <div class='field_error'>{{ error }}</div>
                             {% endfor %}
                         </div>
-                    </div> {# closing div opened at line A #}
+                        </div> {# closing div opened at line A #}
                     {% endif %}
                 </th>
                 <td>{{ field }}</td>
@@ -25,21 +26,25 @@
         {% endfor %}
         <tr class='submit-row'>
             <td colspan="2">
-                <input type="submit" value={% trans submit_label|default:"Отправить" %}
-            </td>
+                <input type="submit" class="btn btn-primary" value={% trans submit_label|default:"Отправить" %}
+                        </td>
         </tr>
     </table>
 </form>
 <script type='text/javascript' language="JavaScript">
-    (function($){
+    (function ($) {
         var error_popup_selector = "div.field_errors_list";
-        $(function(){
+        $(function () {
             $('table.edit-form').find('.field_errors').parent("div").hover(
-                function() {$(this).children(error_popup_selector).show();},
-                function() {$(this).children(error_popup_selector).hide();}
+                    function () {
+                        $(this).children(error_popup_selector).show();
+                    },
+                    function () {
+                        $(this).children(error_popup_selector).hide();
+                    }
             );
 
-            $(error_popup_selector).click(function(){
+            $(error_popup_selector).click(function () {
                 $(this).hide();
             });
         });

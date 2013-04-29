@@ -10,7 +10,7 @@ from ..models import (Request, RequestStatus, UserProfile)
 from ..forms import (CreateRequestForm, )
 from ..url_naming.names import (Request as RequestUrl, Profile as ProfileUrl)
 from ..messages import RequestMessages
-from ..extensions.logger_mixin import LoggableMixin
+
 from ..extensions.utility import get_url_base
 from ..extensions.datatables import JsonConfigurableDatatablesBaseView
 
@@ -37,15 +37,16 @@ class CreateRequestView(CreateView):
         return render(request, self.template_name, {'form': form})
 
 
-class ListRequestView(LoggableMixin, TemplateView):
+class ListRequestView(TemplateView):
     SHOW_ONLY_PARAM = 'show_only'
     MY_REQUESTS = 'my_requests'
     MY_APPROVALS = 'my_approvals'
 
     template_name = 'request/list.html'
+    logger = logging.getLogger(__name__)
 
     def get(self, request, *args, **kwargs):
-        self.log("Test", logging.INFO)
+        self.logger.critical("Test")
         show_only = kwargs.get(self.SHOW_ONLY_PARAM, None)
         return render(request, self.template_name, {
             'datatables_data': RequestUrl.LIST_JSON,
@@ -61,6 +62,7 @@ class UpdateRequestView(UpdateView):
 
 class DetailRequestView(TemplateView):
     template_name = 'request/details.html'
+    _logger = logging.getLogger(__name__)
 
     def get(self, request, *args, **kwargs):
         pk = kwargs.get('pk', None)
@@ -72,6 +74,7 @@ class DetailRequestView(TemplateView):
         except Request.DoesNotExist:
             req = None
             messages.error(request, RequestMessages.DOES_NOT_EXIST)
+            self._logger.warning("Request %d does not exist", pk)
 
         return render(request, self.template_name, {
             'doc_request': req,
@@ -104,7 +107,6 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
 
     def filter_queryset(self, qs):
         show_only = self.request.POST.get('show_only', None)
-        logger = logging.getLogger()
         if show_only == ListRequestView.MY_APPROVALS:
             qs = self.get_initial_queryset()
         elif show_only == ListRequestView.MY_REQUESTS:

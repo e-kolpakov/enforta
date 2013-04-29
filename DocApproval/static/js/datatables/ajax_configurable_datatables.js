@@ -58,6 +58,12 @@
             return result;
         }
 
+        var default_options = {
+            bProcessing: true,
+            bServerSide: true,
+            sServerMethod: 'POST'
+        };
+
         return {
             parse_config: function (datables_config, datatables_options) {
                 var new_options = {

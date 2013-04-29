@@ -5,7 +5,7 @@ from .. import models
 
 
 class BaseTest(TestCase):
-    fixtures = ('initial_data.yaml', 'test_data.yaml')
+    fixtures = ('start_data.yaml', 'test_data.yaml')
 
     def login(self):
         self.user = self.client.login(username='user1', password='1234')

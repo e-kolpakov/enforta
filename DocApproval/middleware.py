@@ -30,10 +30,11 @@ class RequireLoginMiddleware(object):
     define any exceptions (like login and logout URLs).
     """
 
+    logger = logging.getLogger(__name__)
+
     def __init__(self):
         self.required = tuple(re.compile(url) for url in settings.LOGIN_REQUIRED_URLS)
         self.exceptions = tuple(re.compile(url) for url in settings.LOGIN_REQUIRED_URLS_EXCEPTIONS)
-        self.logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         self.logger.debug("Processing view '%s' with args %s and kwargs %s" % (
@@ -66,8 +67,7 @@ class RequireLoginMiddleware(object):
 
 
 class MenuMiddleware(object):
-    def __init__(self):
-        self.logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
+    logger = logging.getLogger(__name__)
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         self.logger.debug("Processing view '%s' with args %s and kwargs %s" % (

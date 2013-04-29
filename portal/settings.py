@@ -16,8 +16,10 @@ ALLOWED_HOSTS = '*'
 # Database settings
 DB_HOST = 'localhost'
 DB_NAME = 'docapproval'
-DB_USER = 'docapprovaluser'
-DB_PASS = '12345'
+# DB_USER = 'docapprovaluser'
+# DB_PASS = '12345'
+DB_USER = 'john'
+DB_PASS = '1234'
 DB_PORT = ''  # leave blank for default
 
 # Optional settings
@@ -205,11 +207,6 @@ LOGGING = {
         '': {
             'handlers': ['file'],
             'level': 'WARNING',
-            'propagate': False
-        },
-        'DocApproval.views.request.ListRequestView': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
             'propagate': False
         },
         'DocApproval.middleware': {

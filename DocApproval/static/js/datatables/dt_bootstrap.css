@@ -1,4 +1,5 @@
-div.dataTables_length {
+div.dataTables_length,
+div.dataTables_info {
     margin-left: 8px;
 }
 

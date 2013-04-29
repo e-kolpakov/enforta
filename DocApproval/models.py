@@ -159,6 +159,7 @@ class UserProfile(models.Model):
     email = models.EmailField(_(u'Email'), max_length=ModelConstants.DEFAULT_VARCHAR_LENGTH)
     position = models.ForeignKey(Position, verbose_name=_(u'Должность'))
     manager = models.ForeignKey('self', verbose_name=_(u'Руководитель'), blank=True, null=True)
+    city = models.ForeignKey(City, verbose_name=_(u"Город"), blank=False, null=False)
 
     def get_absolute_url(self):
         return reverse(ProfileUrls.PROFILE, kwargs={'pk': self.pk})
@@ -188,7 +189,7 @@ class UserProfile(models.Model):
         )
 
 
-class Document(models.Model):
+class Contract(models.Model):
     def upload_to(self):
         return 'documents/new'
 
@@ -200,8 +201,8 @@ class Document(models.Model):
     prolongation = models.BooleanField(_(u'Возможность пролонгации'), blank=True, default=False)
     paid_date = models.DateField(_(u'Дата оплаты'))
 
-    contents = models.FileField(_(u'Документ'), upload_to=upload_to)
-    contents_signed = models.FileField(_(u'Подписанный документ'), upload_to=upload_to_signed, null=True, blank=True)
+    document = models.FileField(_(u'Документ'), upload_to=upload_to)
+    document_signed = models.FileField(_(u'Подписанный документ'), upload_to=upload_to_signed, null=True, blank=True)
 
     def __unicode__(self):
         return u"{0} {2} {1} {3}".format(_("Документ №"), _(u"от"), self.pk, self.date)
@@ -214,15 +215,21 @@ class Document(models.Model):
 class Request(models.Model):
     name = models.CharField(_(u'Наименование'), max_length=ModelConstants.MAX_NAME_LENGTH)
     comments = models.CharField(_(u'Комментарии'), max_length=ModelConstants.MAX_VARCHAR_LENGTH, null=True, blank=True)
-    created = models.DateField(_(u'Дата создания заявки'), auto_now_add=True)
-    accepted = models.DateField(_(u'Дата согласования'), blank=True, null=True)
 
     city = models.ForeignKey(City, verbose_name=_(u'Город действия'))
     status = models.ForeignKey(RequestStatus, verbose_name=_(u'Статус'))
-    document = models.OneToOneField(Document, verbose_name=_(u'Документ'), related_name='document', blank=True,
+    contract = models.OneToOneField(Contract, verbose_name=_(u'Документ'), related_name='contract', blank=True,
                                     null=True)
+
     creator = models.ForeignKey(UserProfile, verbose_name=_(u'Инициатор'), related_name='created_by')
+    last_updater = models.ForeignKey(UserProfile, verbose_name=_(u'Последние изменения'),
+                                     related_name='last_updated_by')
     send_on_approval = models.ForeignKey(UserProfile, verbose_name=_(u'Отправить на подпись'))
+
+    created = models.DateField(_(u'Дата создания заявки'), auto_now_add=True)
+    updated = models.DateField(_(u'Дата последних изменений'), auto_now=True)
+    accepted = models.DateField(_(u'Дата согласования'), blank=True, null=True)
+    payed = models.DateField(_(u'Дата оплаты'), blank=True, null=True)
 
     class Meta:
         verbose_name = _(u'Заявка')

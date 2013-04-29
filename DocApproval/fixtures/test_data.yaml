@@ -121,6 +121,7 @@
     middle_name_accusative: Василиевича
     position: 1
     email: vasya.ivanov@localhost
+    city: 1
 - model: DocApproval.UserProfile
   pk: 7
   fields:
@@ -132,6 +133,7 @@
     middle_name_accusative: Петровича
     position: 3
     email: petya.ivanov@localhost
+    city: 1
 - model: DocApproval.UserProfile
   pk: 2
   fields:
@@ -144,6 +146,7 @@
     position: 5
     email: vasya.pupkin@localhost
     manager: 6
+    city: 1
 - model: DocApproval.UserProfile
   pk: 3
   fields:
@@ -156,6 +159,7 @@
     position: 5
     email: petya.pupkin@localhost
     manager: 6
+    city: 1
 
 - model: DocApproval.Request
   pk: null
@@ -165,5 +169,6 @@
     send_on_approval: 7
     comments: "Test comments"
     created: "2013-01-01"
+    updated: "2013-01-01"
     creator: 3
     status: "project"
