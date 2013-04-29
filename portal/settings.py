@@ -16,10 +16,8 @@ ALLOWED_HOSTS = '*'
 # Database settings
 DB_HOST = 'localhost'
 DB_NAME = 'docapproval'
-# DB_USER = 'docapprovaluser'
-# DB_PASS = '12345'
-DB_USER = 'john'
-DB_PASS = '1234'
+DB_USER = 'docapprovaluser'
+DB_PASS = '12345'
 DB_PORT = ''  # leave blank for default
 
 # Optional settings
@@ -221,3 +219,18 @@ LOGGING = {
         }
     }
 }
+
+import sys
+
+if 'migrate' in sys.argv:
+    LOGGING = {}
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': DB_NAME,
+            'USER': 'sa',
+            'PASSWORD': 'sa!v3ry_str0ng_p@ssw0rd#!',
+            'HOST': DB_HOST,
+            'PORT': DB_PORT,
+        }
+    }
