@@ -30,6 +30,7 @@ class Permissions:
     class Request:
         CAN_CREATE_REQUESTS = "docapproval.can_create_requests"
         CAN_APPROVE_REQUESTS = "docapproval.can_approve_requests"
+        CAN_VIEW_ALL_REQUESTS = "docapproval.can_view_all_requests"
 
     class UserProfile:
         CAN_CHANGE_POSITION = "docapproval.can_change_position"
@@ -142,7 +143,7 @@ class DynamicSettings(models.Model):
 
 #Primary objects
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, primary_key=True, verbose_name=_(u'Учетная запись'))
+    user = models.OneToOneField(User, primary_key=True, verbose_name=_(u'Учетная запись'), related_name='profile')
     last_name = models.CharField(_(u'Фамилия'), max_length=ModelConstants.MAX_NAME_LENGTH)
     first_name = models.CharField(_(u'Имя'), max_length=ModelConstants.MAX_NAME_LENGTH)
     middle_name = models.CharField(_(u'Отчество'), max_length=ModelConstants.MAX_NAME_LENGTH)
@@ -212,7 +213,20 @@ class Contract(models.Model):
         verbose_name_plural = _(u"Документы")
 
 
+class RequestManager(models.Manager):
+    def _get_query(self, user):
+        profile = user.profile
+        return models.Q(approval_route__steps__approver=profile) | models.Q(creator=profile)
+
+    def get_accessible_requests(self, user):
+        queryset = super(RequestManager, self).get_query_set()
+        if not user.has_perm(Permissions.Request.CAN_VIEW_ALL_REQUESTS):
+            queryset = queryset.filter(self._get_query(user))
+        return queryset
+
+
 class Request(models.Model):
+    objects = RequestManager()
     name = models.CharField(_(u'Наименование'), max_length=ModelConstants.MAX_NAME_LENGTH)
     comments = models.CharField(_(u'Комментарии'), max_length=ModelConstants.MAX_VARCHAR_LENGTH, null=True, blank=True)
 
@@ -221,10 +235,11 @@ class Request(models.Model):
     contract = models.OneToOneField(Contract, verbose_name=_(u'Документ'), related_name='contract', blank=True,
                                     null=True)
 
-    creator = models.ForeignKey(UserProfile, verbose_name=_(u'Инициатор'), related_name='created_by')
+    creator = models.ForeignKey(UserProfile, verbose_name=_(u'Инициатор'), related_name='requests')
     last_updater = models.ForeignKey(UserProfile, verbose_name=_(u'Последние изменения'),
-                                     related_name='last_updated_by')
-    send_on_approval = models.ForeignKey(UserProfile, verbose_name=_(u'Отправить на подпись'))
+                                     related_name='requests_last_updated_by')
+    send_on_approval = models.ForeignKey(UserProfile, verbose_name=_(u'Отправить на подпись'),
+                                         related_name='requests_to_be_sent_on_approval')
 
     created = models.DateField(_(u'Дата создания заявки'), auto_now_add=True)
     updated = models.DateField(_(u'Дата последних изменений'), auto_now=True)
@@ -236,7 +251,8 @@ class Request(models.Model):
         verbose_name_plural = _(u'Заявки')
         permissions = (
             (Permissions.Request.CAN_CREATE_REQUESTS, _(u"Может создавать запросы на утверждение")),
-            (Permissions.Request.CAN_APPROVE_REQUESTS, _(u"Может утверждать документы"))
+            (Permissions.Request.CAN_APPROVE_REQUESTS, _(u"Может утверждать документы")),
+            (Permissions.Request.CAN_VIEW_ALL_REQUESTS, _(u"Может просматривать любые заявки"))
         )
 
     def get_absolute_url(self):
@@ -244,3 +260,54 @@ class Request(models.Model):
 
     def __unicode__(self):
         return u"{0} {2} {1} {3}".format(_(u"Заявка"), _(u"от"), self.name, self.created)
+
+    def get_initiator(self):
+        return self.creator
+
+    def get_approvers(self):
+        return (step.approver for step in self.approval_route.steps)
+
+
+class NonTemplateApprovalRouteException(Exception):
+    pass
+
+
+class ApprovalRoute(models.Model):
+    DIRECT_MANAGER_PLACEHOLDER = '{manager}'
+
+    name = models.CharField(_(u"Название"), max_length=ModelConstants.MAX_NAME_LENGTH)
+    description = models.CharField(_(u"Описание"), max_length=ModelConstants.MAX_VARCHAR_LENGTH)
+
+    created = models.DateField(_(u"Создан"), auto_now_add=True)
+    modified = models.DateField(_(u"Последнее изменение"), auto_now=True)
+
+    request = models.OneToOneField(Request, verbose_name=_(u"Завяка"), related_name='approval_route', null=True)
+    is_template = models.BooleanField(_(u"Шаблонный маршрут"))
+
+    def roll_template_route(self):
+        if not self.is_template:
+            raise NonTemplateApprovalRouteException("Current route is not a template route")
+        else:
+            raise NotImplementedError("Not implemented yet")
+
+
+class ApprovalRouteStep(models.Model):
+    route = models.ForeignKey(ApprovalRoute, verbose_name=_(u"Маршрут утверждения"), related_name='steps')
+    approver = models.ForeignKey(UserProfile, verbose_name=_(u"Утверждающий"))
+    step_number = models.IntegerField(verbose_name=_(u"Номер шага"))
+
+
+class ApprovalProcess(models.Model):
+    route = models.ForeignKey(ApprovalRoute, verbose_name=_(u"Маршрут"), related_name='processes')
+    attempt_number = models.IntegerField(_(u"Попытка утверждения №"))
+    is_current = models.BooleanField(_(u"Текущий процесс"))
+
+
+class ApprovalProcessAction(models.Model):
+    ACTION_APPROVE = 'approve'
+    ACTION_REJECT = 'reject'
+    step = models.ForeignKey(ApprovalRouteStep, verbose_name=_(u"Шаг утверждения"))
+    action = models.CharField(_(u"Действие"), max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH)
+
+    action_taken = models.DateTimeField(_(u"Время принятия решения"))
+    actor = models.ForeignKey(UserProfile, verbose_name=_(u"Кто принял решение"))

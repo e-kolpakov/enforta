@@ -103,7 +103,7 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
         }
 
     def get_initial_queryset(self):
-        return self.model.objects.all()
+        return self.model.objects.get_accessible_requests(self.request.user)
 
     def filter_queryset(self, qs):
         show_only = self.request.POST.get('show_only', None)
