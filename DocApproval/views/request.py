@@ -35,6 +35,7 @@ class CreateRequestView(CreateView):
             new_request.creator = request.user.profile
             new_request.last_updater = request.user.profile
             new_request.save()
+            messages.success(request, RequestMessages.REQUEST_CREATED)
             return HttpResponseRedirect(reverse(RequestUrl.DETAILS, kwargs={'pk': new_request.pk}))
         else:
             messages.error(request, RequestMessages.REQUEST_CREATION_ERROR)
