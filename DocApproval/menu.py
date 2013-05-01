@@ -190,22 +190,4 @@ class UserProfileContextMenuManagerExtension:
 
 def menu_context_processor(request):
     manager = request.menu_manager
-
-    # return {'menu': (
-    #     HtmlMenuItem(caption='Test1', html_id="QWE", children=(
-    #         HtmlMenuItem(caption="Test1.1", children=(
-    #             HtmlMenuItem(caption="Test1.1.1"),
-    #             HtmlMenuItem(caption="Test1.1.2", children=(
-    #                 HtmlMenuItem(caption="Test1.1.2.1"),
-    #             ))
-    #         )),
-    #         HtmlMenuItem(caption="Test1.2")
-    #     )),
-    #     HtmlMenuItem(caption='Test2', css_class="ASD", image="home.png"),
-    #     NavigableMenuItem(caption="To quicktest", url=reverse("common.quick_test"), children=(
-    #         HtmlMenuItem(caption="Nav1.1"),
-    #         HtmlMenuItem(caption="Nav1.2"),
-    #     ))
-    # )}
-
     return {'menu': manager}
