@@ -7,7 +7,7 @@ Replace this with more appropriate tests for your application.
 
 from django.core.urlresolvers import (reverse, NoReverseMatch)
 
-from base_test import LoggedInTest
+from base_test import (BaseTest, LoggedInTest)
 from ..url_naming.names import *
 from .. import models
 from ..views.request import ListRequestView
@@ -85,3 +85,13 @@ class RequestListTest(LoggedInTest):
         resp = self.client.get(reverse(Request.MY_REQUESTS, kwargs=url_params), **url_params)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.context['show_only'], ListRequestView.MY_REQUESTS)
+
+
+# class RequestJsonTest(BaseTest):
+#     json_url = reverse(Request.LIST_JSON)
+#
+#     def serialize_requests(self, request_list):
+#         pass
+#
+#     def test_superuser_have_unlimited_access(self):
+#         self.login('admin')

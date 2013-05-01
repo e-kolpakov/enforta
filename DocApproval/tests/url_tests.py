@@ -20,6 +20,8 @@ class URLSmokeTest(BaseTest):
         self._request_and_check(Request.DETAILS, 200, pk=1)
         self._request_and_check(Request.UPDATE, 200, pk=1)
         self._request_and_check(Request.LIST, 200)
+        self._request_and_check(Request.LIST_JSON, 200)
+        self._request_and_check(Request.LIST_JSON_CONF, 200)
         self._request_and_check(Request.MY_APPROVALS, 200)
         self._request_and_check(Request.MY_REQUESTS, 200)
 

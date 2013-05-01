@@ -7,8 +7,19 @@ from .. import models
 class BaseTest(TestCase):
     fixtures = ('start_data.yaml', 'test_data.yaml')
 
-    def login(self):
-        self.user = self.client.login(username='user1', password='1234')
+    default_user = 'user1'
+    credentials = {
+        'user1': ('user1', '1234'),
+        'user2': ('user2', '1234'),
+        'approver1': ('approver1', '1234'),
+        'approver2': ('approver2', '1234'),
+        'admin': ('admin', '&FJ2>Vvzyhm,#xM')
+    }
+
+    def login(self, user=None):
+        effective_user = user if user else self.default_user
+        username, password = self.credentials[effective_user]
+        self.user = self.client.login(username=username, password=password)
 
     def _get_user_profile(self, user_id):
         return models.UserProfile.objects.get(pk=user_id)
