@@ -244,7 +244,6 @@ class Request(models.Model):
     created = models.DateField(_(u'Дата создания заявки'), auto_now_add=True)
     updated = models.DateField(_(u'Дата последних изменений'), auto_now=True)
     accepted = models.DateField(_(u'Дата согласования'), blank=True, null=True)
-    payed = models.DateField(_(u'Дата оплаты'), blank=True, null=True)
 
     class Meta:
         verbose_name = _(u'Заявка')
