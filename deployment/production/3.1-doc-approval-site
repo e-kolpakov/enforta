@@ -3,6 +3,8 @@
 	WSGIDaemonProcess docApproval processes=1 maximum-requests=10 threads=1 python-path=/home/enfortit/docapproval:/home/enfortit/.virtualenvs/DocApproval/lib/python2.7/site-packages
     WSGIProcessGroup docApproval
 
+    SetEnv  EnvironmentType production
+
 	Alias /static 		/home/enfortit/docapproval/portal/static
 	Alias /media 		/var/uploads/doc-approval
 

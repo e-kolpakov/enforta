@@ -5,7 +5,7 @@ import django
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
+PROJECT_PATH = '/'.join(os.path.dirname(__file__).split('/')[0:-1])
 DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
 
 # Administrator defined settings - feel free to customize as needed
@@ -13,18 +13,12 @@ DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
 # FQDN or IP required here
 ALLOWED_HOSTS = '*'
 
-# Database settings
-DB_HOST = 'localhost'
-DB_NAME = 'docapproval'
-DB_USER = 'docapprovaluser'
-DB_PASS = '12345'
-DB_PORT = ''  # leave blank for default
-
 # Optional settings
 ADMINS = (
 # ('Your Name', 'your_email@example.com'),
 )
 
+# LOGGING_DIRECTORY = os.path.join(PROJECT_PATH, "logs") #"/var/log"
 LOGGING_DIRECTORY = "/var/log"
 
 # Local time zone for this installation. Choices can be found here:
@@ -45,16 +39,6 @@ MEDIA_ROOT = "/var/uploads/doc-approval"
 
 MANAGERS = ADMINS
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': DB_NAME,
-        'USER': DB_USER,
-        'PASSWORD': DB_PASS,
-        'HOST': DB_HOST,
-        'PORT': DB_PORT,
-    }
-}
 
 SITE_ID = 1
 
@@ -78,7 +62,7 @@ MEDIA_URL = '/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = os.path.join(PROJECT_PATH, 'static')
+STATIC_ROOT = os.path.join(PROJECT_PATH, '../static')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -198,7 +182,8 @@ LOGGING = {
             'filename': os.path.join(LOGGING_DIRECTORY, 'doc-approval/django.log'),
             'maxBytes': 102400,
             'backupCount': 1,
-            'formatter': 'generic'
+            'formatter': 'generic',
+            'encoding': 'UTF-8'
         },
     },
     'loggers': {
@@ -207,9 +192,9 @@ LOGGING = {
             'level': 'WARNING',
             'propagate': False
         },
-        'DocApproval.middleware': {
+        'DocApproval': {
             'handlers': ['file'],
-            'level': 'WARNING',
+            'level': 'INFO',
             'propagate': False
         },
         'django.request': {
@@ -219,18 +204,3 @@ LOGGING = {
         }
     }
 }
-
-import sys
-
-if 'migrate' in sys.argv:
-    LOGGING = {}
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': DB_NAME,
-            'USER': 'sa',
-            'PASSWORD': 'sa!v3ry_str0ng_p@ssw0rd#!',
-            'HOST': DB_HOST,
-            'PORT': DB_PORT,
-        }
-    }
