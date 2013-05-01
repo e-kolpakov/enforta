@@ -171,4 +171,5 @@
     created: "2013-01-01"
     updated: "2013-01-01"
     creator: 3
+    last_updater: 3
     status: "project"

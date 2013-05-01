@@ -14,6 +14,7 @@ class Common:
 
 class RequestMessages:
     DOES_NOT_EXIST = _(u"Запрошенной заявки не существует")
+    REQUEST_CREATION_ERROR = _(u"Произошла ошибка сохранения")
 
 
 class ProfileMessages:

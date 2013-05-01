@@ -11,8 +11,10 @@ from ..forms import (CreateRequestForm, )
 from ..url_naming.names import (Request as RequestUrl, Profile as ProfileUrl)
 from ..messages import RequestMessages
 
-from ..extensions.utility import get_url_base
+from ..extensions.utility import (get_url_base, reprint_form_errors)
 from ..extensions.datatables import JsonConfigurableDatatablesBaseView
+
+logger = logging.getLogger(__name__)
 
 
 class CreateRequestView(CreateView):
@@ -30,10 +32,13 @@ class CreateRequestView(CreateView):
         if form.is_valid():
             new_request = form.save(commit=False)
             new_request.status = RequestStatus.objects.get(pk=RequestStatus.PROJECT)
-            new_request.creator = UserProfile.objects.get(user__exact=request.user)
+            new_request.creator = request.user.profile
+            new_request.last_updater = request.user.profile
             new_request.save()
             return HttpResponseRedirect(reverse(RequestUrl.DETAILS, kwargs={'pk': new_request.pk}))
-
+        else:
+            messages.error(request, RequestMessages.REQUEST_CREATION_ERROR)
+            logger.error(u"Error saving the request:\n{0}".format(reprint_form_errors(form.errors)))
         return render(request, self.template_name, {'form': form})
 
 
@@ -46,7 +51,6 @@ class ListRequestView(TemplateView):
     logger = logging.getLogger(__name__)
 
     def get(self, request, *args, **kwargs):
-        self.logger.critical("Test")
         show_only = kwargs.get(self.SHOW_ONLY_PARAM, None)
         return render(request, self.template_name, {
             'datatables_data': RequestUrl.LIST_JSON,

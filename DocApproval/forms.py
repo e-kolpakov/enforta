@@ -14,7 +14,8 @@ class CreateRequestForm(forms.ModelForm):
 
     class Meta:
         model = Request
-        exclude = ('document', 'status', 'creator', 'created', 'accepted')
+        fields = ('name', 'city', 'send_on_approval', 'comments')
+        # exclude = ('document', 'status', 'creator', 'last_updater', 'created', 'accepted')
         widgets = {
             'comments': forms.Textarea(attrs={'rows': 10}),
         }
