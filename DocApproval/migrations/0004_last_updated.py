@@ -4,7 +4,6 @@ from south.v2 import DataMigration
 
 class Migration(DataMigration):
     def forwards(self, orm):
-        "Write your forwards methods here."
         for user_profile in orm.Request.objects.all():
             user_profile.last_updater = user_profile.creator
             user_profile.save()
