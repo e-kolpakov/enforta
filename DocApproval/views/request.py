@@ -7,7 +7,7 @@ from django.views.generic import (TemplateView, UpdateView, CreateView, DetailVi
 from django.contrib import messages
 
 from ..models import (Request, RequestStatus, UserProfile)
-from ..forms import (CreateRequestForm, )
+from ..forms import (CreateRequestForm, CreateContractForm)
 from ..url_naming.names import (Request as RequestUrl, Profile as ProfileUrl)
 from ..messages import RequestMessages
 
@@ -18,29 +18,36 @@ logger = logging.getLogger(__name__)
 
 
 class CreateRequestView(CreateView):
-    form_class = CreateRequestForm
+    request_form_class = CreateRequestForm
+    contract_form_class = CreateContractForm
     template_name = 'request/create.html'
-    # TODO: add initialization of defaults, e.g. city, approver, etc.
-    initial = {}
 
     def get(self, request, *args, **kwargs):
-        form = self.form_class(initial=self.initial)
-        return render(request, self.template_name, {'form': form})
+        # TODO: add initialization of defaults, e.g. city, approver, etc.
+        request_form = self.request_form_class(initial={}, prefix='request')
+        contract_form = self.contract_form_class(initial={}, prefix='contract')
+        return render(request, self.template_name, {'request_form': request_form, 'contract_form':contract_form})
 
     def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            new_request = form.save(commit=False)
+        request_form = self.request_form_class(request.POST, prefix='request')
+        contract_form = self.contract_form_class(request.POST, request.FILES, prefix='contract')
+        if request_form.is_valid() and contract_form.is_valid():
+            contract = contract_form.save()
+
+            new_request = request_form.save(commit=False)
             new_request.status = RequestStatus.objects.get(pk=RequestStatus.PROJECT)
             new_request.creator = request.user.profile
             new_request.last_updater = request.user.profile
+
+            new_request.contract = contract
             new_request.save()
             messages.success(request, RequestMessages.REQUEST_CREATED)
             return HttpResponseRedirect(reverse(RequestUrl.DETAILS, kwargs={'pk': new_request.pk}))
         else:
             messages.error(request, RequestMessages.REQUEST_CREATION_ERROR)
-            logger.error(u"Error saving the request:\n{0}".format(reprint_form_errors(form.errors)))
-        return render(request, self.template_name, {'form': form})
+            errors = reprint_form_errors(request_form.errors) + reprint_form_errors(contract_form.errors)
+            logger.error(u"Error saving the request:\n{0}".format(u"\n".join(errors)))
+        return render(request, self.template_name, {'request_form': request_form, 'contract_form': contract_form})
 
 
 class ListRequestView(TemplateView):

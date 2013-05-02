@@ -1,7 +1,34 @@
 {% extends "base_layout.html" %}
 {% load i18n %}
+{% load static from staticfiles %}
+
+{% block scripts %}
+    <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/forms.js"></script>
+{% endblock scripts %}
 
 {% block maincontent %}
     <h3>{% trans "Создание заявки" %}</h3>
-    {%  include "common/generic_edit_form.html" with submit_label="Создать" action="" %}
+    <form action="{{ action }}" method="post"
+          {% if request_form.is_multipart or contract_form.is_multipart %}enctype="multipart/form-data"{% endif %}
+          class='form-horizontal'>
+        {% csrf_token %}
+        {% include "common/_headless_form.html" with form=request_form %}
+        {% include "common/_headless_form.html" with form=contract_form %}
+        <div class="control-group">
+            <div class="controls">
+                <input type="submit" class="btn btn-primary" value='{% trans "Создать" %}'/>
+            </div>
+        </div>
+    </form>
 {% endblock %}
+
+{% block scripts_for_execution %}
+    <script type='text/javascript' language="JavaScript">
+        $(function () {
+            $('div.edit-form').error_handling_form({
+                error_popup_selector: "div.field_errors_list",
+                field_errors_selector: '.field_errors'
+            });
+        });
+    </script>
+{% endblock scripts_for_execution %}

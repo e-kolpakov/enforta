@@ -4,20 +4,24 @@ from django.contrib.auth.models import Permission
 from django.contrib.auth.forms import UserChangeForm
 from django.utils.translation import ugettext as _
 
-from models import (UserProfile, Request, Permissions)
+from models import (UserProfile, Request, Contract, Permissions)
 
 
 class CreateRequestForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(CreateRequestForm, self).__init__(*args, **kwargs)
-        self.fields.keyOrder = ['name', 'city', 'send_on_approval', 'comments']
-
     class Meta:
         model = Request
         fields = ('name', 'city', 'send_on_approval', 'comments')
-        # exclude = ('document', 'status', 'creator', 'last_updater', 'created', 'accepted')
         widgets = {
             'comments': forms.Textarea(attrs={'rows': 10}),
+        }
+
+
+class CreateContractForm(forms.ModelForm):
+    class Meta:
+        model = Contract
+        fields = ('date', 'active_period', 'document')
+        widgets = {
+            'date': forms.DateInput(attrs={'class': 'datepicker'})
         }
 
 

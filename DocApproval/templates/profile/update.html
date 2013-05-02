@@ -1,7 +1,23 @@
 {% extends "base_layout.html" %}
 {% load i18n %}
 
+{% block scripts %}
+    <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/forms.js"></script>
+{% endblock scripts %}
+
+
 {% block maincontent %}
     <h3>{% trans "Редактирование профиля" %}</h3>
-    {%  include "common/generic_edit_form.html" with submit_label="Сохранить" action="" %}
+    {%  include "common/_generic_edit_form.html" with submit_label="Сохранить" action="" %}
 {% endblock %}
+
+{% block scripts_for_execution %}
+    <script type='text/javascript' language="JavaScript">
+        $(function () {
+            $('div.edit-form').error_handling_form({
+                error_popup_selector: "div.field_errors_list",
+                field_errors_selector: '.field_errors'
+            })
+        });
+    </script>
+{% endblock scripts_for_execution %}
