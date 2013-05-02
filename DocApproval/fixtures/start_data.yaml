@@ -1,5 +1,5 @@
 ﻿- model: auth.User
-  pk: null
+  pk: 1
   fields:
     username: admin
     password: pbkdf2_sha256$10000$iy035aduKGU9$ii60aMUwpFpkQx60TFxKOghbmNSDZ2AnWLlaky15vLA= # &FJ2>Vvzyhm,#xM
@@ -7,6 +7,24 @@
     is_superuser: true
     is_staff: true
     is_active: true
+
+- model: DocApproval.Position
+  pk: 1
+  fields:
+    position_name: "Администратор"
+
+- model: DocApproval.UserProfile
+  pk: 1
+  fields:
+    first_name: Администратор
+    last_name: ""
+    middle_name: ""
+    first_name_accusative: ""
+    last_name_accusative: ""
+    middle_name_accusative: ""
+    position: 1
+    email: admin@localhost
+    city: 1
 
 - model: auth.Group
   pk: null

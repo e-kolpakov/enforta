@@ -5,27 +5,27 @@
     city_name: "Ростов-на-Дону"
 
 - model: DocApproval.Position
-  pk: 1
+  pk: 2
   fields:
     position_name: "Великий Босс"
 - model: DocApproval.Position
-  pk: 2
+  pk: 3
   fields:
     position_name: "Босс чуть поменьше"
 - model: DocApproval.Position
-  pk: 3
+  pk: 4
   fields:
     position_name: "Линейный менеджер"
 - model: DocApproval.Position
-  pk: 4
+  pk: 5
   fields:
     position_name: "Нелинейный менеджер"
 - model: DocApproval.Position
-  pk: 5
+  pk: 6
   fields:
     position_name: "Рядовой сотрудник"
 - model: DocApproval.Position
-  pk: 6
+  pk: 7
   fields:
     position_name: "Сотрудник-сержант"
 
@@ -172,4 +172,31 @@
     updated: "2013-01-01"
     creator: 3
     last_updater: 3
+    status: "project"
+
+- model: DocApproval.Request
+  pk: null
+  fields:
+    city: 1
+    name: "Request2"
+    send_on_approval: 6
+    comments: "Test comments"
+    created: "2013-01-01"
+    updated: "2013-01-02"
+    creator: 2
+    last_updater: 3
+    status: "project"
+
+
+- model: DocApproval.Request
+  pk: null
+  fields:
+    city: 1
+    name: "Request3"
+    send_on_approval: 6
+    comments: "Test comments"
+    created: "2013-01-01"
+    updated: "2013-01-01"
+    creator: 7
+    last_updater: 7
     status: "project"
