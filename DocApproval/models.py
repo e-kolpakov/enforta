@@ -1,5 +1,7 @@
 #-*- coding: utf-8 -*-
+import os
 import re
+import datetime
 from datetime import timedelta
 
 from django.db import models
@@ -191,16 +193,25 @@ class UserProfile(models.Model):
 
 
 class Contract(models.Model):
-    def upload_to(self):
-        return 'documents/new'
+    @classmethod
+    def _get_path(cls, subpath, filename):
+        now = datetime.datetime.now()
+        cur_date = now.date()
+        cur_time = now.time()
+        parts = ('documents', subpath, cur_date.strftime("%Y_%m_%d"), cur_time.strftime("%H_%M_%S") + "_" + filename)
+        return os.path.join(*parts)
 
-    def upload_to_signed(self):
-        return 'documents/signed'
+    def upload_to(self, filename):
+        return self._get_path('new', filename)
+
+    def upload_to_signed(self, filename):
+        return self._get_path('signed', filename)
 
     date = models.DateField(_(u'Дата договора'))
+    paid_date = models.DateField(_(u'Дата оплаты'), blank=True, null=True)
+    activation_date = models.DateField(_(u"Начало действия договора"), blank=True, null=True)
     active_period = models.IntegerField(_(u'Срок действия'))
     prolongation = models.BooleanField(_(u'Возможность пролонгации'), blank=True, default=False)
-    paid_date = models.DateField(_(u'Дата оплаты'))
 
     document = models.FileField(_(u'Документ'), upload_to=upload_to)
     document_signed = models.FileField(_(u'Подписанный документ'), upload_to=upload_to_signed, null=True, blank=True)
@@ -256,7 +267,7 @@ class Request(models.Model):
 
     city = models.ForeignKey(City, verbose_name=_(u'Город действия'))
     status = models.ForeignKey(RequestStatus, verbose_name=_(u'Статус'))
-    contract = models.OneToOneField(Contract, verbose_name=_(u'Документ'), related_name='contract', blank=True,
+    contract = models.OneToOneField(Contract, verbose_name=_(u'Документ'), related_name='request', blank=True,
                                     null=True)
 
     creator = models.ForeignKey(UserProfile, verbose_name=_(u'Инициатор'), related_name='requests')
