@@ -213,6 +213,30 @@ class Contract(models.Model):
         verbose_name_plural = _(u"Документы")
 
 
+class ApprovalRoute(models.Model):
+    DIRECT_MANAGER_PLACEHOLDER = '{manager}'
+
+    name = models.CharField(_(u"Название"), max_length=ModelConstants.MAX_NAME_LENGTH)
+    description = models.CharField(_(u"Описание"), max_length=ModelConstants.MAX_VARCHAR_LENGTH)
+
+    created = models.DateField(_(u"Создан"), auto_now_add=True)
+    modified = models.DateField(_(u"Последнее изменение"), auto_now=True)
+
+    is_template = models.BooleanField(_(u"Шаблонный маршрут"))
+
+    def roll_template_route(self):
+        if not self.is_template:
+            raise NonTemplateApprovalRouteException("Current route is not a template route")
+        else:
+            raise NotImplementedError("Not implemented yet")
+
+
+class ApprovalRouteStep(models.Model):
+    route = models.ForeignKey(ApprovalRoute, verbose_name=_(u"Маршрут утверждения"), related_name='steps')
+    approver = models.ForeignKey(UserProfile, verbose_name=_(u"Утверждающий"))
+    step_number = models.IntegerField(verbose_name=_(u"Номер шага"))
+
+
 class RequestManager(models.Manager):
     def _get_query(self, user):
         profile = user.profile
@@ -241,6 +265,8 @@ class Request(models.Model):
     send_on_approval = models.ForeignKey(UserProfile, verbose_name=_(u'Отправить на подпись'),
                                          related_name='requests_to_be_sent_on_approval')
 
+    approval_route = models.OneToOneField(ApprovalRoute, verbose_name=_(u"Маршрут утверждения"), null=True)
+
     created = models.DateField(_(u'Дата создания заявки'), auto_now_add=True)
     updated = models.DateField(_(u'Дата последних изменений'), auto_now=True)
     accepted = models.DateField(_(u'Дата согласования'), blank=True, null=True)
@@ -266,34 +292,17 @@ class Request(models.Model):
     def get_approvers(self):
         return (step.approver for step in self.approval_route.steps)
 
+    def accessible_by(self, user):
+        return (
+            self.creator == user.profile or
+            user.has_perm(Permissions.Request.CAN_VIEW_ALL_REQUESTS) or
+            (self.approval_route and self.approval_route.steps.exists(approver__exact=user.profile))
+        )
+
+
 
 class NonTemplateApprovalRouteException(Exception):
     pass
-
-
-class ApprovalRoute(models.Model):
-    DIRECT_MANAGER_PLACEHOLDER = '{manager}'
-
-    name = models.CharField(_(u"Название"), max_length=ModelConstants.MAX_NAME_LENGTH)
-    description = models.CharField(_(u"Описание"), max_length=ModelConstants.MAX_VARCHAR_LENGTH)
-
-    created = models.DateField(_(u"Создан"), auto_now_add=True)
-    modified = models.DateField(_(u"Последнее изменение"), auto_now=True)
-
-    request = models.OneToOneField(Request, verbose_name=_(u"Завяка"), related_name='approval_route', null=True)
-    is_template = models.BooleanField(_(u"Шаблонный маршрут"))
-
-    def roll_template_route(self):
-        if not self.is_template:
-            raise NonTemplateApprovalRouteException("Current route is not a template route")
-        else:
-            raise NotImplementedError("Not implemented yet")
-
-
-class ApprovalRouteStep(models.Model):
-    route = models.ForeignKey(ApprovalRoute, verbose_name=_(u"Маршрут утверждения"), related_name='steps')
-    approver = models.ForeignKey(UserProfile, verbose_name=_(u"Утверждающий"))
-    step_number = models.IntegerField(verbose_name=_(u"Номер шага"))
 
 
 class ApprovalProcess(models.Model):

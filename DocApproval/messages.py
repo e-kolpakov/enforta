@@ -15,6 +15,7 @@ class Common:
 class RequestMessages:
     REQUEST_CREATED = _(u"Заявка создана успешно")
     DOES_NOT_EXIST = _(u"Запрошенной заявки не существует")
+    ACCESS_DENIED = _(u"Доступ запрещен")
     REQUEST_CREATION_ERROR = _(u"Произошла ошибка сохранения")
 
 
