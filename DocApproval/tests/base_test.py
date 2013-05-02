@@ -20,6 +20,10 @@ class BaseTest(TestCase):
         effective_user = user if user else self.default_user
         username, password = self.credentials[effective_user]
         self.user = self.client.login(username=username, password=password)
+        return self.user
+
+    def logout(self):
+        self.client.logout()
 
     def _get_user_profile(self, user_id):
         return models.UserProfile.objects.get(pk=user_id)

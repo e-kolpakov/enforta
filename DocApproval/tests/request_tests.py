@@ -46,20 +46,37 @@ class RequestCreateTest(LoggedInTest):
         self.assertEqual(resp.status_code, 302)
 
 
-class RequestDetailsTest(LoggedInTest):
+class RequestDetailsTest(BaseTest):
     def test_missing_id(self):
+        self.login()
         self.assertRaises(NoReverseMatch, lambda: self.client.get(reverse(Request.DETAILS)))
 
     def test_non_existing_id(self):
+        self.login()
         resp = self.client.get(reverse(Request.DETAILS, kwargs={'pk': 10000}), pk=10000)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.context['doc_request'], None)
 
-    def test_existing_id(self):
+    def test_existing_id_allowed_creator(self):
+        self.login('user2')
         req = models.Request.objects.get(pk=1)
         resp = self.client.get(reverse(Request.DETAILS, kwargs={'pk': 1}), pk=1)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.context['doc_request'], req)
+
+    def test_existing_id_allowed_by_permission(self):
+        self.login('admin')
+        req = models.Request.objects.get(pk=1)
+        resp = self.client.get(reverse(Request.DETAILS, kwargs={'pk': 1}), pk=1)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context['doc_request'], req)
+
+    def test_existing_id_not_allowed(self):
+        self.login('user1')
+        resp = self.client.get(reverse(Request.DETAILS, kwargs={'pk': 1}), pk=1)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context['doc_request'], None)
+
 
 
 class RequestListTest(LoggedInTest):
