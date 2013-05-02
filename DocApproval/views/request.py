@@ -3,7 +3,7 @@ import logging
 
 from django.core.urlresolvers import reverse
 from django.shortcuts import (render, HttpResponseRedirect)
-from django.views.generic import (TemplateView, UpdateView, CreateView)
+from django.views.generic import (TemplateView, UpdateView, CreateView, DetailView)
 from django.contrib import messages
 
 from ..models import (Request, RequestStatus, UserProfile)
@@ -65,21 +65,30 @@ class UpdateRequestView(UpdateView):
     model = Request
 
 
-class DetailRequestView(TemplateView):
+class DetailRequestView(DetailView):
     template_name = 'request/details.html'
     _logger = logging.getLogger(__name__)
 
+    def _report_error(self, request, request_id, user_message, log_message):
+        messages.error(request, user_message)
+        self._logger.warning(log_message, {'id': request_id, 'username': request.user.username})
+
     def get(self, request, *args, **kwargs):
-        pk = kwargs.get('pk', None)
+        pk = kwargs.get(self.pk_url_kwarg, None)
         exclude_fields = ['id', 'document']
+        # self._modify_menu(request, user_id, allow_edit)
         try:
             req = Request.objects.get(pk=pk)
-            if not req.accepted:
-                exclude_fields.append('accepted')
+            if not req.accessible_by(request.user):
+                req = None
+                self._report_error(request, pk, RequestMessages.ACCESS_DENIED,
+                                   "User {username} does not have access to request {id}")
         except Request.DoesNotExist:
             req = None
-            messages.error(request, RequestMessages.DOES_NOT_EXIST)
-            self._logger.warning("Request %d does not exist", pk)
+            self._report_error(request, pk, RequestMessages.DOES_NOT_EXIST, "Request {id} does not exist")
+
+        if req and not req.accepted:
+                exclude_fields.append('accepted')
 
         return render(request, self.template_name, {
             'doc_request': req,
