@@ -19,7 +19,7 @@ class CreateRequestForm(forms.ModelForm):
 class CreateContractForm(forms.ModelForm):
     class Meta:
         model = Contract
-        fields = ('date', 'active_period', 'document')
+        fields = ('date', 'prolongation', 'active_period', 'document')
         widgets = {
             'date': forms.DateInput(attrs={'class': 'datepicker'})
         }
