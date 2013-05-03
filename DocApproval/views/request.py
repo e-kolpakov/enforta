@@ -100,7 +100,7 @@ class DetailRequestView(DetailView):
         return render(request, self.template_name, {
             'doc_request': req,
             'exclude_fields_req': exclude_fields,
-            'document': req.contract
+            'contract': req.contract
         })
 
 

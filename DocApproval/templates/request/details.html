@@ -5,28 +5,21 @@
 {% block maincontent %}
     {% if doc_request %}
         <div class='row'>
-            <span class="span6">
-            <h4>{% trans "Заявка" %}</h4>
-            <table class='table table-condensed table-noborder'>
-                {% model_details doc_request exclude_fields=exclude_fields_req %}
-                    <tr>
-                        <td class="{{ field_caption_class }}">{{ caption }}</td>
-                        <td class="{{ field_value_class }}">{{ value }}</td>
-                    </tr>
-                {% endmodel_details %}
-            </table>
-            </span>
-            <span class="span5">
+            <div class="span6">
+                <h4>{% trans "Заявка" %}</h4>
+                    <table class='table table-condensed table-noborder'>
+                        {% model_details doc_request exclude_fields=exclude_fields_req %}
+                            <tr>
+                                <td class="{{ field_caption_class }}">{{ caption }}</td>
+                                <td class="{{ field_value_class }}">{{ value }}</td>
+                            </tr>
+                        {% endmodel_details %}
+                    </table>
+            </div>
+            <div class="span5">
             <h4>{% trans "Договор" %}</h4>
-            <table class='table table-condensed table-noborder'>
-                {% model_details document %}
-                    <tr>
-                        <td class="{{ field_caption_class }}">{{ caption }}</td>
-                        <td class="{{ field_value_class }}">{{ value }}</td>
-                    </tr>
-                {% endmodel_details %}
-            </table>
-            </span>
+            {% include "request/_contract_details.html" with contract=contract %}
+            </div>
 
         </div>
     {% endif %}

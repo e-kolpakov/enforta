@@ -15,6 +15,7 @@ from django.conf import settings
 
 from url_naming.names import (Profile as ProfileUrls, Request as RequestUrls)
 from messages import ContractMessages
+from extensions.humanization import Humanizer
 
 
 # Prevent interactive question about wanting a superuser created.  (This
@@ -210,9 +211,9 @@ class Contract(models.Model):
         return self._get_path('signed', filename)
 
     date = models.DateField(_(u'Дата договора'))
+    active_period = models.IntegerField(_(u'Срок действия'))
     paid_date = models.DateField(_(u'Дата оплаты'), blank=True, null=True)
     activation_date = models.DateField(_(u"Начало действия договора"), blank=True, null=True)
-    active_period = models.IntegerField(_(u'Срок действия'))
     prolongation = models.BooleanField(_(u'Возможность пролонгации'), blank=True, default=False)
 
     document = models.FileField(_(u'Документ'), upload_to=upload_to)
@@ -225,21 +226,8 @@ class Contract(models.Model):
         verbose_name = _(u"Документ")
         verbose_name_plural = _(u"Документы")
 
-    def get_paid_date_human(self):
-        return self.paid_date.strftime(settings.DATE_FORMAT) if self.paid_date else ContractMessages.NOT_PAYED
-
-    def get_template_fields(self):
-        fields = [
-            'date', 'get_paid_date_human',
-            'active_period', 'prolongation',
-            'get_document'
-        ]
-        if self.activation_date:
-            fields.insert(2, 'activation_date')
-        if self.document_signed:
-            fields.append('get_document_signed')
-        return fields
-
+    def active_period_humanize(self):
+        return Humanizer().humanize_days(self.active_period)
 
 
 class ApprovalRoute(models.Model):

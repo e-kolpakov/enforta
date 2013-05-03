@@ -14,18 +14,17 @@
           class='form-horizontal'>
         {% csrf_token %}
         <div class='row'>
-            <span class='span6'>
+            <div class='span6'>
                 {% include "common/_headless_form.html" with form=request_form %}
                 <div class="control-group">
                     <div class="controls">
                         <input type="submit" class="btn btn-primary" value='{% trans "Создать" %}'/>
                     </div>
                 </div>
-            </span>
-            <span class='span5'>
+            </div>
+            <div class='span5'>
                 {% include "common/_headless_form.html" with form=contract_form %}
-            </span>
-
+            </div>
     </form>
 {% endblock %}
 

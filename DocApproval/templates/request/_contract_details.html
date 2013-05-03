@@ -1,0 +1,47 @@
+{% load i18n %}
+{% load yes_no from custom %}
+{% load filename from custom %}
+{% with field_caption_class=field_caption_class|default:"field-caption" field_value_class=field_value_class|default:"field-value" %}
+    <table class='table table-condensed table-noborder'>
+        <tr>
+            <td class="{{ field_caption_class }}">{% trans "Дата договора" %}</td>
+            <td class="{{ field_value_class }}">{{ contract.date|date:"d-m-Y" }}</td>
+        </tr>
+        <tr>
+            <td class="{{ field_caption_class }}">{% trans "Срок действия" %}</td>
+            <td class="{{ field_value_class }}">{{ contract.active_period_humanize }}</td>
+        </tr>
+        <tr>
+            <td class="{{ field_caption_class }}">{% trans "Дата оплаты" %}</td>
+            <td class="{{ field_value_class }}">
+                {% if contract.paid_date %}{{ contract.paid_date|date:"d-m-Y" }}
+                {% else %}{% trans "Не оплачено" %}{% endif %}
+            </td>
+        </tr>
+        {% if contract.activation_date %}
+            <tr>
+                <td class="{{ field_caption_class }}">{% trans "Начало действия" %}</td>
+                <td class="{{ field_value_class }}">{{ contract.activation_date|date:"d-m-Y" }}</td>
+            </tr>
+        {% endif %}
+        <tr>
+            <td class="{{ field_caption_class }}">{% trans "Пролонгация" %}</td>
+            <td class="{{ field_value_class }}">{% yes_no contract.prolongation %}</td>
+        </tr>
+        <tr>
+            <td class="{{ field_caption_class }}">{% trans "Договор" %}</td>
+            <td class="{{ field_value_class }}">
+                <a href="{{ contract.document.url }}">{{ contract.document|filename }}</a>
+            </td>
+        </tr>
+        {% if contract.document_signed %}
+            <tr>
+                <td class="{{ field_caption_class }}">{% trans "Подписанный договор" %}</td>
+                <td class="{{ field_value_class }}">
+                    <a href="{{ contract.document_signed.url }}">{{ contract.document_signed|filename }}</a>
+                </td>
+            </tr>
+        {% endif %}
+
+    </table>
+{% endwith %}
