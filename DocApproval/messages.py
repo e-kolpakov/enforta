@@ -21,3 +21,7 @@ class RequestMessages:
 
 class ProfileMessages:
     DOES_NOT_EXIST = _(u"Запрошен профиль неизвестного пользователя")
+
+
+class ContractMessages:
+    NOT_PAYED = _(u"Не оплачен")

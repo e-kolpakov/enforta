@@ -3,7 +3,8 @@
 {% load static from staticfiles %}
 
 {% block scripts %}
-    <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/forms.js"></script>
+    <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/forms.js"
+            xmlns="http://www.w3.org/1999/html"></script>
 {% endblock scripts %}
 
 {% block maincontent %}
@@ -12,13 +13,19 @@
           {% if request_form.is_multipart or contract_form.is_multipart %}enctype="multipart/form-data"{% endif %}
           class='form-horizontal'>
         {% csrf_token %}
-        {% include "common/_headless_form.html" with form=request_form %}
-        {% include "common/_headless_form.html" with form=contract_form %}
-        <div class="control-group">
-            <div class="controls">
-                <input type="submit" class="btn btn-primary" value='{% trans "Создать" %}'/>
-            </div>
-        </div>
+        <div class='row'>
+            <span class='span6'>
+                {% include "common/_headless_form.html" with form=request_form %}
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="submit" class="btn btn-primary" value='{% trans "Создать" %}'/>
+                    </div>
+                </div>
+            </span>
+            <span class='span5'>
+                {% include "common/_headless_form.html" with form=contract_form %}
+            </span>
+
     </form>
 {% endblock %}
 

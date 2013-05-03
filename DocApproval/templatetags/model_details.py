@@ -1,4 +1,5 @@
 from django import template
+from django.template.defaulttags import token_kwargs
 from django.db import models
 from django.utils.safestring import mark_safe
 
@@ -9,9 +10,10 @@ register = template.Library()
 
 
 class ModelDetailsNode(template.Node):
-    def __init__(self, model, exclude_fields, child_nodes):
+    def __init__(self, model, child_nodes, exclude_fields=None, include_fields=None):
         self._model = model
         self._exclude_fields = exclude_fields
+        self._include_fields = include_fields
         self._children = child_nodes
 
     def _render_image(self, image, css_class):
@@ -36,9 +38,14 @@ class ModelDetailsNode(template.Node):
 
     def render(self, context):
         model = context[self._model]
-        exclude_fields = context.get(self._exclude_fields, ())
         all_fields = model._meta.fields
-        fields = [field for field in all_fields if field.name not in exclude_fields]
+        exclude_fields = self._exclude_fields.resolve(context) if self._exclude_fields else ()
+        include_fields = self._include_fields.resolve(context) if self._include_fields else [field.name for field in
+                                                                                             all_fields]
+        fields = [
+            field for field in all_fields
+            if field.name not in exclude_fields
+            and field.name in include_fields]
         output = []
 
         classes_for_context = dict()
@@ -76,8 +83,11 @@ def def_model_details(parser, token):
         raise template.TemplateSyntaxError("{0} tag should have at least one argument")
 
     model = params[1]
-    exclude_fields = params[2] if len(params) > 2 else None
+    bits = params[2:]
+    kwargs = token_kwargs(bits, parser)
+    include_fields = kwargs.get('fields', None)
+    exclude_fields = kwargs.get('exclude_fields', None)
     nodelist = parser.parse(("end" + tag_name, ))
     parser.delete_first_token()
 
-    return ModelDetailsNode(model, exclude_fields, nodelist)
+    return ModelDetailsNode(model, nodelist, include_fields=include_fields, exclude_fields=exclude_fields)

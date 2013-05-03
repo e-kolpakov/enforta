@@ -11,8 +11,10 @@ from django.core.urlresolvers import reverse
 from django.db.models import signals
 from django.contrib.auth.management import create_superuser
 from django.contrib.auth import models as auth_app
+from django.conf import settings
 
 from url_naming.names import (Profile as ProfileUrls, Request as RequestUrls)
+from messages import ContractMessages
 
 
 # Prevent interactive question about wanting a superuser created.  (This
@@ -222,6 +224,22 @@ class Contract(models.Model):
     class Meta:
         verbose_name = _(u"Документ")
         verbose_name_plural = _(u"Документы")
+
+    def get_paid_date_human(self):
+        return self.paid_date.strftime(settings.DATE_FORMAT) if self.paid_date else ContractMessages.NOT_PAYED
+
+    def get_template_fields(self):
+        fields = [
+            'date', 'get_paid_date_human',
+            'active_period', 'prolongation',
+            'get_document'
+        ]
+        if self.activation_date:
+            fields.insert(2, 'activation_date')
+        if self.document_signed:
+            fields.append('get_document_signed')
+        return fields
+
 
 
 class ApprovalRoute(models.Model):

@@ -4,20 +4,24 @@
 
 {% block subtitle %}
     {% if user_profile %}
-    - {% trans "Профиль" %} {{ user_profile }} {% if account %}({{ account.username }}){% endif %}
+        - {% trans "Профиль" %} {{ user_profile }} {% if account %}({{ account.username }}){% endif %}
     {% endif %}
 {% endblock subtitle %}
 
 {% block maincontent %}
     {% if user_profile %}
-        <table>
-            {% model_details user_profile exclude_fields %}
-                <tr>
-                    <td class="{{ field_caption_class }}">{{ caption }}</td>
-                    <td class="{{ field_value_class }}">{{ value }}</td>
-                </tr>
-            {% endmodel_details %}
-        </table>
+        <div class='row'>
+            <span class='span6'>
+                <table class='table table-condensed table-noborder'>
+                    {% model_details user_profile exclude_fields=exclude_fields %}
+                        <tr>
+                            <td class="{{ field_caption_class }}">{{ caption }}</td>
+                            <td class="{{ field_value_class }}">{{ value }}</td>
+                        </tr>
+                    {% endmodel_details %}
+                </table>
+            </span>
+        </div>
     {% else %}
         {% trans "Профиль указанного пользователя не найден" %}
     {% endif %}
