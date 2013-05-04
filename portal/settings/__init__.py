@@ -3,7 +3,7 @@ from base import *
 import os
 import sys
 
-local_settings_file = os.environ.get('EnvironmentType', 'production')
+local_settings_file = os.environ.get('EnvironmentType', 'development')
 
 if 'migrate' in sys.argv:
     local_settings_file = 'database_migration'
