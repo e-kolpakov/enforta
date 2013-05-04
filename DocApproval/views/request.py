@@ -53,6 +53,9 @@ class CreateUpdateRequestView(TemplateView):
     def get_instances(self, pk):
         raise NotImplementedError()
 
+    def get_return_url(self, pk):
+        raise NotImplementedError()
+
     def get_initial_request(self, request, *args, **kwargs):
         return {}
 
@@ -71,7 +74,11 @@ class CreateUpdateRequestView(TemplateView):
         request_form = self.request_form_class(instance=request_instance, initial=request_initial, prefix='request')
         contract_form = self.contract_form_class(instance=contract_instance, initial=contract_initial,
                                                  prefix='contract')
-        return render(request, self.template_name, {'request_form': request_form, 'contract_form': contract_form})
+        return render(request, self.template_name, {
+            'request_form': request_form,
+            'contract_form': contract_form,
+            'return_url': self.get_return_url(pk)
+        })
 
     def post(self, request, *args, **kwargs):
         pk = kwargs.get('pk', 0)
@@ -89,7 +96,11 @@ class CreateUpdateRequestView(TemplateView):
             messages.error(request, CommonMessages.FORM_VALIDATION_ERROR)
             errors = reprint_form_errors(request_form.errors) + reprint_form_errors(contract_form.errors)
             logger.error(u"Error saving the request:\n{0}".format(u"\n".join(errors)))
-            return render(request, self.template_name, {'request_form': request_form, 'contract_form': contract_form})
+            return render(request, self.template_name, {
+                'request_form': request_form,
+                'contract_form': contract_form,
+                'return_url': self.get_return_url(pk)
+            })
 
 
 class CreateRequestView(CreateUpdateRequestView):
@@ -109,6 +120,9 @@ class CreateRequestView(CreateUpdateRequestView):
     def get_initial_contract(self, request, *args, **kwargs):
         return {}
 
+    def get_return_url(self, pk):
+        return reverse(RequestUrl.LIST)
+
 
 class UpdateRequestView(CreateUpdateRequestView):
     request_form_class = UpdateRequestForm
@@ -120,6 +134,9 @@ class UpdateRequestView(CreateUpdateRequestView):
     def get_instances(self, pk):
         request = get_object_or_404(Request, pk=pk)
         return request, request.contract
+
+    def get_return_url(self, pk):
+        return reverse(RequestUrl.DETAILS, kwargs={'pk': int(pk)})
 
 
 class ListRequestView(TemplateView):
