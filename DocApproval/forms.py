@@ -25,6 +25,31 @@ class CreateContractForm(forms.ModelForm):
         }
 
 
+class UpdateRequestForm(forms.ModelForm):
+    class Meta:
+        model = Request
+        fields = ('name', 'city', 'status', 'send_on_approval', 'comments')
+        widgets = {
+            # 'city': forms.Select(attrs={'readonly': 'readonly', 'disabled': 'disabled'}),
+            'comments': forms.Textarea(attrs={'rows': 10}),
+        }
+    #
+    # def clean_city(self):
+    #     new_city = self.cleaned_data['city']
+    #     if self.instance and self.instance.city != new_city:
+    #         raise ValidationError(RequestMessages.CANT_CHANGE_CITY)
+    #     return self.instance.city
+
+
+class UpdateContractForm(forms.ModelForm):
+    class Meta:
+        model = Contract
+        fields = ('date', 'prolongation', 'active_period', 'document')
+        widgets = {
+            'date': forms.DateInput(attrs={'class': 'datepicker'})
+        }
+
+
 class UserProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(UserProfileForm, self).__init__(*args, **kwargs)
@@ -40,6 +65,7 @@ class UserProfileForm(forms.ModelForm):
         fields = ['last_name', 'first_name', 'middle_name',
                   'email', 'sign', 'position', 'manager',
                   'last_name_accusative', 'first_name_accusative', 'middle_name_accusative']
+
 
 class AdminCustomizedUserForm(UserChangeForm):
     user_permissions = forms.ModelMultipleChoiceField(

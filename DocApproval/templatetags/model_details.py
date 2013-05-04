@@ -3,7 +3,7 @@ from django.template.defaulttags import token_kwargs
 from django.db import models
 from django.utils.safestring import mark_safe
 
-from ..messages import Common
+from ..messages import CommonMessages
 from ..models import ModelConstants
 
 register = template.Library()
@@ -20,7 +20,7 @@ class ModelDetailsNode(template.Node):
         try:
             value = mark_safe("<img src='{0}' class='{1}'/>".format(image.url, css_class))
         except ValueError:
-            value = Common.IMAGE_MISSING
+            value = CommonMessages.IMAGE_MISSING
         return value
 
     def _render_field(self, model, field, image_class):

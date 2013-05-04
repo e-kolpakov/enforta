@@ -165,7 +165,7 @@ class MenuManager(object):
         return root_item
 
 
-class UserProfileContextMenuManagerExtension:
+class UserProfileContextMenuManagerExtension(object):
     def __init__(self, request, allow_edit):
         self._user = request.user
         self._target_menu_manager = request.menu_manager
@@ -181,6 +181,29 @@ class UserProfileContextMenuManagerExtension:
             child_items.append(
                 NavigableMenuItem(caption=_(u"Редактировать"), image='icons/edit.png',
                                   url=reverse(url_names.Profile.UPDATE, kwargs={'pk': profile_id}))
+            )
+        if len(child_items) > 0:
+            root_item = HtmlMenuItem(caption=_(u"Действия"), image="icons/actions.png")
+            root_item.add_children(child_items)
+        return root_item
+
+
+class RequestContextMenuManagerExtension(object):
+    def __init__(self, request, allow_edit):
+        self._user = request.user
+        self._target_menu_manager = request.menu_manager
+        self._allow_edit = allow_edit
+
+    def extend(self, request_id):
+        self._target_menu_manager.add_item(self._build_root_item(request_id))
+
+    def _build_root_item(self, request_id):
+        root_item = None
+        child_items = []
+        if self._allow_edit:
+            child_items.append(
+                NavigableMenuItem(caption=_(u"Редактировать"), image='icons/edit.png',
+                                  url=reverse(url_names.Request.UPDATE, kwargs={'pk': request_id}))
             )
         if len(child_items) > 0:
             root_item = HtmlMenuItem(caption=_(u"Действия"), image="icons/actions.png")

@@ -273,8 +273,7 @@ class Request(models.Model):
 
     city = models.ForeignKey(City, verbose_name=_(u'Город действия'))
     status = models.ForeignKey(RequestStatus, verbose_name=_(u'Статус'))
-    contract = models.OneToOneField(Contract, verbose_name=_(u'Документ'), related_name='request', blank=True,
-                                    null=True)
+    contract = models.OneToOneField(Contract, verbose_name=_(u'Документ'), related_name='request')
 
     creator = models.ForeignKey(UserProfile, verbose_name=_(u'Инициатор'), related_name='requests')
     last_updater = models.ForeignKey(UserProfile, verbose_name=_(u'Последние изменения'),
@@ -315,7 +314,6 @@ class Request(models.Model):
             user.has_perm(Permissions.Request.CAN_VIEW_ALL_REQUESTS) or
             (self.approval_route and self.approval_route.steps.exists(approver__exact=user.profile))
         )
-
 
 
 class NonTemplateApprovalRouteException(Exception):

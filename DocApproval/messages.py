@@ -2,10 +2,11 @@
 from django.utils.translation import ugettext as _
 
 
-class Common:
+class CommonMessages:
     ACCESS_DENIED = _(u"Доступ запрещен")
     FILE_MISSING = _(u"[Файл не найден]")
     IMAGE_MISSING = _(u"[Изображение отсутсвует]")
+    FORM_VALIDATION_ERROR = _(u"Введены некорректные данные")
 
     @classmethod
     def access_denied_message(cls, detailed_message):
@@ -14,9 +15,10 @@ class Common:
 
 class RequestMessages:
     REQUEST_CREATED = _(u"Заявка создана успешно")
+    REQUEST_MODIFIED = _(u"Заявка изменена успешно")
     DOES_NOT_EXIST = _(u"Запрошенной заявки не существует")
     ACCESS_DENIED = _(u"Доступ запрещен")
-    REQUEST_CREATION_ERROR = _(u"Произошла ошибка сохранения")
+    CANT_CHANGE_CITY = _(u"Невозможно изменить город существующей заявки")
 
 
 class ProfileMessages:
