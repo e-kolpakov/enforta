@@ -3,6 +3,10 @@
   pk: 1
   fields:
     city_name: "Ростов-на-Дону"
+- model: DocApproval.City
+  pk: 2
+  fields:
+    city_name: "Тмутаракань"
 
 - model: DocApproval.Position
   pk: 2
@@ -161,10 +165,35 @@
     manager: 6
     city: 1
 
+- model: DocApproval.Contract
+  pk: 1
+  fields:
+    active_period: 10
+    date: "2013-05-01"
+    document: documents/new/123.txt
+    prolongation: false
+
+- model: DocApproval.Contract
+  pk: 2
+  fields:
+    active_period: 10
+    date: "2013-05-02"
+    document: documents/new/456.txt
+    prolongation: false
+
+- model: DocApproval.Contract
+  pk: 3
+  fields:
+    active_period: 10
+    date: "2013-05-03"
+    document: documents/new/789.txt
+    prolongation: false
+
 - model: DocApproval.Request
   pk: null
   fields:
     city: 1
+    contract: 1
     name: "Request1"
     send_on_approval: 7
     comments: "Test comments"
@@ -178,6 +207,7 @@
   pk: null
   fields:
     city: 1
+    contract: 2
     name: "Request2"
     send_on_approval: 6
     comments: "Test comments"
@@ -192,6 +222,7 @@
   pk: null
   fields:
     city: 1
+    contract: 3
     name: "Request3"
     send_on_approval: 6
     comments: "Test comments"
