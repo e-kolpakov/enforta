@@ -1,12 +1,14 @@
 #-*- coding: utf-8 -*-
 import logging
+from django.contrib.auth.decorators import permission_required, login_required
 
 from django.core.urlresolvers import reverse
 from django.shortcuts import (render, HttpResponseRedirect)
+from django.utils.decorators import method_decorator
 from django.views.generic import (TemplateView, UpdateView, CreateView, DetailView)
 from django.contrib import messages
 
-from ..models import (Request, RequestStatus, UserProfile)
+from ..models import (Request, RequestStatus, UserProfile, Permissions)
 from ..forms import (CreateRequestForm, CreateContractForm)
 from ..url_naming.names import (Request as RequestUrl, Profile as ProfileUrl)
 from ..messages import RequestMessages
@@ -21,6 +23,10 @@ class CreateRequestView(CreateView):
     request_form_class = CreateRequestForm
     contract_form_class = CreateContractForm
     template_name = 'request/create.html'
+
+    @method_decorator(permission_required(Permissions.Request.CAN_CREATE_REQUESTS, raise_exception=True))
+    def dispatch(self, request, *args, **kwargs):
+        return super(CreateRequestView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         # TODO: add initialization of defaults, e.g. city, approver, etc.
