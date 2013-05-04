@@ -7,7 +7,7 @@ from ..url_naming.names import *
 class URLSmokeTest(BaseTest):
     def setUp(self):
         super(URLSmokeTest, self).setUp()
-        self.login()
+        self.login('admin')
 
     def test_index(self):
         self._request_and_check(Common.HOME, 200)

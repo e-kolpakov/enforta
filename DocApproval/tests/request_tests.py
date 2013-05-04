@@ -4,6 +4,7 @@ when you run "manage.py test".
 
 Replace this with more appropriate tests for your application.
 """
+import StringIO
 
 from django.core.urlresolvers import (reverse, NoReverseMatch)
 
@@ -14,35 +15,48 @@ from ..views.request import ListRequestView
 
 
 class RequestCreateTest(LoggedInTest):
+    default_user = BaseTest.ADMIN
+
     def _check_form_errors(self, resp, form_key, errors_count):
         for key, value in errors_count.items():
-            self.assertEqual(len(resp.context[form_key][key].errors), value)
+            self.assertEqual(len(resp.context[form_key][key].errors), value,
+                             "Errors mismatch for field {0}".format(key))
 
     def test_get(self):
         resp = self._request_and_check(Request.CREATE, 200)
         self.assertTrue('form' in resp.context)
 
-    def test_post(self):
-        any_user_profile = self._get_user_profile(6)
-        # Junk Post
+    def test_post_junk(self):
         resp = self.client.post(reverse(Request.CREATE), {'qwe': 'rty'})
         self.assertEqual(resp.status_code, 200)
         self._check_form_errors(resp, 'form', {'name': 1, 'city': 1, 'send_on_approval': 1})
 
-        # Some fields missing
+    def test_post_incomplete(self):
         resp = self.client.post(reverse(Request.CREATE), {'name': '123'})
         self.assertEqual(resp.status_code, 200)
         self._check_form_errors(resp, 'form', {'city': 1, 'send_on_approval': 1})
 
-        #Invalid city
+    def test_post_invalid_city(self):
+        approver1 = self._get_user_profile(self.APPROVER1)
         resp = self.client.post(reverse(Request.CREATE),
-                                {'name': '123', 'city': 10000, 'send_on_approval': any_user_profile.pk})
+                                {'request-name': '123', 'request-city': 10000,
+                                 'request-send_on_approval': approver1.pk})
         self.assertEqual(resp.status_code, 200)
         self._check_form_errors(resp, 'form', {'name': 0, 'city': 1, 'send_on_approval': 0})
 
-        #Valid post
-        resp = self.client.post(reverse(Request.CREATE),
-                                {'name': '123', 'city': 1, 'send_on_approval': any_user_profile.pk, 'comments': 'test'})
+    def test_post_valid(self):
+        approver1 = self._get_user_profile(self.APPROVER1)
+        upl_file = StringIO.StringIO("test data")
+        upl_file.name = 'documents/new/123.txt'
+        resp = self.client.post(reverse(Request.CREATE), {
+            'request-name': '123',
+            'request-city': 1,
+            'request-send_on_approval': approver1.pk,
+            'request-comments': 'test',
+            'contract-date': '2013-01-01',
+            'contract-active_period': '1',
+            'contract-document': upl_file
+        })
         self.assertEqual(resp.status_code, 302)
 
 
@@ -76,7 +90,6 @@ class RequestDetailsTest(BaseTest):
         resp = self.client.get(reverse(Request.DETAILS, kwargs={'pk': 1}), pk=1)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.context['doc_request'], None)
-
 
 
 class RequestListTest(LoggedInTest):

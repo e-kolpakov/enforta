@@ -10,7 +10,7 @@ class ProfileDetailsTest(BaseTest):
         super(ProfileDetailsTest, self).setUp()
 
     def test_refuse_not_logged_in(self):
-        trgt_user = self._get_user_profile(2)
+        trgt_user = self._get_user_profile(self.USER1)
         resp = self.client.get(reverse(Profile.PROFILE, kwargs={'pk': trgt_user.pk}), pk=trgt_user.pk)
         self.assertEqual(resp.status_code, 302)
 
@@ -22,7 +22,7 @@ class ProfileDetailsTest(BaseTest):
 
     def test_allow_logged_in(self):
         self.login()
-        trgt_user = self._get_user_profile(2)
+        trgt_user = self._get_user_profile(self.USER1)
         resp = self.client.get(reverse(Profile.MY_PROFILE))
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.context['user_profile'], trgt_user)

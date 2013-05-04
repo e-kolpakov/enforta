@@ -8,12 +8,14 @@ from auth_tests import TestAuthentication
 
 
 def suite():
-    test_cases = (
+    unit_test_cases = ()
+    integration_test_cases = (
         URLSmokeTest,
         AuthMiddleWareTest,
         RequestCreateTest, RequestDetailsTest, ProfileDetailsTest, RequestListTest,
         TestAuthentication
     )
+    all_test_cases = unit_test_cases + integration_test_cases
     test_loader = TestLoader()
-    tests = [test_loader.loadTestsFromTestCase(case) for case in test_cases]
+    tests = [test_loader.loadTestsFromTestCase(case) for case in all_test_cases]
     return TestSuite(tests)
