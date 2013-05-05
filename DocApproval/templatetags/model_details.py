@@ -1,6 +1,7 @@
 from django import template
 from django.template.defaulttags import token_kwargs
 from django.db import models
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
 from ..messages import CommonMessages
@@ -30,7 +31,7 @@ class ModelDetailsNode(template.Node):
         elif isinstance(field, (models.ForeignKey, models.ManyToManyField)) and raw_value is None:
             value = "-----"
         elif isinstance(field, models.CharField) and field.max_length > ModelConstants.DEFAULT_VARCHAR_LENGTH:
-            value = mark_safe("<pre>" + raw_value + "</pre>")
+            value = mark_safe("<pre>" + escape(raw_value) + "</pre>")
         else:
             value = raw_value
         return value

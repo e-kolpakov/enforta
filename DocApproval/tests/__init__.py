@@ -1,3 +1,5 @@
+__author__ = 'john'
+
 from unittest import (TestSuite, TestLoader)
 
 from url_tests import URLSmokeTest

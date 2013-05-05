@@ -1,22 +1,22 @@
 #-*- coding: utf-8 -*-
 import logging
-from django.contrib.auth.decorators import permission_required, login_required
+from django.contrib.auth.decorators import permission_required
 
 from django.db import transaction
 from django.core.urlresolvers import reverse
 from django.shortcuts import (render, HttpResponseRedirect, get_object_or_404)
 from django.utils.decorators import method_decorator
-from django.views.generic import (TemplateView, UpdateView, CreateView, DetailView)
+from django.views.generic import (TemplateView, DetailView)
 from django.contrib import messages
 from DocApproval.menu import RequestContextMenuManagerExtension
 
-from ..models import (Request, RequestStatus, UserProfile, Permissions)
+from ..models import (Request, RequestStatus, Permissions)
 from ..forms import (CreateRequestForm, CreateContractForm, UpdateRequestForm, UpdateContractForm)
 from ..url_naming.names import (Request as RequestUrl, Profile as ProfileUrl)
 from ..messages import CommonMessages, RequestMessages
 
-from ..extensions.utility import (get_url_base, reprint_form_errors)
-from ..extensions.datatables import JsonConfigurableDatatablesBaseView
+from ..utilities.utility import (get_url_base, reprint_form_errors)
+from ..utilities.datatables import JsonConfigurableDatatablesBaseView
 
 logger = logging.getLogger(__name__)
 
@@ -169,7 +169,7 @@ class DetailRequestView(DetailView):
 
     def get(self, request, *args, **kwargs):
         pk = kwargs.get(self.pk_url_kwarg, None)
-        exclude_fields = ['id', 'document']
+        exclude_fields = ['id', 'contract']
         try:
             req = Request.objects.get(pk=pk)
             self._modify_menu(request, pk, req.accessible_by(request.user))

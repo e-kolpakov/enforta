@@ -4,7 +4,7 @@
         {{ hidden }}
     {% endfor %}
     {% for field in form.visible_fields %}
-        <div class="control-group">
+        <div class="control-group {% if field.errors %}error{% endif %}">
             <label for='{{ field.id }}' class='control-label'> {{ field.label }}
                 {% if field.errors %}
                     <span class='field_errors' title=''>*</span>

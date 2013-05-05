@@ -3,7 +3,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 
 from names import Request as request_names
 from ..views import ( request)
-from ..extensions.datatables import JsonConfigurableDatatablesBaseView as JCDBV
+from ..utilities.datatables import JsonConfigurableDatatablesBaseView as JCDBV
 
 urlpatterns = patterns(
     '',

@@ -17,6 +17,7 @@ class CreateRequestForm(forms.ModelForm):
 
 
 class CreateContractForm(forms.ModelForm):
+    #TODO: use bootstrap's appended buttons to provide sets of common active periods, e.g. 1 year, 6 month, etc.
     class Meta:
         model = Contract
         fields = ('date', 'prolongation', 'active_period', 'document')

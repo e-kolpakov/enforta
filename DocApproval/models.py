@@ -11,11 +11,9 @@ from django.core.urlresolvers import reverse
 from django.db.models import signals
 from django.contrib.auth.management import create_superuser
 from django.contrib.auth import models as auth_app
-from django.conf import settings
 
 from url_naming.names import (Profile as ProfileUrls, Request as RequestUrls)
-from messages import ContractMessages
-from extensions.humanization import Humanizer
+from DocApproval.utilities.humanization import Humanizer
 
 
 # Prevent interactive question about wanting a superuser created.  (This
@@ -269,7 +267,6 @@ class RequestManager(models.Manager):
 class Request(models.Model):
     objects = RequestManager()
     name = models.CharField(_(u'Наименование'), max_length=ModelConstants.MAX_NAME_LENGTH)
-    comments = models.CharField(_(u'Комментарии'), max_length=ModelConstants.MAX_VARCHAR_LENGTH, null=True, blank=True)
 
     city = models.ForeignKey(City, verbose_name=_(u'Город действия'))
     status = models.ForeignKey(RequestStatus, verbose_name=_(u'Статус'))
@@ -286,6 +283,8 @@ class Request(models.Model):
     created = models.DateField(_(u'Дата создания заявки'), auto_now_add=True)
     updated = models.DateField(_(u'Дата последних изменений'), auto_now=True)
     accepted = models.DateField(_(u'Дата согласования'), blank=True, null=True)
+
+    comments = models.CharField(_(u'Комментарии'), max_length=ModelConstants.MAX_VARCHAR_LENGTH, null=True, blank=True)
 
     class Meta:
         verbose_name = _(u'Заявка')

@@ -3,10 +3,8 @@
       class='form-horizontal'>
     {% csrf_token %}
     {% include "common/_headless_form.html" %}
-    <div class="control-group">
-        <div class="controls">
-            <input type="submit" class="btn btn-primary" value='{% trans submit_label|default:"Отправить" %}'/>
-        </div>
+    <div class="form-actions">
+        <input type="submit" class="btn btn-primary" value='{% trans submit_label|default:"Отправить" %}'/>
     </div>
 </form>
 <script type='text/javascript' language="JavaScript">

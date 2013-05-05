@@ -1,5 +1,5 @@
 from django.shortcuts import (render, )
-from DocApproval.extensions.authentication import public_view
+from ..utilities.authentication import public_view
 
 
 def index(request):
