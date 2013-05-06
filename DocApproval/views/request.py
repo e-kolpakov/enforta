@@ -1,44 +1,24 @@
 #-*- coding: utf-8 -*-
 import logging
-from django.contrib.auth.decorators import permission_required
 
-from django.db import transaction
 from django.core.urlresolvers import reverse
 from django.shortcuts import (render, HttpResponseRedirect, get_object_or_404)
 from django.utils.decorators import method_decorator
 from django.views.generic import (TemplateView, DetailView)
 from django.contrib import messages
-from DocApproval.menu import RequestContextMenuManagerExtension
 
-from ..models import (Request, RequestStatus, Permissions)
-from ..forms import (CreateRequestForm, CreateContractForm, UpdateRequestForm, UpdateContractForm)
-from ..url_naming.names import (Request as RequestUrl, Profile as ProfileUrl)
+from guardian.decorators import permission_required
+
+from ..menu import RequestContextMenuManagerExtension
 from ..messages import CommonMessages, RequestMessages
+from ..models import (Request, RequestStatus, Permissions, RequestFactory)
+from ..url_naming.names import (Request as RequestUrl, Profile as ProfileUrl)
+from ..forms import (CreateRequestForm, CreateContractForm, UpdateRequestForm, UpdateContractForm)
 
 from ..utilities.utility import (get_url_base, reprint_form_errors)
 from ..utilities.datatables import JsonConfigurableDatatablesBaseView
 
 logger = logging.getLogger(__name__)
-
-
-class RequestCreateUpdateHandler(object):
-    def __init__(self, request_form, contract_form, user_profile):
-        self._req_form = request_form
-        self._con_form = contract_form
-        self._user_profile = user_profile
-
-    @transaction.commit_on_success
-    def persist_request(self, override_status=None):
-        new_request = self._req_form.save(commit=False)
-        if override_status:
-            new_request.status = RequestStatus.objects.get(pk=override_status)
-        new_request.creator = self._user_profile
-        new_request.last_updater = self._user_profile
-
-        new_request.contract = self._con_form.save()
-        new_request.save()
-
-        return new_request
 
 
 class CreateUpdateRequestView(TemplateView):
@@ -62,7 +42,7 @@ class CreateUpdateRequestView(TemplateView):
     def get_initial_contract(self, request, *args, **kwargs):
         return {}
 
-    @method_decorator(permission_required(Permissions.Request.CAN_CREATE_REQUESTS, raise_exception=True))
+    @method_decorator(permission_required(Permissions._(Permissions.Request.CAN_CREATE_REQUESTS), raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(CreateUpdateRequestView, self).dispatch(request, *args, **kwargs)
 
@@ -86,7 +66,7 @@ class CreateUpdateRequestView(TemplateView):
         request_form = self.request_form_class(request.POST, instance=request_instance, prefix='request')
         contract_form = self.contract_form_class(request.POST, request.FILES, instance=contract_instance,
                                                  prefix='contract')
-        create_handler = RequestCreateUpdateHandler(request_form, contract_form, request.user.profile)
+        create_handler = RequestFactory(request_form, contract_form, request.user)
 
         if request_form.is_valid() and contract_form.is_valid():
             new_request = create_handler.persist_request(override_status=self.override_request_status)
@@ -103,6 +83,7 @@ class CreateUpdateRequestView(TemplateView):
             })
 
 
+# Permission protection is on the base class
 class CreateRequestView(CreateUpdateRequestView):
     request_form_class = CreateRequestForm
     contract_form_class = CreateContractForm
@@ -124,6 +105,7 @@ class CreateRequestView(CreateUpdateRequestView):
         return reverse(RequestUrl.LIST)
 
 
+# Permission protection is on the base class
 class UpdateRequestView(CreateUpdateRequestView):
     request_form_class = UpdateRequestForm
     contract_form_class = UpdateContractForm
@@ -166,6 +148,14 @@ class DetailRequestView(DetailView):
     def _report_error(self, request, request_id, user_message, log_message):
         messages.error(request, user_message)
         self._logger.warning(log_message, {'id': request_id, 'username': request.user.username})
+
+    @method_decorator(permission_required(
+        Permissions._(Permissions.Request.CAN_VIEW_REQUEST),
+        (Request, 'pk', 'pk'),
+        return_403=True)
+    )
+    def dispatch(self, request, *args, **kwargs):
+        return super(DetailRequestView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         pk = kwargs.get(self.pk_url_kwarg, None)

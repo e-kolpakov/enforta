@@ -4,16 +4,53 @@ import re
 import datetime
 from datetime import timedelta
 
-from django.db import models
+from django.db import models, transaction
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
 from django.db.models import signals
 from django.contrib.auth.management import create_superuser
 from django.contrib.auth import models as auth_app
+from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from url_naming.names import (Profile as ProfileUrls, Request as RequestUrls)
 from DocApproval.utilities.humanization import Humanizer
+
+
+class Permissions:
+    #keep in sync
+    PREFIX = 'docapproval'
+
+    @classmethod
+    def _(cls, permission, app_label='DocApproval'):
+        """Adds app_label to requested permission"""
+        return app_label + "." + permission
+
+    class Request:
+        #django permissions (applied at model class level)
+        CAN_CREATE_REQUESTS = "docapproval_can_create_requests"
+        CAN_APPROVE_REQUESTS = "docapproval_can_approve_requests"
+        CAN_VIEW_ALL_REQUESTS = "docapproval_can_view_all_requests"
+        #guardian permissions (applied per model instance => shouldn't be shown in admin)
+        CAN_VIEW_REQUEST = "guardian_can_view_request"
+
+    class UserProfile:
+        CAN_CHANGE_POSITION = "docapproval_can_change_position"
+        CAN_CHANGE_MANAGER = "docapproval_can_change_manager"
+
+        CAN_CHANGE_ANY_POSITION = "docapproval_can_change_any_position"
+        CAN_CHANGE_ANY_MANAGER = "docapproval_can_change_any_manager"
+
+
+class ModelConstants:
+    MAX_NAME_LENGTH = 500
+    MAX_VARCHAR_LENGTH = 4000
+    DEFAULT_VARCHAR_LENGTH = 800
+    MAX_CODE_VARCHAR_LENGTH = 50
+
+
+class NonTemplateApprovalRouteException(Exception):
+    pass
 
 
 # Prevent interactive question about wanting a superuser created.  (This
@@ -26,28 +63,7 @@ signals.post_syncdb.disconnect(
     dispatch_uid="django.contrib.auth.management.create_superuser")
 
 
-class Permissions:
-    #keep in sync
-    PREFIX = 'docapproval'
 
-    class Request:
-        CAN_CREATE_REQUESTS = "docapproval.can_create_requests"
-        CAN_APPROVE_REQUESTS = "docapproval.can_approve_requests"
-        CAN_VIEW_ALL_REQUESTS = "docapproval.can_view_all_requests"
-
-    class UserProfile:
-        CAN_CHANGE_POSITION = "docapproval.can_change_position"
-        CAN_CHANGE_MANAGER = "docapproval.can_change_manager"
-
-        CAN_CHANGE_ANY_POSITION = "docapproval.can_change_any_position"
-        CAN_CHANGE_ANY_MANAGER = "docapproval.can_change_any_manager"
-
-
-class ModelConstants:
-    MAX_NAME_LENGTH = 500
-    MAX_VARCHAR_LENGTH = 4000
-    DEFAULT_VARCHAR_LENGTH = 800
-    MAX_CODE_VARCHAR_LENGTH = 50
 
 
 #Some "dictionaries" first
@@ -253,15 +269,13 @@ class ApprovalRouteStep(models.Model):
 
 
 class RequestManager(models.Manager):
-    def _get_query(self, user):
-        profile = user.profile
-        return models.Q(approval_route__steps__approver=profile) | models.Q(creator=profile)
+    target_permissions = (
+        Permissions.Request.CAN_VIEW_REQUEST,
+        Permissions.Request.CAN_VIEW_ALL_REQUESTS
+    )
 
     def get_accessible_requests(self, user):
-        queryset = super(RequestManager, self).get_query_set()
-        if not user.has_perm(Permissions.Request.CAN_VIEW_ALL_REQUESTS):
-            queryset = queryset.filter(self._get_query(user))
-        return queryset
+        return get_objects_for_user(user, self.target_permissions, klass=Request, any_perm=True)
 
 
 class Request(models.Model):
@@ -292,7 +306,9 @@ class Request(models.Model):
         permissions = (
             (Permissions.Request.CAN_CREATE_REQUESTS, _(u"Может создавать запросы на утверждение")),
             (Permissions.Request.CAN_APPROVE_REQUESTS, _(u"Может утверждать документы")),
-            (Permissions.Request.CAN_VIEW_ALL_REQUESTS, _(u"Может просматривать любые заявки"))
+            (Permissions.Request.CAN_VIEW_ALL_REQUESTS, _(u"Может просматривать любые заявки")),
+
+            (Permissions.Request.CAN_VIEW_REQUEST, _(u"Имеет доступ к данной заявке"))
         )
 
     def get_absolute_url(self):
@@ -310,13 +326,9 @@ class Request(models.Model):
     def accessible_by(self, user):
         return (
             self.creator == user.profile or
-            user.has_perm(Permissions.Request.CAN_VIEW_ALL_REQUESTS) or
+            user.has_perm(Permissions._(Permissions.Request.CAN_VIEW_ALL_REQUESTS)) or
             (self.approval_route and self.approval_route.steps.exists(approver__exact=user.profile))
         )
-
-
-class NonTemplateApprovalRouteException(Exception):
-    pass
 
 
 class ApprovalProcess(models.Model):
@@ -333,3 +345,25 @@ class ApprovalProcessAction(models.Model):
 
     action_taken = models.DateTimeField(_(u"Время принятия решения"))
     actor = models.ForeignKey(UserProfile, verbose_name=_(u"Кто принял решение"))
+
+
+class RequestFactory(object):
+    def __init__(self, request_form, contract_form, user):
+        self._req_form = request_form
+        self._con_form = contract_form
+        self._user = user
+
+    @transaction.commit_on_success
+    def persist_request(self, override_status=None):
+        new_request = self._req_form.save(commit=False)
+        if override_status:
+            new_request.status = RequestStatus.objects.get(pk=override_status)
+        new_request.creator = self._user.profile
+        new_request.last_updater = self._user.profile
+
+        new_request.contract = self._con_form.save()
+        new_request.save()
+
+        assign_perm(Permissions._(Permissions.Request.CAN_VIEW_REQUEST), self._user, new_request)
+
+        return new_request

@@ -130,7 +130,7 @@ class MenuManager(object):
         child_items = [
             NavigableMenuItem(caption=_(u"Все заявки"), image="icons/list.png", url=reverse(url_names.Request.LIST)),
         ]
-        if self.user.has_perm(Permissions.Request.CAN_CREATE_REQUESTS):
+        if self.user.has_perm(Permissions._(Permissions.Request.CAN_CREATE_REQUESTS)):
             child_items.insert(
                 0, NavigableMenuItem(caption=_(u"Создать"), image="icons/create.png",
                                      url=reverse(url_names.Request.CREATE))
@@ -140,7 +140,7 @@ class MenuManager(object):
                                   url=reverse(url_names.Request.MY_REQUESTS))
             )
 
-        if self.user.has_perm(Permissions.Request.CAN_APPROVE_REQUESTS):
+        if self.user.has_perm(Permissions._(Permissions.Request.CAN_APPROVE_REQUESTS)):
             child_items.append(
                 NavigableMenuItem(caption=_(u"Ожидают утверждения"), image="icons/my_approvals.png",
                                   url=reverse(url_names.Request.MY_APPROVALS))
