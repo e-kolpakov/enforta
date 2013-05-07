@@ -206,7 +206,8 @@ class RequestContextMenuManagerExtension(object):
                                   url=reverse(url_names.Request.UPDATE, kwargs={'pk': request_id}))
             )
             child_items.append(
-
+                NavigableMenuItem(caption=_(u"Изменить маршрут утверждения"),
+                                  url=reverse(url_names.ApprovalRoute.UPDATE, kwargs={'pk': request_id}))
             )
         if len(child_items) > 0:
             root_item = HtmlMenuItem(caption=_(u"Действия"))
