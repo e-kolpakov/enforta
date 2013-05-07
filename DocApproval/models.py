@@ -110,57 +110,6 @@ class RequestStatus(models.Model):
         return self.status_name
 
 
-#Dynamic Settings
-class DynamicSettings(models.Model):
-    INT_FIELD_VALUE = 0
-    CHAR_FIELD_VALUE = 1
-    TIME_PERIOD_FIELD_VALUE = 2
-
-    code = models.CharField(_(u'Код'), max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH, primary_key=True,
-                            editable=False)
-    name = models.CharField(_(u'Параметр'), max_length=ModelConstants.DEFAULT_VARCHAR_LENGTH, editable=False)
-    description = models.CharField(max_length=ModelConstants.MAX_VARCHAR_LENGTH, editable=False, null=True)
-    field_type = models.IntegerField(_(u'Тип данных'), editable=False, choices=(
-        (INT_FIELD_VALUE, _(u'Целочисленный')),
-        (CHAR_FIELD_VALUE, _(u'Строковый')),
-        (TIME_PERIOD_FIELD_VALUE, _(u'Период времени')))
-    )
-    value = models.CharField(_(u'Значение'), max_length=ModelConstants.MAX_VARCHAR_LENGTH, null=True)
-
-    class Meta:
-        verbose_name = _(u'Настройка')
-        verbose_name_plural = _(u'Настройки')
-
-    #"static" variable
-    _date_regex = re.compile(r'^(?:(?P<days>\d+)\sdays?,\s)?(?P<hours>\d+):(?P<minutes>\d+):(?P<seconds>\d+)$')
-
-    def get_value(self):
-        """Gets the typed value of the setting"""
-
-        def parse_string_to_timedelta(string):
-            """Parses the default timedelta string representation back to timedelta object"""
-            d = DynamicSettings._date_regex.match(string).groupdict(0)
-            return timedelta(**dict(( (key, int(value)) for key, value in d.items() )))
-
-        if self.field_type == DynamicSettings.INT_FIELD_VALUE:
-            result = int(self.value)
-        elif self.field_type == DynamicSettings.TIME_PERIOD_FIELD_VALUE:
-            result = parse_string_to_timedelta(self.value)
-        elif self.field_type == DynamicSettings.CHAR_FIELD_VALUE:
-            result = self.value
-        else:
-            raise
-        return result
-
-    def __unicode__(self):
-        return self.name
-
-    class UnknownFieldTypeError(ValueError):
-        def __init__(self, type_value, *args, **kwargs):
-            self.type_value = type_value
-            ValueError.__init__(*args, **kwargs)
-
-
 #Primary objects
 class UserProfile(models.Model):
     def upload_to(self, filename):

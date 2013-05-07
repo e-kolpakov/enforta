@@ -155,10 +155,10 @@ class MenuManager(object):
 
     def _build_profile_menu(self):
         root_item = NavigableMenuItem(
-            caption=self.user.username, url=reverse(url_names.Profile.MY_PROFILE),
+            caption=self.user.username, url=reverse(url_names.Profile.PROFILE, kwargs={'pk': self.user.profile.pk}),
             children=(
                 NavigableMenuItem(caption=_(u"Профиль"), image="icons/user_profile.png",
-                                  url=reverse(url_names.Profile.MY_PROFILE)),
+                                  url=reverse(url_names.Profile.PROFILE, kwargs={'pk': self.user.profile.pk})),
                 NavigableMenuItem(caption=_(u"Выход"), image="icons/logout.png",
                                   url=reverse(url_names.Authentication.LOGOUT)),
             ))
@@ -183,7 +183,7 @@ class UserProfileContextMenuManagerExtension(object):
                                   url=reverse(url_names.Profile.UPDATE, kwargs={'pk': profile_id}))
             )
         if len(child_items) > 0:
-            root_item = HtmlMenuItem(caption=_(u"Действия"), image="icons/actions.png")
+            root_item = HtmlMenuItem(caption=_(u"Действия"))
             root_item.add_children(child_items)
         return root_item
 
@@ -205,8 +205,11 @@ class RequestContextMenuManagerExtension(object):
                 NavigableMenuItem(caption=_(u"Редактировать"), image='icons/edit.png',
                                   url=reverse(url_names.Request.UPDATE, kwargs={'pk': request_id}))
             )
+            child_items.append(
+
+            )
         if len(child_items) > 0:
-            root_item = HtmlMenuItem(caption=_(u"Действия"), image="icons/actions.png")
+            root_item = HtmlMenuItem(caption=_(u"Действия"))
             root_item.add_children(child_items)
         return root_item
 

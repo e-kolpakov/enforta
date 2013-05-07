@@ -23,6 +23,6 @@ class ProfileDetailsTest(BaseTest):
     def test_allow_logged_in(self):
         self.login()
         trgt_user = self._get_user_profile(self.USER1)
-        resp = self.client.get(reverse(Profile.MY_PROFILE))
+        resp = self.client.get(reverse(Profile.PROFILE, kwargs={'pk': trgt_user.profile.pk}))
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.context['user_profile'], trgt_user)

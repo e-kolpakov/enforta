@@ -1,3 +1,5 @@
+#-*- coding: utf-8 -*-
+
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth.models import Permission
@@ -13,12 +15,16 @@ class CreateRequestForm(forms.ModelForm):
         model = Request
         fields = ('name', 'city', 'send_on_approval', 'comments')
         widgets = {
-            'comments': forms.Textarea(attrs={'rows': 10}),
+            'name': forms.TextInput(attrs={'class': 'span4'}),
+            'city': forms.Select(attrs={'class': 'span4'}),
+            'send_on_approval': forms.Select(attrs={'class': 'span4'}),
+            'comments': forms.Textarea(attrs={'rows': 10, 'class': 'span4'}),
         }
 
 
 class CreateContractForm(forms.ModelForm):
     #TODO: use bootstrap's appended buttons to provide sets of common active periods, e.g. 1 year, 6 month, etc.
+
     class Meta:
         model = Contract
         fields = ('date', 'prolongation', 'active_period', 'document')
@@ -32,15 +38,12 @@ class UpdateRequestForm(forms.ModelForm):
         model = Request
         fields = ('name', 'city', 'status', 'send_on_approval', 'comments')
         widgets = {
-            # 'city': forms.Select(attrs={'readonly': 'readonly', 'disabled': 'disabled'}),
-            'comments': forms.Textarea(attrs={'rows': 10}),
+            'name': forms.TextInput(attrs={'class': 'span4'}),
+            'city': forms.Select(attrs={'class': 'span4'}),
+            'status': forms.Select(attrs={'class': 'span4'}),
+            'send_on_approval': forms.Select(attrs={'class': 'span4'}),
+            'comments': forms.Textarea(attrs={'rows': 10, 'class': 'span4'}),
         }
-    #
-    # def clean_city(self):
-    #     new_city = self.cleaned_data['city']
-    #     if self.instance and self.instance.city != new_city:
-    #         raise ValidationError(RequestMessages.CANT_CHANGE_CITY)
-    #     return self.instance.city
 
 
 class UpdateContractForm(forms.ModelForm):
@@ -77,3 +80,4 @@ class AdminCustomizedUserForm(UserChangeForm):
     def __init__(self, *args, **kwargs):
         super(AdminCustomizedUserForm, self).__init__(*args, **kwargs)
         self.fields['user_permissions'].label = unicode.capitalize(_("user permissions"))
+

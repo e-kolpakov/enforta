@@ -15,10 +15,9 @@ ALLOWED_HOSTS = '*'
 
 # Optional settings
 ADMINS = (
-# ('Your Name', 'your_email@example.com'),
+    # ('Your Name', 'your_email@example.com'),
 )
 
-# LOGGING_DIRECTORY = os.path.join(PROJECT_PATH, "logs") #"/var/log"
 LOGGING_DIRECTORY = "/var/log"
 
 # Local time zone for this installation. Choices can be found here:
@@ -34,7 +33,6 @@ LANGUAGE_CODE = 'ru-ru'
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
 MEDIA_ROOT = "/var/uploads/doc-approval"
-
 # End of administrator defined options
 
 MANAGERS = ADMINS
@@ -116,6 +114,12 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.tz",
     "django.contrib.messages.context_processors.messages",
     "DocApproval.menu.menu_context_processor"
+)
+
+FILE_UPLOAD_HANDLERS = (
+    # "DocApproval.utilities.basic_file_upload_handler.BasicFileUploadHandler",
+    "django.core.files.uploadhandler.MemoryFileUploadHandler",
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler"
 )
 
 # Authentication related
@@ -212,3 +216,11 @@ AUTHENTICATION_BACKENDS = (
 
 GUARDIAN_RENDER_403 = True
 
+#DocApproval
+MAX_FILE_SIZE = 5120
+
+NOTIFICATIONS_TIMEOUT = '2 days'
+
+NOTIFICATIONS_FREQUENCY = '1 day'
+
+ACCOUNTING_EMAIL = 'accounting@enforta.ru'

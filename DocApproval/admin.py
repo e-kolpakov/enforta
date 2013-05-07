@@ -37,26 +37,18 @@ class RequestStatusAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
-    def has_delete_permission(self, request, obj=None):
-        return False
 
-
-#Dynamic Settings
-class DynamicSettingsAdmin(admin.ModelAdmin):
-    fields = ("code", "name", "field_type", "value", "description")
-    #these are not editable anyway, it's included for the sake of completeness
-    readonly_fields = ("code","name", "field_type", "description")
-    list_display = ("name", "value", "description")
-    actions = None
-
-    def has_add_permission(self, request):
-        return False
     def has_delete_permission(self, request, obj=None):
         return False
 
 
 #Primary data objects
 class RequestAdmin(reversion.VersionAdmin):
+    history_latest_first = True
+    ignore_duplicate_revisions = True
+
+
+class ContractAdmin(reversion.VersionAdmin):
     history_latest_first = True
     ignore_duplicate_revisions = True
 
@@ -69,6 +61,5 @@ admin.site.register(Position, PositionAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(RequestStatus, RequestStatusAdmin)
 
-admin.site.register(DynamicSettings, DynamicSettingsAdmin)
-
 admin.site.register(Request, RequestAdmin)
+admin.site.register(Contract, ContractAdmin)

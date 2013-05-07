@@ -34,6 +34,13 @@ class Request:
     ARCHIVE_MONTH = "archive_month"
 
 
+class ApprovalRoute:
+    __metaclass__ = _NamesMeta
+    CREATE = "create"
+    REQUEST = "request"
+    UPDATE = "update"
+
+
 class Profile:
     __metaclass__ = _NamesMeta
     PROFILE = "profile"

@@ -18,7 +18,7 @@ class UserProfileDetailsView(DetailView):
         UserProfileContextMenuManagerExtension(request, allow_edit).extend(profile_id)
 
     def get(self, request, *args, **kwargs):
-        user_id = kwargs.get(self.pk_url_kwarg, request.user.pk)
+        user_id = int(kwargs.get(self.pk_url_kwarg, request.user.pk))
         try:
             user_profile = UserProfile.objects.get(pk=user_id)
             allow_edit = (user_id == request.user.pk) or request.user.is_superuser
@@ -41,11 +41,3 @@ class UserProfileUpdateView(UpdateView):
     model = UserProfile
     template_name = "profile/update.html"
     form_class = UserProfileForm
-
-    # can_change_position = request.user.has_perm(Permissions.UserProfile.CAN_CHANGE_ANY_POSITION) or (
-    #     request.user.has_perm(Permissions.UserProfile.CAN_CHANGE_POSITION) and user_id == request.user.pk
-    # )
-    #
-    # can_change_manager = request.user.has_perm(Permissions.UserProfile.CAN_CHANGE_ANY_MANAGER) or (
-    #     request.user.has_perm(Permissions.UserProfile.CAN_CHANGE_MANAGER) and user_id == request.user.pk
-    # )
