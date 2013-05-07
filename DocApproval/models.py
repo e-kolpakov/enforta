@@ -12,6 +12,7 @@ from django.db.models import signals
 from django.contrib.auth.management import create_superuser
 from django.contrib.auth import models as auth_app
 from guardian.shortcuts import assign_perm, get_objects_for_user
+import logging
 
 from url_naming.names import (Profile as ProfileUrls, Request as RequestUrls)
 from DocApproval.utilities.humanization import Humanizer
@@ -162,6 +163,10 @@ class DynamicSettings(models.Model):
 
 #Primary objects
 class UserProfile(models.Model):
+    def upload_to(self, filename):
+        fname, fext = os.path.splitext(filename)
+        return u'signs/{0}/sign.{1}'.format(self.pk, fext)
+
     user = models.OneToOneField(User, primary_key=True, verbose_name=_(u'Учетная запись'), related_name='profile')
     last_name = models.CharField(_(u'Фамилия'), max_length=ModelConstants.MAX_NAME_LENGTH)
     first_name = models.CharField(_(u'Имя'), max_length=ModelConstants.MAX_NAME_LENGTH)
@@ -174,7 +179,7 @@ class UserProfile(models.Model):
     middle_name_accusative = models.CharField(_(u'Отчество (вин.)'), max_length=ModelConstants.MAX_NAME_LENGTH,
                                               blank=True, null=True)
 
-    sign = models.ImageField(_(u'Подпись'), max_length=ModelConstants.DEFAULT_VARCHAR_LENGTH, upload_to='signs',
+    sign = models.ImageField(_(u'Подпись'), max_length=ModelConstants.DEFAULT_VARCHAR_LENGTH, upload_to=upload_to,
                              blank=True, null=True)
     email = models.EmailField(_(u'Email'), max_length=ModelConstants.DEFAULT_VARCHAR_LENGTH)
     position = models.ForeignKey(Position, verbose_name=_(u'Должность'))
@@ -234,7 +239,7 @@ class Contract(models.Model):
     document_signed = models.FileField(_(u'Подписанный документ'), upload_to=upload_to_signed, null=True, blank=True)
 
     def __unicode__(self):
-        return u"{0} {2} {1} {3}".format(_("Документ №"), _(u"от"), self.pk, self.date)
+        return u"{0} {2} {1} {3}".format(_(u"Документ №"), _(u"от"), self.pk, self.date)
 
     class Meta:
         verbose_name = _(u"Документ")

@@ -1,6 +1,8 @@
 <VirtualHost *:80>
 	WSGIScriptAlias / /home/enfortit/docapproval/portal/wsgi.py
-	WSGIDaemonProcess docApproval processes=1 maximum-requests=10 threads=1 python-path=/home/enfortit/docapproval:/home/enfortit/.virtualenvs/DocApproval/lib/python2.7/site-packages
+	WSGIDaemonProcess docApproval processes=1 maximum-requests=10 threads=1 \
+	python-path=/home/enfortit/docapproval:/home/enfortit/.virtualenvs/DocApproval/lib/python2.7/site-packages \
+	lang='en_US.UTF-8' locale='en_US.UTF-8'
     WSGIProcessGroup docApproval
 
     SetEnv  EnvironmentType production
