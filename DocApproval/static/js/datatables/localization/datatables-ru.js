@@ -19,6 +19,7 @@ $.extend(true, $.fn.dataTable.defaults, {
         "oAria": {
             "sSortAscending": ": активировать для сортировки столбца по возрастанию",
             "sSortDescending": ": активировать для сортировки столбцов по убыванию"
-        }
+        },
+        sEmptyTable: "Нет записей для отображения"
     }
 });

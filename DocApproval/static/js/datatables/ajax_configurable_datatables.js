@@ -25,6 +25,10 @@
             }
         },
 
+        add_caption: function(target, caption){
+            $("<caption></caption>").text(caption).appendTo(target);
+        },
+
         create_table: function (target, table_options) {
             target.dataTable(table_options);
         }
@@ -118,6 +122,9 @@
             success: function (datatables_config) {
                 var config = parser.parse_config(datatables_config, datatables_options);
                 html_helper.make_header(self, config.columns, config.column_order);
+                if (options.caption) {
+                    html_helper.add_caption(self, options.caption);
+                }
                 html_helper.create_table(self, config.options);
             }
         });
