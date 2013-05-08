@@ -29,6 +29,7 @@
 {% endblock %}
 
 {% block scripts_for_execution %}
+    {{ block.super }}
     <script type='text/javascript' language="JavaScript">
         $(function () {
             $('div.edit-form').error_handling_form({

@@ -29,7 +29,7 @@ class CreateContractForm(forms.ModelForm):
         model = Contract
         fields = ('date', 'prolongation', 'active_period', 'document')
         widgets = {
-            'date': DatePickerWidget()
+            'date': DatePickerWidget(attrs={'class': 'span4'})
         }
 
 
@@ -51,7 +51,7 @@ class UpdateContractForm(forms.ModelForm):
         model = Contract
         fields = ('date', 'prolongation', 'active_period', 'document')
         widgets = {
-            'date': DatePickerWidget()
+            'date': DatePickerWidget(attrs={'class': 'span4'})
         }
 
 

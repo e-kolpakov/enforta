@@ -9,7 +9,7 @@ from django.contrib import messages
 
 from guardian.decorators import permission_required
 
-from ..menu import RequestContextMenuManagerExtension
+from ..menu import RequestContextMenuManagerExtension, MenuModifierViewMixin
 from ..messages import CommonMessages, RequestMessages
 from ..models import (Request, RequestStatus, Permissions, RequestFactory)
 from ..url_naming.names import (Request as RequestUrl, Profile as ProfileUrl)
@@ -106,10 +106,11 @@ class CreateRequestView(CreateUpdateRequestView):
 
 
 # Permission protection is on the base class
-class UpdateRequestView(CreateUpdateRequestView):
+class UpdateRequestView(CreateUpdateRequestView, MenuModifierViewMixin):
     request_form_class = UpdateRequestForm
     contract_form_class = UpdateContractForm
     template_name = 'request/update.html'
+    extender_class = RequestContextMenuManagerExtension
 
     success_message = RequestMessages.REQUEST_MODIFIED
 
@@ -119,6 +120,13 @@ class UpdateRequestView(CreateUpdateRequestView):
 
     def get_return_url(self, pk):
         return reverse(RequestUrl.DETAILS, kwargs={'pk': int(pk)})
+
+    def get(self, request, *args, **kwargs):
+        pk = kwargs.get('pk', 0)
+        request_instance, contract_instance = self.get_instances(pk)
+        if request_instance:
+            self._apply_extender(request, request_instance)
+        return super(UpdateRequestView, self).get(request, *args, **kwargs)
 
 
 class ListRequestView(TemplateView):
@@ -137,16 +145,10 @@ class ListRequestView(TemplateView):
         })
 
 
-class DetailRequestView(DetailView):
+class DetailRequestView(DetailView, MenuModifierViewMixin):
     template_name = 'request/details.html'
     _logger = logging.getLogger(__name__)
-
-    def _modify_menu(self, request, req):
-        RequestContextMenuManagerExtension(request).extend(req)
-
-    def _report_error(self, request, request_id, user_message, log_message):
-        messages.error(request, user_message)
-        self._logger.warning(log_message, {'id': request_id, 'username': request.user.username})
+    extender_class = RequestContextMenuManagerExtension
 
     @method_decorator(permission_required(
         Permissions._(Permissions.Request.CAN_VIEW_REQUEST),
@@ -160,7 +162,7 @@ class DetailRequestView(DetailView):
         pk = kwargs.get(self.pk_url_kwarg, None)
         exclude_fields = ['id', 'contract']
         req = get_object_or_404(Request, pk=pk)
-        self._modify_menu(request, req)
+        self._apply_extender(request, req)
 
         if req and not req.accepted:
             exclude_fields.append('accepted')

@@ -1,18 +1,19 @@
 {% extends "base_layout.html" %}
 {% load i18n %}
 
-{% block page_title %}{{ route.name }}{% endblock page_title %}
+{% block page_title %}{{ caption }}{% endblock page_title %}
 
 {% block maincontent %}
-    <div class='approval-editor-page'>
+    <div class='approval-editor'>
         <div class="container-fluid">
             <div class="row-fluid">
-                <div class="span3">&nbsp;{# placeholder for sidebar #}</div>
                 <div class="sidebar span3">
                     Здесь будет список доступных шаблонов
                 </div>
                 <div class="span9">
+                    <div class='approval-steps-pane'>
 
+                    </div>
                 </div>
             </div>
         </div>

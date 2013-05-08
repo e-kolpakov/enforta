@@ -18,6 +18,15 @@ class MenuException(Exception):
         return repr(self.message)
 
 
+class MenuModifierViewMixin(object):
+    extender_class = None
+
+    def _apply_extender(self, request, entity, extender_class = None):
+        effective_extender_class = extender_class or self.extender_class
+        extender = effective_extender_class(request)
+        extender.extend(entity)
+
+
 class BaseMenuItem(object):
     COMMON_MENU_ITEM_CLASS = "menu-item"
     MENU_ITEM_CLASS_DROPDOWN = "dropdown"
@@ -172,7 +181,7 @@ class MenuManager(object):
             caption=_(u"Шаблонные маршруты"),
             children=(
                 NavigableMenuItem(caption=_(u"Создать"), image="icons/create.png",
-                                  url=reverse(url_names.ApprovalRoute.CREATE)),
+                                  url=reverse(url_names.ApprovalRoute.TEMPLATE_CREATE)),
                 NavigableMenuItem(caption=_(u"Все шаблонные маршруты"), image="icons/approval_routes_list.png",
                                   url=reverse(url_names.ApprovalRoute.LIST)),
             ))
@@ -202,6 +211,7 @@ class UserProfileContextMenuManagerExtension(object):
         return root_item
 
 
+# TODO: Make ordering more concise, move "Request" menu item just after "Requests"
 class RequestContextMenuManagerExtension(object):
     def __init__(self, request):
         self._user = request.user
@@ -215,6 +225,10 @@ class RequestContextMenuManagerExtension(object):
         child_items = []
         if req.accessible_by(self._user):
             child_items.append(
+                NavigableMenuItem(caption=_(u"Профиль"), image='icons/profile.png',
+                                  url=reverse(url_names.Request.DETAILS, kwargs={'pk': req.pk}))
+            )
+            child_items.append(
                 NavigableMenuItem(caption=_(u"Редактировать"), image='icons/edit.png',
                                   url=reverse(url_names.Request.UPDATE, kwargs={'pk': req.pk}))
             )
@@ -223,7 +237,7 @@ class RequestContextMenuManagerExtension(object):
                                   url=reverse(url_names.ApprovalRoute.UPDATE, kwargs={'pk': req.approval_route.pk}))
             )
         if len(child_items) > 0:
-            root_item = HtmlMenuItem(caption=_(u"Действия"))
+            root_item = HtmlMenuItem(caption=_(u"Заявка"))
             root_item.add_children(child_items)
         return root_item
 
