@@ -1,0 +1,25 @@
+{% extends "base_datatables_layout.html" %}
+{% load static from staticfiles %}
+{% load i18n %}
+
+{% block subtitle %}
+    - {% trans "Шаблонные маршруты" %}
+{% endblock subtitle %}
+
+{% block page_title %}{% trans "Шаблонные маршруты" %}{% endblock page_title %}
+
+{% block maincontent %}
+    <table id="grid" class="table"></table>
+{% endblock %}
+
+{% block scripts_for_execution %}
+    {{ block.super }}
+    <script type="text/javascript" language="JavaScript">
+        $(function () {
+            $('#grid').ajaxConfigurableDatatables({
+                data_url: '{% url datatables_data %}',
+                config_url: '{% url datatables_config %}'
+            });
+        });
+    </script>
+{% endblock scripts_for_execution %}

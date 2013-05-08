@@ -119,6 +119,8 @@ class MenuManager(object):
             NavigableMenuItem(caption=_(u"Главная"), url=reverse(url_names.Common.HOME), image="icons/home.png")
         )
         self._add_root_item(self._build_request_actions_menu())
+        if self.user.has_perm(Permissions._(Permissions.ApprovalRoute.CAN_MANAGE_TEMPLATES)):
+            self._add_root_item(self._build_approvals_menu())
         self._add_root_item(self._build_profile_menu())
         for item in self._delayed_items:
             self._add_root_item(item)
@@ -155,12 +157,24 @@ class MenuManager(object):
 
     def _build_profile_menu(self):
         root_item = NavigableMenuItem(
-            caption=self.user.username, url=reverse(url_names.Profile.PROFILE, kwargs={'pk': self.user.profile.pk}),
+            caption=_(u"Пользователь ") + self.user.username,
+            url=reverse(url_names.Profile.PROFILE, kwargs={'pk': self.user.profile.pk}),
             children=(
                 NavigableMenuItem(caption=_(u"Профиль"), image="icons/user_profile.png",
                                   url=reverse(url_names.Profile.PROFILE, kwargs={'pk': self.user.profile.pk})),
                 NavigableMenuItem(caption=_(u"Выход"), image="icons/logout.png",
                                   url=reverse(url_names.Authentication.LOGOUT)),
+            ))
+        return root_item
+
+    def _build_approvals_menu(self):
+        root_item = HtmlMenuItem(
+            caption=_(u"Шаблонные маршруты"),
+            children=(
+                NavigableMenuItem(caption=_(u"Создать"), image="icons/create.png",
+                                  url=reverse(url_names.ApprovalRoute.CREATE)),
+                NavigableMenuItem(caption=_(u"Все шаблонные маршруты"), image="icons/approval_routes_list.png",
+                                  url=reverse(url_names.ApprovalRoute.LIST)),
             ))
         return root_item
 
@@ -189,25 +203,24 @@ class UserProfileContextMenuManagerExtension(object):
 
 
 class RequestContextMenuManagerExtension(object):
-    def __init__(self, request, allow_edit):
+    def __init__(self, request):
         self._user = request.user
         self._target_menu_manager = request.menu_manager
-        self._allow_edit = allow_edit
 
-    def extend(self, request_id):
-        self._target_menu_manager.add_item(self._build_root_item(request_id))
+    def extend(self, req):
+        self._target_menu_manager.add_item(self._build_root_item(req))
 
-    def _build_root_item(self, request_id):
+    def _build_root_item(self, req):
         root_item = None
         child_items = []
-        if self._allow_edit:
+        if req.accessible_by(self._user):
             child_items.append(
                 NavigableMenuItem(caption=_(u"Редактировать"), image='icons/edit.png',
-                                  url=reverse(url_names.Request.UPDATE, kwargs={'pk': request_id}))
+                                  url=reverse(url_names.Request.UPDATE, kwargs={'pk': req.pk}))
             )
             child_items.append(
-                NavigableMenuItem(caption=_(u"Изменить маршрут утверждения"),
-                                  url=reverse(url_names.ApprovalRoute.UPDATE, kwargs={'pk': request_id}))
+                NavigableMenuItem(caption=_(u"Маршрут утверждения"), image='icons/approval_route.png',
+                                  url=reverse(url_names.ApprovalRoute.UPDATE, kwargs={'pk': req.approval_route.pk}))
             )
         if len(child_items) > 0:
             root_item = HtmlMenuItem(caption=_(u"Действия"))

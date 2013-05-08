@@ -27,3 +27,7 @@ class ProfileMessages:
 
 class ContractMessages:
     NOT_PAYED = _(u"Не оплачен")
+
+
+class ApprovalRouteMessages:
+    NEW_APPROVAL_ROUTE = _(u"Новый маршнут утверждения")

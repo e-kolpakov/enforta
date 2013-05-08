@@ -127,7 +127,6 @@ class ListRequestView(TemplateView):
     MY_APPROVALS = 'my_approvals'
 
     template_name = 'request/list.html'
-    logger = logging.getLogger(__name__)
 
     def get(self, request, *args, **kwargs):
         show_only = kwargs.get(self.SHOW_ONLY_PARAM, None)
@@ -142,8 +141,8 @@ class DetailRequestView(DetailView):
     template_name = 'request/details.html'
     _logger = logging.getLogger(__name__)
 
-    def _modify_menu(self, request, request_id, allow_edit):
-        RequestContextMenuManagerExtension(request, allow_edit).extend(request_id)
+    def _modify_menu(self, request, req):
+        RequestContextMenuManagerExtension(request).extend(req)
 
     def _report_error(self, request, request_id, user_message, log_message):
         messages.error(request, user_message)
@@ -160,16 +159,8 @@ class DetailRequestView(DetailView):
     def get(self, request, *args, **kwargs):
         pk = kwargs.get(self.pk_url_kwarg, None)
         exclude_fields = ['id', 'contract']
-        try:
-            req = Request.objects.get(pk=pk)
-            self._modify_menu(request, pk, req.accessible_by(request.user))
-            if not req.accessible_by(request.user):
-                req = None
-                self._report_error(request, pk, RequestMessages.ACCESS_DENIED,
-                                   "User {username} does not have access to request {id}")
-        except Request.DoesNotExist:
-            req = None
-            self._report_error(request, pk, RequestMessages.DOES_NOT_EXIST, "Request {id} does not exist")
+        req = get_object_or_404(Request, pk=pk)
+        self._modify_menu(request, req)
 
         if req and not req.accepted:
             exclude_fields.append('accepted')

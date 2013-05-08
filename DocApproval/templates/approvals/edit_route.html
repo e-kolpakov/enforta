@@ -1,6 +1,20 @@
 {% extends "base_layout.html" %}
 {% load i18n %}
 
+{% block page_title %}{{ route.name }}{% endblock page_title %}
+
 {% block maincontent %}
-    Здесь маршрут утверждения заявки {{ req.name }}
+    <div class='approval-editor-page'>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span3">&nbsp;{# placeholder for sidebar #}</div>
+                <div class="sidebar span3">
+                    Здесь будет список доступных шаблонов
+                </div>
+                <div class="span9">
+
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock maincontent %}

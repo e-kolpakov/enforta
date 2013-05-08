@@ -1,8 +1,6 @@
 #-*- coding: utf-8 -*-
 import os
-import re
 import datetime
-from datetime import timedelta
 
 from django.db import models, transaction
 from django.contrib.auth.models import User
@@ -12,10 +10,18 @@ from django.db.models import signals
 from django.contrib.auth.management import create_superuser
 from django.contrib.auth import models as auth_app
 from guardian.shortcuts import assign_perm, get_objects_for_user
-import logging
 
 from url_naming.names import (Profile as ProfileUrls, Request as RequestUrls)
 from DocApproval.utilities.humanization import Humanizer
+
+# Prevent interactive question about wanting a superuser created.  (This
+# code has to go in this otherwise empty "models" module so that it gets
+# processed by the "syncdb" command during database creation.)
+
+signals.post_syncdb.disconnect(
+    create_superuser,
+    sender=auth_app,
+    dispatch_uid="django.contrib.auth.management.create_superuser")
 
 
 class Permissions:
@@ -42,6 +48,9 @@ class Permissions:
         CAN_CHANGE_ANY_POSITION = "docapproval_can_change_any_position"
         CAN_CHANGE_ANY_MANAGER = "docapproval_can_change_any_manager"
 
+    class ApprovalRoute:
+        CAN_MANAGE_TEMPLATES = "docapproval_can_create_templates"
+
 
 class ModelConstants:
     MAX_NAME_LENGTH = 500
@@ -52,19 +61,6 @@ class ModelConstants:
 
 class NonTemplateApprovalRouteException(Exception):
     pass
-
-
-# Prevent interactive question about wanting a superuser created.  (This
-# code has to go in this otherwise empty "models" module so that it gets
-# processed by the "syncdb" command during database creation.)
-
-signals.post_syncdb.disconnect(
-    create_superuser,
-    sender=auth_app,
-    dispatch_uid="django.contrib.auth.management.create_superuser")
-
-
-
 
 
 #Some "dictionaries" first
@@ -200,20 +196,26 @@ class Contract(models.Model):
 
 class ApprovalRoute(models.Model):
     DIRECT_MANAGER_PLACEHOLDER = '{manager}'
+    REQUEST_ROUTE_NAMING_TEMPLATE = _(u"Маршрут утверждения заявки {0}")
 
     name = models.CharField(_(u"Название"), max_length=ModelConstants.MAX_NAME_LENGTH)
-    description = models.CharField(_(u"Описание"), max_length=ModelConstants.MAX_VARCHAR_LENGTH)
+    description = models.CharField(_(u"Описание"), max_length=ModelConstants.MAX_VARCHAR_LENGTH, default='')
 
     created = models.DateField(_(u"Создан"), auto_now_add=True)
     modified = models.DateField(_(u"Последнее изменение"), auto_now=True)
 
-    is_template = models.BooleanField(_(u"Шаблонный маршрут"))
+    is_template = models.BooleanField(_(u"Шаблонный маршрут"), default=False)
 
     def roll_template_route(self):
         if not self.is_template:
             raise NonTemplateApprovalRouteException("Current route is not a template route")
         else:
             raise NotImplementedError("Not implemented yet")
+
+    class Meta:
+        permissions = (
+            (Permissions.ApprovalRoute.CAN_MANAGE_TEMPLATES, _(u"Может создавать шаблонные маршруты"))
+        )
 
 
 class ApprovalRouteStep(models.Model):
@@ -310,12 +312,17 @@ class RequestFactory(object):
     @transaction.commit_on_success
     def persist_request(self, override_status=None):
         new_request = self._req_form.save(commit=False)
+
+        approval_route = ApprovalRoute()
+        approval_route.name = ApprovalRoute.REQUEST_ROUTE_NAMING_TEMPLATE.format(new_request.name)
+        approval_route.save()
         if override_status:
             new_request.status = RequestStatus.objects.get(pk=override_status)
         new_request.creator = self._user.profile
         new_request.last_updater = self._user.profile
 
         new_request.contract = self._con_form.save()
+        new_request.approval_route = approval_route
         new_request.save()
 
         assign_perm(Permissions._(Permissions.Request.CAN_VIEW_REQUEST), self._user, new_request)

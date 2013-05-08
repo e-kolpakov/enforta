@@ -6,7 +6,9 @@
 @base-font-family: Arial, Helvetica, sans-serif;
 
 //Genereal.Layout
-@body-padding: 5px 10px;
+@body-padding-vertical: 10px;
+@body-padding-horizontal: 5px;
+@body-padding: @body-padding-horizontal @body-padding-vertical;
 @content-padding: 10px;
 @content-margin: 5px 0px;
 @content-min-height: 400px;
@@ -57,5 +59,8 @@
 @menu-item-l3-bg-color: darken(@menu-item-l2-bg-color, @level-step);
 @menu-item-l3-hover-bg-color: lighten(@menu-item-l3-bg-color, @hover-lighten);
 
-
 // End Menu
+
+// Approval route editor
+@sidebar-color: #ddf;
+// End approval route editor

@@ -25,7 +25,7 @@ class Request:
     LIST_JSON = "list_json"
     LIST_JSON_CONF = "list_json_conf"
     UPDATE = "edit"
-    DETAILS = "details"
+    DETAILS = "details" #aka (R)equest
     MY_REQUESTS = "my_requests_list"
     MY_APPROVALS = "my_approval_list"
 
@@ -37,8 +37,14 @@ class Request:
 class ApprovalRoute:
     __metaclass__ = _NamesMeta
     CREATE = "create"
-    REQUEST = "request"
+    LIST = "list" #aka (R)equest
     UPDATE = "update"
+
+    TEMPLATE_CREATE = "template.create"
+    TEMPLATE_EDIT = "template.edit"
+
+    LIST_JSON = "list_json"
+    LIST_JSON_CONF = "list_json_conf"
 
 
 class Profile:
