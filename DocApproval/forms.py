@@ -75,7 +75,7 @@ class UserProfileForm(forms.ModelForm):
 class AdminCustomizedUserForm(UserChangeForm):
     user_permissions = forms.ModelMultipleChoiceField(
         Permission.objects.filter(codename__startswith=Permissions.PREFIX),
-        widget=FilteredSelectMultiple(_('permissions'), False))
+        widget=FilteredSelectMultiple(_('permissions'), False), required=False)
 
     def __init__(self, *args, **kwargs):
         super(AdminCustomizedUserForm, self).__init__(*args, **kwargs)

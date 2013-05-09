@@ -1,7 +1,13 @@
 {% extends "base_layout.html" %}
 {% load i18n %}
+{% load static from staticfiles %}
 
 {% block page_title %}{{ caption }}{% endblock page_title %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script language="JavaScript" type="text/javascript" src="{% static "js/approval_route_editor.js" %}"></script>
+{% endblock scripts %}
 
 {% block maincontent %}
     <div class='approval-editor'>
@@ -12,10 +18,21 @@
                 </div>
                 <div class="span9">
                     <div class='approval-steps-pane'>
-
+                        <div id="approval-steps-editor"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 {% endblock maincontent %}
+
+{% block scripts_for_execution %}
+    {{ block.super }}
+    <script type='text/javascript'>
+        $(function(){
+            $("#approval-steps-editor").approval_route_editor({
+               approvers_source_url: {% url approver_list_url %}
+            });
+        });
+    </script>
+{% endblock scripts_for_execution %}

@@ -6,6 +6,7 @@ from ..utilities.datatables import JsonConfigurableDatatablesBaseView as JCDTV
 
 urlpatterns = patterns(
     '',
+    url(r"^approvers.json", approval_route.ApproversListJson.as_view()),
     url(r"^list.json.config", approval_route.TemplateApprovalRouteListJson.as_view(), {JCDTV.CONFIG_MARKER: True},
         name=approval_names.LIST_JSON_CONF),
     url(r"^list.json", approval_route.TemplateApprovalRouteListJson.as_view(), name=approval_names.LIST_JSON),

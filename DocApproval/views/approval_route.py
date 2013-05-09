@@ -2,7 +2,11 @@ from django.contrib.auth.decorators import permission_required
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, get_object_or_404
 from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView
+from django.views.generic import View, TemplateView
+from django.contrib.auth.models import User, Permission
+from django.db.models import Q
+from django.core import serializers
+from django.http import HttpResponse
 
 from ..menu import MenuModifierViewMixin, RequestContextMenuManagerExtension
 from ..models import ApprovalRoute, Request, Permissions
@@ -39,7 +43,8 @@ class EditApprovalRouteView(ApprovalRouteEditHandlerView, MenuModifierViewMixin)
 
         return render(request, self.template_name, {
             'caption': route.name if route else ApprovalRouteMessages.NEW_APPROVAL_ROUTE,
-            'route': route
+            'route': route,
+            'approver_list_url': ApprovalRouteUrls.APPROVERS_JSON
         })
 
 
@@ -61,7 +66,8 @@ class EditTemplateApprovalRouteView(ApprovalRouteEditHandlerView, MenuModifierVi
 
         return render(request, self.template_name, {
             'caption': route.name if route else ApprovalRouteMessages.NEW_TEMPLATE_APPROVAL_ROUTE,
-            'route': route
+            'route': route,
+            'approvers': self._get_all_approvers()
         })
 
 
@@ -90,3 +96,15 @@ class TemplateApprovalRouteListJson(JsonConfigurableDatatablesBaseView):
             'name': item.name,
             'description': item.description
         }
+
+
+class ApproversListJson(View):
+    def _get_all_approvers(self):
+        perm = Permission.objects.get(codename=Permissions.Request.CAN_APPROVE_REQUESTS)
+        users = User.objects.filter(Q(groups__permissions=perm) | Q(user_permissions=perm)).distinct()
+        users.select_related('profile')
+        return (user.profile for user in users)
+
+    def get(self, request, *args, **kwargs):
+        data = serializers.serialize("json", self._get_all_approvers())
+        return HttpResponse(data, content_type="application/json")

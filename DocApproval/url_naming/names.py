@@ -46,6 +46,8 @@ class ApprovalRoute:
     LIST_JSON = "list_json"
     LIST_JSON_CONF = "list_json_conf"
 
+    APPROVERS_JSON = "approvers_json"
+
 
 class Profile:
     __metaclass__ = _NamesMeta
