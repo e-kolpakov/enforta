@@ -4,8 +4,6 @@
 
 /*approval_editor.less*/
 div.approval-editor {
-
-
   div.sidebar {
     border: 1px solid @default-border-color;
     .rounded-borders-mixin(3px);
@@ -13,6 +11,19 @@ div.approval-editor {
     margin-bottom: -1px;
     padding: 10px 20px;
     background-color: @sidebar-color;
+  }
+
+  div#approval-steps-editor {
+    button.btn {
+      height: 30px;
+      width: 30px;
+      padding: 4px;
+
+      img {
+        width: 16px;
+        height:16px;
+      }
+    }
   }
 }
 /*approval_editor.less end*/

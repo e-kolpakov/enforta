@@ -17,9 +17,7 @@
                     Здесь будет список доступных шаблонов
                 </div>
                 <div class="span9">
-                    <div class='approval-steps-pane'>
-                        <div id="approval-steps-editor"></div>
-                    </div>
+                    <div id='approval-steps-editor'></div>
                 </div>
             </div>
         </div>
@@ -29,10 +27,16 @@
 {% block scripts_for_execution %}
     {{ block.super }}
     <script type='text/javascript'>
-        $(function(){
-            $("#approval-steps-editor").approval_route_editor({
-               approvers_source_url: {% url approver_list_url %}
-            });
+        $(function () {
+            $("#approval-steps-editor").approval_route_editor(
+                    {
+                        approvers_source_url: '{% url approver_list_url %}'
+                    },
+                    {
+                        '1': {1: "qwe", 2: "asd"},
+                        '2': {1: "rty", 2: "fgh"}
+                    }
+            );
         });
     </script>
 {% endblock scripts_for_execution %}

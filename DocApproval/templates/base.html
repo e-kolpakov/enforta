@@ -14,7 +14,8 @@
     <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}css/main_bundle.css"/>
     {% block styles %}{% endblock styles %}
 
-    <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/jquery-1.9.1.js"></script>
+    <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="{% static "js/jquery.cookie.js" %}"></script>
     <script type="text/javascript" language="JavaScript"
             src="{{ STATIC_URL }}js/jquery-ui/jquery-ui-1.10.2.custom.min.js"></script>
     <script type="text/javascript" language="JavaScript"

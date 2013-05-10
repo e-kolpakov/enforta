@@ -106,8 +106,8 @@
     $.fn.ajaxConfigurableDatatables = function (options, datatables_opts) {
         var self = this;
         var datatables_options = datatables_opts || {};
-        var csrf = options.csrftoken || $.cookie('csrftoken');
         var parser = config_parser(options);
+        var csrf = options.csrftoken || $.cookie('csrftoken');
         if (csrf) {
             $.ajaxSetup({
                 beforeSend: function (xhr) {

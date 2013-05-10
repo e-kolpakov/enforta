@@ -1,7 +1,10 @@
+import json
+
 from django.contrib.auth.decorators import permission_required
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, get_object_or_404
 from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import View, TemplateView
 from django.contrib.auth.models import User, Permission
 from django.db.models import Q
@@ -17,7 +20,9 @@ from ..utilities.datatables import JsonConfigurableDatatablesBaseView
 
 
 class ApprovalRouteEditHandlerView(TemplateView):
-    pass
+    @method_decorator(ensure_csrf_cookie)
+    def dispatch(self, request, *args, **kwargs):
+        return super(ApprovalRouteEditHandlerView, self).dispatch(request, *args, **kwargs)
 
 
 class ListApprovalRouteView(TemplateView):
@@ -67,7 +72,7 @@ class EditTemplateApprovalRouteView(ApprovalRouteEditHandlerView, MenuModifierVi
         return render(request, self.template_name, {
             'caption': route.name if route else ApprovalRouteMessages.NEW_TEMPLATE_APPROVAL_ROUTE,
             'route': route,
-            'approvers': self._get_all_approvers()
+            'approver_list_url': ApprovalRouteUrls.APPROVERS_JSON
         })
 
 
@@ -105,6 +110,10 @@ class ApproversListJson(View):
         users.select_related('profile')
         return (user.profile for user in users)
 
-    def get(self, request, *args, **kwargs):
-        data = serializers.serialize("json", self._get_all_approvers())
-        return HttpResponse(data, content_type="application/json")
+    def post(self, request, *args, **kwargs):
+        data = {
+            approver.pk: {
+                'name': approver.get_short_name()
+            }
+            for approver in self._get_all_approvers()}
+        return HttpResponse(json.dumps(data), content_type="application/json")
