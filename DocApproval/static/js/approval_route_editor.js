@@ -22,24 +22,24 @@
         var that = this;
         var row_count = 0;
 
-        function make_table() {
-            return $("<table></table>").addClass("table table-striped");
+        function make_wrapper() {
+            return $("<div></div>").addClass("editor-wrapper");
         }
 
         function make_row(row_data) {
-            var row = $("<tr></tr>").attr({'id': "row_" + row_count});
+            var row = $("<div></div>").attr({'id': "row_" + row_count}).addClass("row-fluid");
             make_buttons_cell(row).appendTo(row);
-            $("<td></td>").addClass("step-label").text("Шаг №" + row_count).appendTo(row);
+            $("<span></span>").addClass("step-label span2").text("Шаг №" + row_count).appendTo(row);
             logger(row_data);
             for (var i=0; i<row_data.length; i++) {
                 var dropdown = make_dropdown(that.approvers, row_data, row_data[i]);
-                $("<td></td>").appendTo(row).append(dropdown);
+                $("<span></span>").addClass("span3").appendTo(row).append(dropdown);
             }
             return row;
         }
 
         function make_dropdown(approvers, approvers_in_row, selected_approver){
-            var select = $("<select></select>");
+            var select = $("<select></select>").addClass("input-medium");
             $("<option></option>").text("-----").appendTo(select);
             for (var k in approvers){
                 if (!approvers.hasOwnProperty(k) ||
@@ -54,7 +54,7 @@
         }
 
         function make_buttons_cell(row) {
-            var cell = $("<td></td>");
+            var cell = $("<span></span>").addClass("span2 buttons-cell");
             make_button(row_button_config['add'], function(){ that.add_row({},row);}).appendTo(cell);
             make_button(row_button_config['remove'], function(){ that.delete_row(row);}).appendTo(cell);
             return cell;
@@ -68,19 +68,19 @@
         }
 
         function relabel_rows(){
-            var rows = that.table.find("> tbody > tr");
+            var rows = that.editor_wrapper.find("> div");
             for (var i=0; i<rows.length; i++){
                 var row = rows[i];
-                $(row).children("td.step-label").text("Шаг №"+(i+1));
+                $(row).children("span.step-label").text("Шаг №"+(i+1));
                 $(row).attr('id', "row_"+(i+1));
             }
         }
 
         function toggle_delete_buttons(enabled) {
             if (enabled)
-                that.table.find("> tbody > tr > td > .remove_button").removeAttr('disabled');
+                that.editor_wrapper.find("> div > span > .remove_button").removeAttr('disabled');
             else
-                that.table.find("> tbody > tr > td > .remove_button").attr({disabled: 'disabled'});
+                that.editor_wrapper.find("> div > span > .remove_button").attr({disabled: 'disabled'});
         }
 
 
@@ -92,7 +92,7 @@
             that.approvers = approvers;
         }
         this.render = function () {
-            that.table = make_table().appendTo(that.target);
+            that.editor_wrapper = make_wrapper().appendTo(that.target);
             for (var k in that.data) {
                 if (!that.data.hasOwnProperty(k))
                     continue;
@@ -105,7 +105,7 @@
             if (prev_row)
                 new_row.insertAfter(prev_row);
             else
-                new_row.appendTo(that.table);
+                new_row.appendTo(that.editor_wrapper);
             relabel_rows();
             toggle_delete_buttons(row_count != 1);
         };
