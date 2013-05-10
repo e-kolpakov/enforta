@@ -30,12 +30,27 @@
             var row = $("<tr></tr>").attr({'id': "row_" + row_count});
             make_buttons_cell(row).appendTo(row);
             $("<td></td>").addClass("step-label").text("Шаг №" + row_count).appendTo(row);
-            for (var k in row_data) {
-                if (!row_data.hasOwnProperty(k))
-                    continue;
-                $("<td></td>").text(k + ":" + row_data[k]).appendTo(row);
+            logger(row_data);
+            for (var i=0; i<row_data.length; i++) {
+                var dropdown = make_dropdown(that.approvers, row_data, row_data[i]);
+                $("<td></td>").appendTo(row).append(dropdown);
             }
             return row;
+        }
+
+        function make_dropdown(approvers, approvers_in_row, selected_approver){
+            var select = $("<select></select>");
+            $("<option></option>").text("-----").appendTo(select);
+            for (var k in approvers){
+                if (!approvers.hasOwnProperty(k) ||
+                    ($.inArray(k, approvers_in_row) != -1 && k !=selected_approver))
+                    continue;
+                var approver = approvers[k];
+                var option = $("<option></option>").attr("value", k).text(approver.name);
+                select.append(option);
+            }
+            select.val(selected_approver);
+            return select;
         }
 
         function make_buttons_cell(row) {
@@ -73,6 +88,9 @@
         this.set_data = function (data) {
             that.data = data;
         };
+        this.set_approvers = function(approvers){
+            that.approvers = approvers;
+        }
         this.render = function () {
             that.table = make_table().appendTo(that.target);
             for (var k in that.data) {
@@ -114,6 +132,7 @@
         approver_list_promise.done(function (data, textStatus, jqXHR) {
             logger(data);
             var editor = new Editor(target);
+            editor.set_approvers(data);
             editor.set_data(initial_data);
             editor.render();
 
