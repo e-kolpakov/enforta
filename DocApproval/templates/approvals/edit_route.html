@@ -13,6 +13,11 @@
     <div class='approval-editor'>
         <div class="container-fluid">
             <div class="row-fluid">
+                <span class='span3 offset9'>
+                    <button class='btn btn-primary' id='btn-save'>{% trans "Сохранить" %}</button>
+                </span>
+            </div>
+            <div class="row-fluid">
                 <div class="sidebar span3">
                     Здесь будет список доступных шаблонов
                 </div>
@@ -30,10 +35,11 @@
         $(function () {
             $("#approval-steps-editor").approval_route_editor(
                     {
-                        approvers_source_url: '{% url approver_list_url %}'
+                        approvers_source_url: '{% url approver_list_url %}',
+                        $save_trigger: $('#btn-save')
                     },
                     {
-                        '1': [7, 6, 7, 6, 7, 6, 7, 6, 7, 6, 7, 6, 7, 6, 7, 6, 7, 6],
+                        '1': [7, 6, 7],
                         '2': [6],
                         '3': [7]
                     }
