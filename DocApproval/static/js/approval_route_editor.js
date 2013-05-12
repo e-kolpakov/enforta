@@ -47,6 +47,9 @@
             for (var i = 0; i < row_data.length; i++) {
                 make_approver(that.approvers, row_data, row_data[i]).appendTo(elements_wrapper);
             }
+            if (!row_data || row_data.length == 0){
+                make_approver(that.approvers, []).appendTo(elements_wrapper);
+            }
             elements_wrapper.append(make_add_approver_button());
             return row;
         }
@@ -74,7 +77,7 @@
         function make_buttons_cell(row) {
             var cell = $(wrap(cell_element)).addClass("span2 buttons-cell");
             make_button(row_button_config.add,function () {
-                that.add_row({}, row);
+                that.add_row([], row);
             }).appendTo(cell);
             make_button(row_button_config.remove,function () {
                 that.delete_row(row);
