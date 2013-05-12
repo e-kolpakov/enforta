@@ -12,9 +12,10 @@
     var cell_celector = "> tbody > " + row_element + " > " + cell_element;
 
     var row_button_config = {
-        add: {image: "add.png", cssClass: 'btn add_button'},
-        remove: {image: "remove.png", cssClass: 'btn remove_button'},
-        add_approver: {image: "add.png", cssClass: "btn add_approver_button", caption: "Добавить"}
+        add: {image: "add.png", cssClass: 'btn add-button'},
+        remove: {image: "remove.png", cssClass: 'btn remove-button'},
+        add_approver: {image: "add.png", cssClass: "btn add-approver-button", caption: "Добавить"},
+        remove_approver: {image: "close.png", cssClass: "remove-approver-button"}
     };
 
     function wrap(elem) {
@@ -39,24 +40,37 @@
 
         function make_row(row_data) {
             var row = $(wrap(row_element)).attr({'id': "row_" + row_count}).addClass("row");
+
             make_buttons_cell(row).appendTo(row);
             $(wrap(cell_element)).addClass("step-label").text("Шаг №" + row_count).appendTo(row);
+
             var steps_cell = $(wrap(cell_element)).addClass("steps").appendTo(row);
-            var elements_wrapper = $("<div></div>").attr({'id': "row_wrapper_" + row_count});
+            var elements_wrapper = $(wrap("div")).attr({'id': "row_wrapper_" + row_count});
             elements_wrapper.addClass("row-fluid").appendTo(steps_cell);
+
             for (var i = 0; i < row_data.length; i++) {
                 make_approver(that.approvers, row_data, row_data[i]).appendTo(elements_wrapper);
             }
             if (!row_data || row_data.length == 0){
                 make_approver(that.approvers, []).appendTo(elements_wrapper);
             }
+
             elements_wrapper.append(make_add_approver_button());
             return row;
         }
 
         function make_approver(approvers, approvers_in_row, selected_approver) {
-            var dropdown = make_dropdown(approvers, approvers_in_row, selected_approver);
-            return $("<span></span>").addClass("span3").append(dropdown);
+            var span = $(wrap("span")).addClass("span3 span-approver");
+            make_dropdown(approvers, approvers_in_row, selected_approver).appendTo(span);
+
+            var remove = $(wrap("span")).addClass("approver-remove").appendTo(span);
+            var remove_btn = make_image(row_button_config.remove_approver.image).appendTo(remove);
+            remove_btn.addClass(row_button_config.remove_approver.cssClass);
+            remove.click(function(){
+                that.remove_approver($(this).parents('.span-approver'));
+            });
+
+            return span;
         }
 
         function make_dropdown(approvers, approvers_in_row, selected_approver) {
@@ -96,12 +110,16 @@
         function make_button(button_cfg, click_handler) {
             var span = $("<span></span>");
             var btn = $("<button></button>").addClass(button_cfg.cssClass).appendTo(span);
-            $("<img/>").attr("src", globals.static_root + "img/icons/" + button_cfg.image).appendTo(btn);
+            make_image(button_cfg.image).appendTo(btn);
             btn.click(click_handler);
             if (button_cfg.caption) {
                 span.append(button_cfg.caption);
             }
             return span;
+        }
+
+        function make_image(src) {
+            return $(wrap("img")).attr("src", globals.static_root + "img/icons/" + src);
         }
 
         function relabel_rows() {
@@ -115,9 +133,9 @@
 
         function toggle_delete_buttons(enabled) {
             if (enabled)
-                that.editor_wrapper.find(cell_celector + "> span > .remove_button").removeAttr('disabled');
+                that.editor_wrapper.find(cell_celector + "> span > .remove-button").removeAttr('disabled');
             else
-                that.editor_wrapper.find(cell_celector + "> span > .remove_button").attr({disabled: 'disabled'});
+                that.editor_wrapper.find(cell_celector + "> span > .remove-button").attr({disabled: 'disabled'});
         }
 
 
@@ -154,6 +172,9 @@
         };
         this.add_approver = function (marker) {
             make_approver(that.approvers, {}, {}).insertBefore(marker);
+        }
+        this.remove_approver = function(marker){
+            $(marker).remove();
         }
     }
 

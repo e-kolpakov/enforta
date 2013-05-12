@@ -98,7 +98,7 @@
 }
 
 #approval-editor() {
-  .button(@margin-right: 0px) {
+  .button(@margin-right: 0px, @img-size: 16px) {
     button.btn {
       height: 30px;
       width: 30px;
@@ -106,8 +106,8 @@
       margin-right: @margin-right;
 
       img {
-        width: 16px;
-        height: 16px;
+        width: @img-size;
+        height: @img-size;
       }
     }
   }

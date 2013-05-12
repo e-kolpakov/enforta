@@ -32,11 +32,35 @@ div.approval-editor {
           span[class*=span] {
             margin-left: 10px;
           }
+
+          span.span-approver {
+            position: relative;
+            padding: 4px 2px;
+            margin-bottom: 5px;
+
+            span.approver-remove {
+              position: absolute;
+              top: -6px;
+              left: -3px;
+              cursor: pointer;
+              img.remove-approver-button {
+                width: 12px;
+                height: 12px;
+              }
+            }
+
+            select {
+              margin-bottom: 0px;
+            }
+          }
         }
 
         span.add-approver {
+          padding: 4px 2px;
           #approval-editor > .button(5px);
         }
+
+
       }
     }
 
