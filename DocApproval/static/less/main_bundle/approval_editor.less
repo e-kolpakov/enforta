@@ -13,7 +13,7 @@ div.approval-editor {
   }
 
   div#approval-steps-editor {
-    span.buttons-cell {
+    td.buttons-cell {
       width: 70px;
       button.btn {
         height: 30px;
@@ -26,6 +26,23 @@ div.approval-editor {
         }
       }
     }
+
+    td {
+      &.buttons-cell,
+      &.step-label {
+        width: 65px;
+        vertical-align: baseline;
+      }
+
+      &.steps {
+        div.row-fluid {
+          span[class*=span] {
+            margin-left: 10px;
+          }
+        }
+      }
+    }
+
   }
 }
 
