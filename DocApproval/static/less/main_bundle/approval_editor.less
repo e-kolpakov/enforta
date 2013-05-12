@@ -15,16 +15,7 @@ div.approval-editor {
   div#approval-steps-editor {
     td.buttons-cell {
       width: 70px;
-      button.btn {
-        height: 30px;
-        width: 30px;
-        padding: 4px;
-
-        img {
-          width: 16px;
-          height: 16px;
-        }
-      }
+      #approval-editor > .button;
     }
 
     td {
@@ -32,6 +23,8 @@ div.approval-editor {
       &.step-label {
         width: 65px;
         vertical-align: baseline;
+        padding-left: 0px;
+        padding-right: 0px;
       }
 
       &.steps {
@@ -39,6 +32,10 @@ div.approval-editor {
           span[class*=span] {
             margin-left: 10px;
           }
+        }
+
+        span.add-approver {
+          #approval-editor > .button(5px);
         }
       }
     }

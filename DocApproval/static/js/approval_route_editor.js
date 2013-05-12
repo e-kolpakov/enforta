@@ -12,12 +12,13 @@
     var cell_celector = "> tbody > " + row_element + " > " + cell_element;
 
     var row_button_config = {
-        'add': {image: "add.png", cssClass: 'btn add_button'},
-        'remove': {image: "remove.png", cssClass: 'btn remove_button'}
+        add: {image: "add.png", cssClass: 'btn add_button'},
+        remove: {image: "remove.png", cssClass: 'btn remove_button'},
+        add_approver: {image: "add.png", cssClass: "btn add_approver_button", caption: "Добавить"}
     };
 
     function wrap(elem) {
-        return "<"+elem+"></"+elem+">";
+        return "<" + elem + "></" + elem + ">";
     }
 
     function download_approver_list(target_url) {
@@ -44,10 +45,15 @@
             var elements_wrapper = $("<div></div>").attr({'id': "row_wrapper_" + row_count});
             elements_wrapper.addClass("row-fluid").appendTo(steps_cell);
             for (var i = 0; i < row_data.length; i++) {
-                var dropdown = make_dropdown(that.approvers, row_data, row_data[i]);
-                $("<span></span>").addClass("span3").appendTo(elements_wrapper).append(dropdown);
+                make_approver(that.approvers, row_data, row_data[i]).appendTo(elements_wrapper);
             }
+            elements_wrapper.append(make_add_approver_button());
             return row;
+        }
+
+        function make_approver(approvers, approvers_in_row, selected_approver) {
+            var dropdown = make_dropdown(approvers, approvers_in_row, selected_approver);
+            return $("<span></span>").addClass("span3").append(dropdown);
         }
 
         function make_dropdown(approvers, approvers_in_row, selected_approver) {
@@ -67,20 +73,32 @@
 
         function make_buttons_cell(row) {
             var cell = $(wrap(cell_element)).addClass("span2 buttons-cell");
-            make_button(row_button_config['add'],function () {
+            make_button(row_button_config.add,function () {
                 that.add_row({}, row);
             }).appendTo(cell);
-            make_button(row_button_config['remove'],function () {
+            make_button(row_button_config.remove,function () {
                 that.delete_row(row);
             }).appendTo(cell);
             return cell;
         }
 
+        function make_add_approver_button() {
+            var span = $("<span></span>").addClass("span3 add-approver");
+            make_button(row_button_config.add_approver, function() {
+                that.add_approver($(this).parents('span.add-approver'));
+            }).appendTo(span);
+            return span;
+        }
+
         function make_button(button_cfg, click_handler) {
-            var btn = $("<button></button>").addClass(button_cfg.cssClass);
-            $("<img/>").attr("src", globals.static_root + "/img/icons/" + button_cfg.image).appendTo(btn);
+            var span = $("<span></span>");
+            var btn = $("<button></button>").addClass(button_cfg.cssClass).appendTo(span);
+            $("<img/>").attr("src", globals.static_root + "img/icons/" + button_cfg.image).appendTo(btn);
             btn.click(click_handler);
-            return btn;
+            if (button_cfg.caption) {
+                span.append(button_cfg.caption);
+            }
+            return span;
         }
 
         function relabel_rows() {
@@ -94,9 +112,9 @@
 
         function toggle_delete_buttons(enabled) {
             if (enabled)
-                that.editor_wrapper.find(cell_celector + "> .remove_button").removeAttr('disabled');
+                that.editor_wrapper.find(cell_celector + "> span > .remove_button").removeAttr('disabled');
             else
-                that.editor_wrapper.find(cell_celector + "> .remove_button").attr({disabled: 'disabled'});
+                that.editor_wrapper.find(cell_celector + "> span > .remove_button").attr({disabled: 'disabled'});
         }
 
 
@@ -131,6 +149,9 @@
             relabel_rows();
             toggle_delete_buttons(row_count != 1);
         };
+        this.add_approver = function (marker) {
+            make_approver(that.approvers, {}, {}).insertBefore(marker);
+        }
     }
 
     $.fn.approval_route_editor = function (options, initial_data) {
