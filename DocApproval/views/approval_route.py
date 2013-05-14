@@ -1,4 +1,5 @@
 import json
+import re
 
 from django.contrib.auth.decorators import permission_required
 from django.core.urlresolvers import reverse
@@ -23,6 +24,12 @@ class ApprovalRouteEditHandlerView(TemplateView):
     @method_decorator(ensure_csrf_cookie)
     def dispatch(self, request, *args, **kwargs):
         return super(ApprovalRouteEditHandlerView, self).dispatch(request, *args, **kwargs)
+
+    def _get_common_urls(self):
+        return {
+            'approver_list_url': ApprovalRouteUrls.APPROVERS_JSON,
+            'approval_route_backend': ApprovalRouteUrls.APPROVAL_ROUTE_BACKEND_JSON
+        }
 
 
 class ListApprovalRouteView(TemplateView):
@@ -49,7 +56,8 @@ class EditApprovalRouteView(ApprovalRouteEditHandlerView, MenuModifierViewMixin)
         return render(request, self.template_name, {
             'caption': route.name if route else ApprovalRouteMessages.NEW_APPROVAL_ROUTE,
             'route': route,
-            'approver_list_url': ApprovalRouteUrls.APPROVERS_JSON
+            'approver_list_url': ApprovalRouteUrls.APPROVERS_JSON,
+            'approval_route_backend': ApprovalRouteUrls.APPROVAL_ROUTE_BACKEND_JSON
         })
 
 
@@ -72,7 +80,8 @@ class EditTemplateApprovalRouteView(ApprovalRouteEditHandlerView, MenuModifierVi
         return render(request, self.template_name, {
             'caption': route.name if route else ApprovalRouteMessages.NEW_TEMPLATE_APPROVAL_ROUTE,
             'route': route,
-            'approver_list_url': ApprovalRouteUrls.APPROVERS_JSON
+            'approver_list_url': ApprovalRouteUrls.APPROVERS_JSON,
+            'approval_route_backend': ApprovalRouteUrls.APPROVAL_ROUTE_BACKEND_JSON
         })
 
 
@@ -117,3 +126,37 @@ class ApproversListJson(View):
             }
             for approver in self._get_all_approvers()}
         return HttpResponse(json.dumps(data), content_type="application/json")
+
+
+class SaveApprovalRouteView(View):
+    def post(self, request, *args, **kwargs):
+        data = {
+            'success': True,
+            'bounce': JsonApprovalRouteAdapter().from_post(request.POST)
+        }
+        return HttpResponse(json.dumps(data), content_type="application/json")
+
+
+class JsonApprovalRouteAdapter(object):
+    step_elem_re = re.compile(r"^steps\[(\d+)]\[]")
+
+    def __init__(self):
+        pass
+
+    def from_post(self, post):
+        steps = {}
+        for item in post.lists():
+            match = self.step_elem_re.match(item[0])
+            if match:
+                steps[match.group(1)] = item[1]
+
+        result = {
+            'pk': post.get('pk', 0),
+            'name': post.get('name', ''),
+            'desc': post.get('desc', ''),
+            'steps': steps
+        }
+        return result
+
+    def to_json(self, route):
+        return route

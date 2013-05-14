@@ -2,38 +2,64 @@
 (function ($, globals) {
     "use strict";
     //TODO: add real logging/notifying
-    var logger = console ? console.log : alert;
-    var ui_notifier = logger;
-
-    var wrapper_element = "table";
-    var row_element = "tr";
-    var cell_element = "td";
-    var row_celector = "> tbody > " + row_element;
-    var cell_celector = "> tbody > " + row_element + " > " + cell_element;
-    var approver_selector = cell_element + ".steps span.span-approver > select";
-
-    var row_button_config = {
-        add: {image: "add.png", cssClass: 'btn add-button'},
-        remove: {image: "remove.png", cssClass: 'btn remove-button'},
-        add_approver: {image: "add.png", cssClass: "btn add-approver-button", caption: "Добавить"},
-        remove_approver: {image: "close.png", cssClass: "remove-approver-button"}
+    var logger = console ? console.log : function (msg) {
     };
+    var ui_notifier = alert;
 
-    function wrap(elem) {
-        return "<" + elem + "></" + elem + ">";
-    }
+    var Communicator = function (csrf, approver_list_url, approval_route_backend_url) {
+        var that = this;
+        this.approver_list_url = approver_list_url;
+        this.approval_route_backend_url = approval_route_backend_url;
 
-    function download_approver_list(target_url) {
-        return $.ajax({
-            type: 'POST',
-            url: target_url,
-            dataType: 'json'
-        }).promise();
-    }
+        if (csrf) {
+            $.ajaxSetup({
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", csrf);
+                }
+            });
+        }
+
+        this.download_approver_list = function () {
+            var ajax_call = $.ajax({
+                type: 'POST',
+                url: that.approver_list_url,
+                dataType: 'json'
+            });
+            return ajax_call.promise();
+        };
+
+        this.save_approval_route = function (approval_route_data) {
+            var ajax_call = $.ajax({
+                type: 'POST',
+                url: that.approval_route_backend_url,
+                data: approval_route_data,
+                dataType: 'json'
+            });
+            return ajax_call.promise();
+        };
+    };
 
     var Editor = function (target) {
         var that = this;
         var row_count = 0;
+
+        var wrapper_element = "table";
+        var row_element = "tr";
+        var cell_element = "td";
+        var row_celector = "> tbody > " + row_element;
+        var cell_celector = "> tbody > " + row_element + " > " + cell_element;
+        var approver_selector = cell_element + ".steps span.span-approver > select";
+
+        var row_button_config = {
+            add: {image: "add.png", cssClass: 'btn add-button'},
+            remove: {image: "remove.png", cssClass: 'btn remove-button'},
+            add_approver: {image: "add.png", cssClass: "btn add-approver-button", caption: "Добавить"},
+            remove_approver: {image: "close.png", cssClass: "remove-approver-button"}
+        };
+
+        function wrap(elem) {
+            return "<" + elem + "></" + elem + ">";
+        }
 
         function make_wrapper() {
             return $(wrap(wrapper_element)).addClass("editor-wrapper table table-striped");
@@ -190,8 +216,9 @@
 
         this.validate = function () {
             var valid = true;
-            logger("Trying to validate");
+            logger("Validating");
             that.editor_wrapper.find(row_celector).each(function (idx, elem) {
+                logger("Validating row " + idx);
                 var row_valid = true;
                 var all_approvers = get_approvers(elem, false);
                 var unique_approvers = get_approvers(elem, true);
@@ -207,29 +234,47 @@
             });
             return valid;
         }
+
+        this.get_data = function () {
+            var result = {};
+            that.editor_wrapper.find(row_celector).each(function (idx, elem) {
+                logger("Row " + idx + " with id " + $(elem).attr('id'));
+                result[idx + 1] = get_approvers(elem, true);
+            });
+            return result;
+        }
     }
 
     $.fn.approval_route_editor = function (options, initial_data) {
         var target = $(this);
         var csrf = options.csrftoken || $.cookie('csrftoken');
-        var $template_list = options.template_list || {};
-        if (csrf) {
-            $.ajaxSetup({
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("X-CSRFToken", csrf);
-                }
-            });
-        }
-        var approver_list_promise = download_approver_list(options.approvers_source_url);
+
+        var comm = new Communicator(csrf, options.approvers_source_url, options.approval_route_backend);
+        var editor = new Editor(target);
+
+        var approver_list_promise = comm.download_approver_list();
         approver_list_promise.done(function (data, textStatus, jqXHR) {
-            logger(data);
-            var editor = new Editor(target);
             editor.set_approvers(data);
             editor.set_data(initial_data);
             editor.render();
 
             (options.$save_trigger).click(function () {
-                logger(editor.validate());
+                if (editor.validate()) {
+                    var data = {
+                        'pk': 0,
+                        'name': '',
+                        'desc': '',
+                        'steps': editor.get_data()
+                    }
+                    var save_promise = comm.save_approval_route(data);
+                    save_promise.done(function (data, textStatus, jqXHR) {
+                        logger(data);
+                    });
+
+                    save_promise.fail(function (jqXHR, textStatus, errorThrown) {
+                        ui_notifier(errorThrown);
+                    });
+                }
             });
         });
 

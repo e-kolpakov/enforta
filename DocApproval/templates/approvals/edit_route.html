@@ -36,6 +36,7 @@
             $("#approval-steps-editor").approval_route_editor(
                     {
                         approvers_source_url: '{% url approver_list_url %}',
+                        approval_route_backend: '{% url approval_route_backend %}',
                         $save_trigger: $('#btn-save')
                     },
                     {

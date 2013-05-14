@@ -18,5 +18,8 @@ urlpatterns = patterns(
 
     url(r"^template/", approval_route.EditTemplateApprovalRouteView.as_view(), name=approval_names.TEMPLATE_CREATE),
     url(r"^template/(?P<pk>\d+)", approval_route.EditTemplateApprovalRouteView.as_view(),
-        name=approval_names.TEMPLATE_EDIT)
+        name=approval_names.TEMPLATE_EDIT),
+
+    url(r"^save_route/", approval_route.SaveApprovalRouteView.as_view(),
+        name=approval_names.APPROVAL_ROUTE_BACKEND_JSON)
 )
