@@ -7,6 +7,8 @@ class JsonConfigurableDatatablesBaseView(BaseDatatableView):
 
     model = None
     display_fields = ()
+    model_fields = ()
+    calculated_fields = {}
     link_target = None
     link_field = None
 
@@ -14,8 +16,14 @@ class JsonConfigurableDatatablesBaseView(BaseDatatableView):
         link = self.link_target
         return link() if hasattr(link, '__call__') else link
 
+    def get_model_fields(self):
+        return self.model_fields if self.model_fields else self.display_fields
+
     def get_display_fields(self):
         return self.display_fields
+
+    def get_calculated_fields(self):
+        return self.calculated_fields
 
     def get_order_columns(self):
         return self.get_display_fields()
@@ -34,11 +42,13 @@ class JsonConfigurableDatatablesBaseView(BaseDatatableView):
 
     def get_columns_config(self):
         columns = {}
-        for field in self.get_display_fields():
+        for field in self.get_model_fields():
             field_def = self.model._meta.get_field_by_name(field)[0]
             if field_def is None:
                 raise ImproperlyConfigured("Field {0} not found for model {1}".format(field, self.model.__class__.name))
             columns[field] = field_def.verbose_name
+        for field, caption in self.get_calculated_fields().iteritems():
+            columns[field] = caption
         return columns
 
     def get_links_config(self):

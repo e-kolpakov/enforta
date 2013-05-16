@@ -88,7 +88,10 @@ class EditTemplateApprovalRouteView(ApprovalRouteEditHandlerView, MenuModifierVi
 class TemplateApprovalRouteListJson(JsonConfigurableDatatablesBaseView):
     model = ApprovalRoute
     link_field = 'name'
-    display_fields = ('name', 'description')
+    model_fields = ('name', 'description')
+    calculated_fields = {'steps_count': ApprovalRouteMessages.STEPS_COUNT, }
+    display_fields = ('name', 'description', 'steps_count')
+
 
     def get_links_config(self):
         return {
@@ -108,7 +111,8 @@ class TemplateApprovalRouteListJson(JsonConfigurableDatatablesBaseView):
         return {
             'pk': item.pk,
             'name': item.name,
-            'description': item.description
+            'description': item.description,
+            'steps_count': item.steps.filter(route=item).count()
         }
 
 
@@ -129,34 +133,46 @@ class ApproversListJson(View):
 
 
 class SaveApprovalRouteView(View):
-    def post(self, request, *args, **kwargs):
-        data = {
-            'success': True,
-            'bounce': JsonApprovalRouteAdapter().from_post(request.POST)
-        }
-        return HttpResponse(json.dumps(data), content_type="application/json")
-
-
-class JsonApprovalRouteAdapter(object):
     step_elem_re = re.compile(r"^steps\[(\d+)]\[]")
 
-    def __init__(self):
-        pass
-
-    def from_post(self, post):
-        steps = {}
-        for item in post.lists():
+    def _get_steps(self, items):
+        steps = dict()
+        for item in items:
             match = self.step_elem_re.match(item[0])
             if match:
                 steps[match.group(1)] = item[1]
 
-        result = {
-            'pk': post.get('pk', 0),
-            'name': post.get('name', ''),
-            'desc': post.get('desc', ''),
-            'steps': steps
-        }
-        return result
+        return steps
 
-    def to_json(self, route):
+    def save_route(self, querydict):
+        is_template = querydict.get('is_template', False)
+        default_name = ApprovalRouteMessages.DEFAULT_TEMPLATE_APPROVAL_ROUTE_NAME if is_template else ApprovalRouteMessages.NEW_APPROVAL_ROUTE
+        steps = self._get_steps(querydict.lists())
+        if not steps:
+            raise ValueError("Incorrect steps list")
+
+        route = ApprovalRoute.create(
+            pk=querydict.get('pk', None),
+            name=querydict.get('name', default_name),
+            description=querydict.get('desc', ''),
+            is_template=is_template,
+            steps=steps
+        )
+
         return route
+
+    def post(self, request, *args, **kwargs):
+        route = self.save_route(request.POST)
+
+        data = {
+            'success': True,
+            'bounce': {
+                'pk': route.pk,
+                'name': route.name,
+                'desc': route.description,
+                'steps': [
+                    step.pk for step in route.steps.all()
+                ]
+            }
+        }
+        return HttpResponse(json.dumps(data), content_type="application/json")

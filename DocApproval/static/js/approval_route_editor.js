@@ -2,7 +2,10 @@
 (function ($, globals) {
     "use strict";
     //TODO: add real logging/notifying
-    var logger = console ? console.log : function (msg) {
+    var logger = function (msg) {
+        if (console && console.log) {
+            console.log(msg);
+        }
     };
     var ui_notifier = alert;
 
@@ -261,10 +264,11 @@
             (options.$save_trigger).click(function () {
                 if (editor.validate()) {
                     var data = {
-                        'pk': 0,
-                        'name': '',
-                        'desc': '',
-                        'steps': editor.get_data()
+                        pk: 0,
+                        name: '',
+                        desc: '',
+                        is_template: true,
+                        steps: editor.get_data()
                     }
                     var save_promise = comm.save_approval_route(data);
                     save_promise.done(function (data, textStatus, jqXHR) {

@@ -220,6 +220,31 @@ class ApprovalRoute(models.Model):
             (Permissions.ApprovalRoute.CAN_MANAGE_TEMPLATES, _(u"Может создавать шаблонные маршруты"))
         )
 
+    @classmethod
+    def create(cls, pk=None, name=None, description=None, is_template=False, steps=None):
+        route, created = ApprovalRoute.objects.get_or_create(
+            pk=pk,
+            defaults={'name': name, 'description': description, 'is_template': is_template}
+        )
+
+        if not created:
+            route.name = name
+            route.description = description
+            route.is_template = is_template
+
+        for step_number, approvers in steps.iteritems():
+            route.add_step(step_number, approvers)
+
+        return route
+
+    def add_step(self, step_number, approvers, persist=False):
+        if not isinstance(approvers, list) or not approvers:
+            raise ValueError("Approvers parameter must be a non-empty list")
+
+        for approver_id in approvers:
+            approver_profile = UserProfile.objects.get(pk=approver_id)
+            step = ApprovalRouteStep.objects.create(route=self, approver=approver_profile, step_number=step_number)
+
 
 class ApprovalRouteStep(models.Model):
     route = models.ForeignKey(ApprovalRoute, verbose_name=_(u"Маршрут утверждения"), related_name='steps')
