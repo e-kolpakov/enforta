@@ -221,16 +221,9 @@ class ApprovalRoute(models.Model):
         )
 
     @classmethod
-    def create(cls, pk=None, name=None, description=None, is_template=False, steps=None):
-        route, created = ApprovalRoute.objects.get_or_create(
-            pk=pk,
-            defaults={'name': name, 'description': description, 'is_template': is_template}
-        )
-
-        if not created:
-            route.name = name
-            route.description = description
-            route.is_template = is_template
+    def create_with_steps(cls, pk=None, name=None, description=None, is_template=False, steps=None):
+        primary_key = pk if pk and int(pk) else None
+        route = ApprovalRoute.objects.create(pk=primary_key, name=name, description=description, is_template=is_template)
 
         for step_number, approvers in steps.iteritems():
             route.add_step(step_number, approvers)
@@ -244,6 +237,9 @@ class ApprovalRoute(models.Model):
         for approver_id in approvers:
             approver_profile = UserProfile.objects.get(pk=approver_id)
             step = ApprovalRouteStep.objects.create(route=self, approver=approver_profile, step_number=step_number)
+
+    def get_steps_count(self):
+        return self.steps.all().aggregate(models.Max('step_number')).get('step_number__max')
 
 
 class ApprovalRouteStep(models.Model):

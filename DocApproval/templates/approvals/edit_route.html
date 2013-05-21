@@ -7,16 +7,30 @@
 {% block scripts %}
     {{ block.super }}
     <script language="JavaScript" type="text/javascript" src="{% static "js/approval_route_editor.js" %}"></script>
+    {#    <script language="JavaScript" type="text/javascript" src="{% static "js/jquery/jquery.validate.min.js" %}"></script>#}
 {% endblock scripts %}
 
 {% block maincontent %}
     <div class='approval-editor'>
-        <div class="container-fluid">
-            <div class="row-fluid">
-                <span class='span3 offset9'>
-                    <button class='btn btn-primary' id='btn-save'>{% trans "Сохранить" %}</button>
-                </span>
+        <div>
+            <div class="row" id='editor-header'>
+                <form method="POST" class="form-inline" id='editor-form'>
+                    <input type='hidden' name='route-pk' id='route-pk'>
+                    <input type='hidden' name='route-is-template' id='route-is-template'>
+                    <span class='span4 control-group'>
+                        <label class='control-label' for='route_name'>{% trans "Название" %}</label>
+                        <input type='text' name='route-name' id='route-name'/>
+                    </span>
+                    <span class='span6 control-group'>
+                        <label class='control-label' for='route_description'>{% trans "Описание" %}</label>
+                        <input type='text' name='route-description' id='route-description' class="input-xlarge"/>
+                    </span>
+                    <span class='span2 text-right'>
+                        <button class='btn btn-primary' id='btn-save'>{% trans "Сохранить" %}</button>
+                    </span>
+                </form>
             </div>
+
             <div class="row-fluid">
                 <div class="sidebar span3">
                     Здесь будет список доступных шаблонов
@@ -37,12 +51,27 @@
                     {
                         approvers_source_url: '{% url approver_list_url %}',
                         approval_route_backend: '{% url approval_route_backend %}',
-                        $save_trigger: $('#btn-save')
+                        $form: $("#editor-form"),
+                        $save_trigger: $('#btn-save'),
+                        controls: {
+                            pk_input_selector: "#route-pk",
+                            name_input_selector: '#route-name',
+                            desc_input_selector: '#route-description',
+                            is_template_input_selector: '#route-is-template'
+                        }
                     },
                     {
-                        '1': [7, 6, 7],
-                        '2': [6],
-                        '3': [7]
+                        header_data: {
+                            pk: 0,
+                            name: 'test',
+                            description: 'test descr',
+                            is_template: true
+                        },
+                        steps: {
+                            '1': [7, 6, 7],
+                            '2': [6],
+                            '3': [7]
+                        }
                     }
             );
         });

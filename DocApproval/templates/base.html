@@ -9,17 +9,17 @@
     </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% block weak_styles %}{% endblock weak_styles %}
-    <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}js/jquery-ui/jquery-ui-1.10.2.custom.min.css"/>
-    <link rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/bootstrap.min.css">
+    <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}js/jquery/jquery-ui/jquery-ui-1.10.2.custom.min.css"/>
+    <link rel="stylesheet" media="screen" href="{{ STATIC_URL }}css/bootstrap.css">
     <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}css/main_bundle.css"/>
     {% block styles %}{% endblock styles %}
 
-    <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/jquery-1.9.1.min.js"></script>
-    <script type="text/javascript" src="{% static "js/jquery.cookie.js" %}"></script>
+    <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/jquery/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery/jquery.cookie.js"></script>
     <script type="text/javascript" language="JavaScript"
-            src="{{ STATIC_URL }}js/jquery-ui/jquery-ui-1.10.2.custom.min.js"></script>
+            src="{{ STATIC_URL }}js/jquery/jquery-ui/jquery-ui-1.10.2.custom.min.js"></script>
     <script type="text/javascript" language="JavaScript"
-            src="{{ STATIC_URL }}js/jquery-ui/localization/jquery.ui.datepicker-ru.js"></script>
+            src="{{ STATIC_URL }}js/jquery/jquery-ui/localization/jquery.ui.datepicker-ru.js"></script>
     <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
 
     <script type="text/javascript" language="JavaScript">
@@ -28,7 +28,7 @@
             static_root: "{{ STATIC_URL }}" //need a way to pass the static_root to JS.
         };
     </script>
-    <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/jquery-ui/enhancements.js"></script>
+    <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/jquery/jquery-ui/enhancements.js"></script>
     <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/global_settings.js"></script>
     {% block scripts %}{% endblock scripts %}
 </head>

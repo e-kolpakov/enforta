@@ -96,7 +96,7 @@ class TemplateApprovalRouteListJson(JsonConfigurableDatatablesBaseView):
     def get_links_config(self):
         return {
             'name': {
-                'base_url': get_url_base(reverse(ApprovalRouteUrls.UPDATE, kwargs={'pk': 0}))
+                'base_url': get_url_base(reverse(ApprovalRouteUrls.TEMPLATE_EDIT, kwargs={'pk': 0}))
             },
         }
 
@@ -112,7 +112,7 @@ class TemplateApprovalRouteListJson(JsonConfigurableDatatablesBaseView):
             'pk': item.pk,
             'name': item.name,
             'description': item.description,
-            'steps_count': item.steps.filter(route=item).count()
+            'steps_count': item.get_steps_count()
         }
 
 
@@ -151,7 +151,7 @@ class SaveApprovalRouteView(View):
         if not steps:
             raise ValueError("Incorrect steps list")
 
-        route = ApprovalRoute.create(
+        route = ApprovalRoute.create_with_steps(
             pk=querydict.get('pk', None),
             name=querydict.get('name', default_name),
             description=querydict.get('desc', ''),

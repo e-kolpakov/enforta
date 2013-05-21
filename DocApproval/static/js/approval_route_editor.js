@@ -1,7 +1,7 @@
 /*global globals*/
 (function ($, globals) {
     "use strict";
-    //TODO: add real logging/notifying
+    // TODO: add real logging/notifying
     var logger = function (msg) {
         if (console && console.log) {
             console.log(msg);
@@ -39,6 +39,46 @@
                 dataType: 'json'
             });
             return ajax_call.promise();
+        };
+    };
+
+    var HeaderEditor = function (form, controls) {
+        function get_element(selector) {
+            return $(selector, form);
+        }
+
+        var error_class = 'error';
+
+        var pk_input = get_element(controls.pk_input_selector || "#route-pk");
+        var name_input = get_element(controls.name_input_selector || "#route-name");
+        var desc_input = get_element(controls.desc_input_selector || "#route-description");
+        var is_template_input = get_element(controls.is_template_input_selector || "#route-is-template");
+
+        var that = this;
+        this.set_data = function (data) {
+            pk_input.val(data.pk || 0);
+            name_input.val(data.name || '');
+            desc_input.val(data.description || '');
+            is_template_input.val(data.is_template || false);
+        };
+
+        this.validate = function () {
+            name_input.parent().removeClass(error_class);
+            var result = true;
+            if (name_input.val().length === 0) {
+                result = false;
+                name_input.parent().addClass(error_class);
+            }
+            return result;
+        };
+
+        this.get_data = function () {
+            return {
+                pk: pk_input.val(),
+                name: name_input.val(),
+                desc: desc_input.val(),
+                is_template: is_template_input.val()
+            };
         };
     };
 
@@ -254,32 +294,42 @@
 
         var comm = new Communicator(csrf, options.approvers_source_url, options.approval_route_backend);
         var editor = new Editor(target);
+        var header_editor = new HeaderEditor(options.$form, options.controls);
+
+        function validate_editors() {
+            // Both editors needs to be validated, thus can't do
+            //  header_editor.validate() && editor.validate() because of short-circuit evaluation of &&
+            var header_valid = header_editor.validate();
+            var editor_valid = editor.validate();
+            return header_valid && editor_valid;
+        }
+
+        function save_click_handler(event) {
+            event.preventDefault();
+            if (validate_editors()) {
+                var data = $.extend({}, header_editor.get_data(), { steps: editor.get_data() });
+                var save_promise = comm.save_approval_route(data);
+
+                save_promise.done(function (response_data, textStatus, jqXHR) {
+                    logger(response_data);
+                });
+
+                save_promise.fail(function (jqXHR, textStatus, errorThrown) {
+                    ui_notifier(errorThrown);
+                });
+            }
+            return false;
+        }
+
+        header_editor.set_data(initial_data.header_data);
 
         var approver_list_promise = comm.download_approver_list();
         approver_list_promise.done(function (data, textStatus, jqXHR) {
             editor.set_approvers(data);
-            editor.set_data(initial_data);
+            editor.set_data(initial_data.steps);
             editor.render();
 
-            (options.$save_trigger).click(function () {
-                if (editor.validate()) {
-                    var data = {
-                        pk: 0,
-                        name: '',
-                        desc: '',
-                        is_template: true,
-                        steps: editor.get_data()
-                    }
-                    var save_promise = comm.save_approval_route(data);
-                    save_promise.done(function (data, textStatus, jqXHR) {
-                        logger(data);
-                    });
-
-                    save_promise.fail(function (jqXHR, textStatus, errorThrown) {
-                        ui_notifier(errorThrown);
-                    });
-                }
-            });
+            (options.$save_trigger).click(save_click_handler);
         });
 
         // TODO: add real error handling

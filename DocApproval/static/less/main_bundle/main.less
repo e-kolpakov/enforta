@@ -8,7 +8,13 @@ html.JS {
 body.main-body {
   padding: @body-padding;
 
-  .main-header {
+  div.container-wrapper {
+    width: auto;
+    padding: 0px @content-padding-horizontal;
+  }
+
+  div.main-header {
+    margin: 0px @content-margin-horizontal;
     .logo-container {
       float: left;
       img#logo {
@@ -23,14 +29,15 @@ body.main-body {
   }
 
   div.main-content {
-    margin: @content-margin;
-    padding: @content-padding;
+    margin: @content-margin-vertical @content-margin-horizontal;
+    padding: @content-padding-vertical @content-padding-horizontal;
     border: 1px solid @content-border-color;
     min-height: @content-min-height;
     background-color: @content-background-color;
     vertical-align: top;
     position: relative;
     overflow: auto;
+
     .rounded-borders-mixin;
   }
 
