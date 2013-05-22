@@ -13,12 +13,12 @@ urlpatterns = patterns(
 
     url(r"^list/", approval_route.ListApprovalRouteView.as_view(), name=approval_names.LIST),
 
-    url(r"^create/", approval_route.EditApprovalRouteView.as_view(), name=approval_names.CREATE),
     url(r"^details/(?P<pk>\d+)", approval_route.EditApprovalRouteView.as_view(), name=approval_names.UPDATE),
+    url(r"^create/", approval_route.EditApprovalRouteView.as_view(), name=approval_names.CREATE),
 
-    url(r"^template/", approval_route.EditTemplateApprovalRouteView.as_view(), name=approval_names.TEMPLATE_CREATE),
     url(r"^template/(?P<pk>\d+)", approval_route.EditTemplateApprovalRouteView.as_view(),
         name=approval_names.TEMPLATE_EDIT),
+    url(r"^template/", approval_route.EditTemplateApprovalRouteView.as_view(), name=approval_names.TEMPLATE_CREATE),
 
     url(r"^save_route/", approval_route.SaveApprovalRouteView.as_view(),
         name=approval_names.APPROVAL_ROUTE_BACKEND_JSON)

@@ -62,16 +62,12 @@
                     },
                     {
                         header_data: {
-                            pk: 0,
-                            name: 'test',
-                            description: 'test descr',
-                            is_template: true
+                            pk: {{ route_data.pk }},
+                            name: '{{ route_data.name }}',
+                            description: '{{ route_data.description }}',
+                            is_template: {{ route_data.is_template|lower }}
                         },
-                        steps: {
-                            '1': [7, 6, 7],
-                            '2': [6],
-                            '3': [7]
-                        }
+                        steps: {{ route_data.steps_as_json|safe }}
                     }
             );
         });

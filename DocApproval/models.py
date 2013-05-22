@@ -221,22 +221,48 @@ class ApprovalRoute(models.Model):
         )
 
     @classmethod
-    def create_with_steps(cls, pk=None, name=None, description=None, is_template=False, steps=None):
+    @transaction.commit_on_success
+    def create_or_update_with_steps(cls, pk=None, name=None, description=None, is_template=False, steps=None):
         primary_key = pk if pk and int(pk) else None
-        route = ApprovalRoute.objects.create(pk=primary_key, name=name, description=description, is_template=is_template)
+        route, created = ApprovalRoute.objects.get_or_create(
+            pk=primary_key,
+            defaults={'name': name, 'description': description, 'is_template': is_template}
+        )
+        if not created:
+            route.name = name
+            route.description = description
+            if route.is_template != is_template:
+                raise ValueError(
+                    "Can't make template route non-template and vice versa. Template was {0}, tried to make it {1}".format(
+                        route.is_template, is_template))
 
+        route.save()
+
+        steps_to_keep = []
         for step_number, approvers in steps.iteritems():
-            route.add_step(step_number, approvers)
+            route.add_step(step_number, set(approvers))
+            steps_to_keep.append(int(step_number))
+
+        route.remove_steps(steps_to_keep)
 
         return route
 
-    def add_step(self, step_number, approvers, persist=False):
-        if not isinstance(approvers, list) or not approvers:
-            raise ValueError("Approvers parameter must be a non-empty list")
+    def add_step(self, step_number, approvers):
+        if not isinstance(approvers, set) or not approvers:
+            raise ValueError("Approvers parameter must be a non-empty set")
 
-        for approver_id in approvers:
+        existing_approvers_in_step = set(step.approver.pk for step in self.steps.filter(step_number=step_number))
+        approvers_to_add = approvers - existing_approvers_in_step
+        approvers_to_remove = existing_approvers_in_step - approvers
+
+        for approver_id in approvers_to_add:
             approver_profile = UserProfile.objects.get(pk=approver_id)
-            step = ApprovalRouteStep.objects.create(route=self, approver=approver_profile, step_number=step_number)
+            self.steps.create(approver=approver_profile, step_number=step_number)
+
+        self.steps.filter(approver__pk__in=approvers_to_remove).delete()
+
+    def remove_steps(self, steps_to_keep):
+        self.steps.exclude(step_number__in=steps_to_keep).delete()
 
     def get_steps_count(self):
         return self.steps.all().aggregate(models.Max('step_number')).get('step_number__max')

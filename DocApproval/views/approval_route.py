@@ -1,5 +1,7 @@
 import json
 import re
+import logging
+from collections import defaultdict
 
 from django.contrib.auth.decorators import permission_required
 from django.core.urlresolvers import reverse
@@ -9,7 +11,6 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import View, TemplateView
 from django.contrib.auth.models import User, Permission
 from django.db.models import Q
-from django.core import serializers
 from django.http import HttpResponse
 
 from ..menu import MenuModifierViewMixin, RequestContextMenuManagerExtension
@@ -20,13 +21,42 @@ from ..utilities.utility import get_url_base
 from ..utilities.datatables import JsonConfigurableDatatablesBaseView
 
 
+_logger = logging.getLogger(__name__)
+
+class ApprovalRouteTemplateAdapter(object):
+    def __init__(self, **kwargs):
+        self.pk = kwargs.get('pk', 0)
+        self.name = kwargs.get('name', '')
+        self.description = kwargs.get('description', '')
+        self.is_template = kwargs.get('is_template', False)
+        self.steps = kwargs.get('steps', defaultdict(list))
+
+    def set_steps(self, route_steps):
+        self.steps = defaultdict(list)
+        for step in route_steps:
+            self.steps[step.step_number].append(step.approver.pk)
+
+    def steps_as_json(self):
+        return json.dumps(self.steps)
+
 class ApprovalRouteEditHandlerView(TemplateView):
     @method_decorator(ensure_csrf_cookie)
     def dispatch(self, request, *args, **kwargs):
         return super(ApprovalRouteEditHandlerView, self).dispatch(request, *args, **kwargs)
 
-    def _get_common_urls(self):
+    def _get_template_data(self, route=None, is_template_default=False, new_route_name=None):
+        if route:
+            route_data = ApprovalRouteTemplateAdapter(
+                pk=route.pk, is_template=route.is_template,
+                name=route.name, description=route.description)
+            route_data.set_steps(route.steps.all())
+        else:
+            route_data = ApprovalRouteTemplateAdapter(
+                pk=0, is_template=is_template_default,
+                name='', description='')
         return {
+            'caption': route_data.name if route_data.name else new_route_name,
+            'route_data': route_data,
             'approver_list_url': ApprovalRouteUrls.APPROVERS_JSON,
             'approval_route_backend': ApprovalRouteUrls.APPROVAL_ROUTE_BACKEND_JSON
         }
@@ -53,12 +83,9 @@ class EditApprovalRouteView(ApprovalRouteEditHandlerView, MenuModifierViewMixin)
         route = get_object_or_404(ApprovalRoute, pk=pk)
         self._apply_extender(request, route.request)
 
-        return render(request, self.template_name, {
-            'caption': route.name if route else ApprovalRouteMessages.NEW_APPROVAL_ROUTE,
-            'route': route,
-            'approver_list_url': ApprovalRouteUrls.APPROVERS_JSON,
-            'approval_route_backend': ApprovalRouteUrls.APPROVAL_ROUTE_BACKEND_JSON
-        })
+        return render(request, self.template_name, self._get_template_data(
+            route=route,
+            new_route_name=ApprovalRouteMessages.NEW_APPROVAL_ROUTE))
 
 
 class EditTemplateApprovalRouteView(ApprovalRouteEditHandlerView, MenuModifierViewMixin):
@@ -77,12 +104,10 @@ class EditTemplateApprovalRouteView(ApprovalRouteEditHandlerView, MenuModifierVi
         except ApprovalRoute.DoesNotExist:
             route = None
 
-        return render(request, self.template_name, {
-            'caption': route.name if route else ApprovalRouteMessages.NEW_TEMPLATE_APPROVAL_ROUTE,
-            'route': route,
-            'approver_list_url': ApprovalRouteUrls.APPROVERS_JSON,
-            'approval_route_backend': ApprovalRouteUrls.APPROVAL_ROUTE_BACKEND_JSON
-        })
+        return render(request, self.template_name, self._get_template_data(
+            route=route,
+            is_template_default=True,
+            new_route_name=ApprovalRouteMessages.NEW_TEMPLATE_APPROVAL_ROUTE))
 
 
 class TemplateApprovalRouteListJson(JsonConfigurableDatatablesBaseView):
@@ -140,18 +165,18 @@ class SaveApprovalRouteView(View):
         for item in items:
             match = self.step_elem_re.match(item[0])
             if match:
-                steps[match.group(1)] = item[1]
+                steps[match.group(1)] = [int(approver_id) for approver_id in item[1]]
 
         return steps
 
     def save_route(self, querydict):
-        is_template = querydict.get('is_template', False)
+        is_template = querydict.get('is_template', 'false') != 'false'
         default_name = ApprovalRouteMessages.DEFAULT_TEMPLATE_APPROVAL_ROUTE_NAME if is_template else ApprovalRouteMessages.NEW_APPROVAL_ROUTE
         steps = self._get_steps(querydict.lists())
         if not steps:
             raise ValueError("Incorrect steps list")
 
-        route = ApprovalRoute.create_with_steps(
+        route = ApprovalRoute.create_or_update_with_steps(
             pk=querydict.get('pk', None),
             name=querydict.get('name', default_name),
             description=querydict.get('desc', ''),
@@ -162,17 +187,15 @@ class SaveApprovalRouteView(View):
         return route
 
     def post(self, request, *args, **kwargs):
-        route = self.save_route(request.POST)
-
-        data = {
-            'success': True,
-            'bounce': {
-                'pk': route.pk,
-                'name': route.name,
-                'desc': route.description,
-                'steps': [
-                    step.pk for step in route.steps.all()
-                ]
+        try:
+            self.save_route(request.POST)
+            data = {
+                'success': True
             }
-        }
+        except Exception as e:
+            _logger.exception(e.message)
+            data = {
+                'success': False,
+                'errors': [e.message]
+            }
         return HttpResponse(json.dumps(data), content_type="application/json")
