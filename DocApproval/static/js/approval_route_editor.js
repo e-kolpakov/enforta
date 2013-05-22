@@ -60,12 +60,24 @@
         var desc_input = get_element(controls.desc_input_selector || "#route-description");
         var is_template_input = get_element(controls.is_template_input_selector || "#route-is-template");
 
+        function set_controls_availability(is_template){
+            var ctrls = name_input.add(desc_input);
+            if (!is_template) {
+                ctrls.attr('disabled', true);
+            }
+            else {
+                ctrls.removeAttr('disabled');
+            }
+        }
+
         var that = this;
         this.set_data = function (data) {
             pk_input.val(data.pk || 0);
             name_input.val(data.name || '');
             desc_input.val(data.description || '');
             is_template_input.val(data.is_template || false);
+
+            set_controls_availability(data.is_template || false);
         };
 
         this.validate = function () {
