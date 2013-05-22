@@ -47,6 +47,7 @@ class ApprovalRoute:
     LIST_JSON_CONF = "list_json_conf"
 
     APPROVERS_JSON = "approvers_json"
+    TEMPLATES_JSON = "templates_json"
     APPROVAL_ROUTE_BACKEND_JSON = "approval_route_backend_json"
 
 

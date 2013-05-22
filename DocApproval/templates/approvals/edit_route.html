@@ -21,19 +21,21 @@
                         <label class='control-label' for='route_name'>{% trans "Название" %}</label>
                         <input type='text' name='route-name' id='route-name'/>
                     </span>
-                    <span class='span6 control-group'>
+                    <span class='span5 control-group'>
                         <label class='control-label' for='route_description'>{% trans "Описание" %}</label>
                         <input type='text' name='route-description' id='route-description' class="input-xlarge"/>
                     </span>
-                    <span class='span2 text-right'>
+                    <span class='span3 text-right'>
                         <button class='btn btn-primary' id='btn-save'>{% trans "Сохранить" %}</button>
+                        <button class='btn btn-secondary' id='btn-revert'>{% trans "Сбросить" %}</button>
                     </span>
                 </form>
             </div>
 
             <div class="row-fluid">
                 <div class="sidebar span3">
-                    Здесь будет список доступных шаблонов
+                    <h4>Шаблонные маршруты</h4>
+                    <div id='template-routes-pane'></div>
                 </div>
                 <div class="span9">
                     <div id='approval-steps-editor'></div>
@@ -50,9 +52,12 @@
             $("#approval-steps-editor").approval_route_editor(
                     {
                         approvers_source_url: '{% url approver_list_url %}',
-                        approval_route_backend: '{% url approval_route_backend %}',
+                        template_route_source_url: '{% url template_route_list_url %}',
+                        approval_route_backend: '{% url approval_route_backend_url %}',
                         $form: $("#editor-form"),
+                        $template_routes_pane: $("#template-routes-pane"),
                         $save_trigger: $('#btn-save'),
+                        $revert_trigger: $('#btn-revert'),
                         controls: {
                             pk_input_selector: "#route-pk",
                             name_input_selector: '#route-name',
