@@ -1,6 +1,12 @@
 /*global globals*/
 (function ($, globals) {
     "use strict";
+
+    var Messages = {
+        save_success: "Маршрут сохранен",
+        save_error: "Произошли ошибки сохранения:\n"
+    };
+
     // TODO: add real logging/notifying
     var logger = function (msg) {
         if (console && console.log) {
@@ -227,11 +233,16 @@
             that.approvers = approvers;
         }
         this.render = function () {
+            var has_rows = false;
             that.editor_wrapper = make_wrapper().appendTo(that.target);
             for (var k in that.data) {
                 if (!that.data.hasOwnProperty(k))
                     continue;
+                has_rows = true;
                 that.add_row(that.data[k]);
+            }
+            if (!has_rows) {
+                that.add_row([]);
             }
         };
         this.add_row = function (data, prev_row) {
@@ -311,7 +322,12 @@
                 var save_promise = comm.save_approval_route(data);
 
                 save_promise.done(function (response_data, textStatus, jqXHR) {
-                    logger(response_data);
+                    if (response_data.success) {
+                        ui_notifier(Messages.save_success);
+                    }
+                    else {
+                        ui_notifier(Messages.save_error + response_data.errors.join("\n"));
+                    }
                 });
 
                 save_promise.fail(function (jqXHR, textStatus, errorThrown) {
