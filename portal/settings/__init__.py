@@ -6,7 +6,7 @@ import sys
 
 local_settings_file = os.environ.get('EnvironmentType', 'development')
 
-if 'migrate' in sys.argv:
+if 'migrate' in sys.argv or 'syncdb' in sys.argv:
     local_settings_file = 'database_migration'
 
 sys.stderr.write("Importing local settings from %s\n" % local_settings_file)

@@ -217,7 +217,7 @@ class ApprovalRoute(models.Model):
 
     class Meta:
         permissions = (
-            (Permissions.ApprovalRoute.CAN_MANAGE_TEMPLATES, _(u"Может создавать шаблонные маршруты"))
+            (Permissions.ApprovalRoute.CAN_MANAGE_TEMPLATES, _(u"Может создавать шаблонные маршруты")),
         )
 
     @classmethod
