@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import signals
 from django.contrib.auth.management import create_superuser
 from django.contrib.auth import models as auth_app
-from guardian.shortcuts import assign_perm, get_objects_for_user
+from guardian.shortcuts import assign_perm, remove_perm, get_objects_for_user
 
 from url_naming.names import (Profile as ProfileUrls, Request as RequestUrls)
 from DocApproval.utilities.humanization import Humanizer
@@ -256,13 +256,26 @@ class ApprovalRoute(models.Model):
         approvers_to_remove = existing_approvers_in_step - approvers
 
         for approver_id in approvers_to_add:
-            approver_profile = UserProfile.objects.get(pk=approver_id)
-            self.steps.create(approver=approver_profile, step_number=step_number)
+            approver = User.objects.get(pk=approver_id)
+            self.steps.create(approver=approver.profile, step_number=step_number)
+            if self.request:
+                assign_perm(Permissions._(Permissions.Request.CAN_VIEW_REQUEST), approver, self.request)
+
+        if self.request:
+            for approver_id in approvers_to_remove:
+                approver = User.objects.get(pk=approver_id)
+                remove_perm(Permissions._(Permissions.Request.CAN_VIEW_REQUEST), approver, self.request)
 
         self.steps.filter(approver__pk__in=approvers_to_remove).delete()
 
     def remove_steps(self, steps_to_keep):
-        self.steps.exclude(step_number__in=steps_to_keep).delete()
+        to_remove = self.steps.exclude(step_number__in=steps_to_keep)
+        if self.request:
+            for step in to_remove:
+                approver = User.objects.get(pk=step.approver.pk)
+                remove_perm(Permissions._(Permissions.Request.CAN_VIEW_REQUEST), approver, self.request)
+
+        to_remove.delete()
 
     def get_steps_count(self):
         return self.steps.all().aggregate(models.Max('step_number')).get('step_number__max')
@@ -282,6 +295,9 @@ class RequestManager(models.Manager):
 
     def get_accessible_requests(self, user):
         return get_objects_for_user(user, self.target_permissions, klass=Request, any_perm=True)
+
+    def get_awaiting_approval(self, user):
+        return self.get_accessible_requests(user).filter(approval_route__steps__approver=user)
 
 
 class Request(models.Model):
