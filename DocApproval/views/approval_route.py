@@ -194,7 +194,7 @@ class SaveApprovalRouteView(View):
         return steps
 
     def save_route(self, querydict):
-        is_template = querydict.get('is_template', 'false') != 'false'
+        is_template = querydict.get('is_template', '0') != '0'
         default_name = ApprovalRouteMessages.DEFAULT_TEMPLATE_APPROVAL_ROUTE_NAME if is_template else ApprovalRouteMessages.NEW_APPROVAL_ROUTE
         steps = self._get_steps(querydict.lists())
         if not steps:
