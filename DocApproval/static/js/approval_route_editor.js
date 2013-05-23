@@ -4,7 +4,8 @@
 
     var Messages = {
         save_success: "Маршрут сохранен",
-        save_error: "Произошли ошибки сохранения:\n"
+        save_error: "Произошли ошибки сохранения:\n",
+        no_templates_available: "Шаблонные маршруты не найдены"
     };
 
     // TODO: add real logging/notifying
@@ -177,6 +178,12 @@
             return row;
         }
 
+        function create_no_data_row() {
+            var row = HtmlHelper.create_elem('tr');
+            HtmlHelper.create_elem('td').text(Messages.no_templates_available).appendTo(row);
+            return row;
+        }
+
         this.set_data = function (data) {
             templates = data;
         };
@@ -188,6 +195,9 @@
                 if (!templates.hasOwnProperty(template_id)) continue;
                 has_data = true;
                 create_row(template_id, templates[template_id]).appendTo(table);
+            }
+            if (!has_data) {
+                create_no_data_row().appendTo(table);;
             }
         };
     };
