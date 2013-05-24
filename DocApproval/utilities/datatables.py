@@ -17,10 +17,10 @@ class JsonConfigurableDatatablesBaseView(BaseDatatableView):
         return link() if hasattr(link, '__call__') else link
 
     def get_model_fields(self):
-        return self.model_fields if self.model_fields else self.display_fields
+        return self.model_fields
 
     def get_display_fields(self):
-        return self.display_fields
+        return self.get_model_fields() + tuple(self.get_calculated_fields().keys())
 
     def get_calculated_fields(self):
         return self.calculated_fields

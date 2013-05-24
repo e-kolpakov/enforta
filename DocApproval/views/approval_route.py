@@ -123,7 +123,6 @@ class TemplateApprovalRouteListJson(JsonConfigurableDatatablesBaseView):
     link_field = 'name'
     model_fields = ('name', 'description')
     calculated_fields = {'steps_count': ApprovalRouteMessages.STEPS_COUNT, }
-    display_fields = ('name', 'description', 'steps_count')
 
 
     def get_links_config(self):

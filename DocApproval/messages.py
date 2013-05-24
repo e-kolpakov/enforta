@@ -20,6 +20,8 @@ class RequestMessages:
     ACCESS_DENIED = _(u"Доступ запрещен")
     CANT_CHANGE_CITY = _(u"Невозможно изменить город существующей заявки")
 
+    CURRENT_REVIEVERS = _(u"Ожидает утверждения")
+
 
 class ProfileMessages:
     DOES_NOT_EXIST = _(u"Запрошен профиль неизвестного пользователя")
