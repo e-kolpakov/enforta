@@ -198,7 +198,6 @@ class Contract(models.Model):
 
 
 class ApprovalRoute(models.Model):
-    DIRECT_MANAGER_PLACEHOLDER = '{manager}'
     REQUEST_ROUTE_NAMING_TEMPLATE = _(u"Маршрут утверждения заявки {0}")
 
     name = models.CharField(_(u"Название"), max_length=ModelConstants.MAX_NAME_LENGTH)
@@ -280,11 +279,47 @@ class ApprovalRoute(models.Model):
     def get_steps_count(self):
         return self.steps.all().aggregate(models.Max('step_number')).get('step_number__max')
 
+    def get_current_reviewers(self):
+        try:
+            active_step_number = self.processes.get(is_current=True).current_step_number
+        except ApprovalProcess.DoesNotExist:
+            active_step_number = ApprovalProcess.STARTING_STEP_NUMBER
+        return [step.approver for step in self.steps.filter(step_number=active_step_number)]
+
 
 class ApprovalRouteStep(models.Model):
+    DIRECT_MANAGER_PLACEHOLDER = '{manager}'
+
     route = models.ForeignKey(ApprovalRoute, verbose_name=_(u"Маршрут утверждения"), related_name='steps')
-    approver = models.ForeignKey(UserProfile, verbose_name=_(u"Утверждающий"))
+    approver = models.ForeignKey(UserProfile, verbose_name=_(u"Утверждающий"), null=True)
     step_number = models.IntegerField(verbose_name=_(u"Номер шага"))
+    calc_step = models.CharField(
+        verbose_name=_(u"Вычисляемый утверждающий"), null=True, blank=True, default=None,
+        max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH,
+        choices=((DIRECT_MANAGER_PLACEHOLDER, _(u"Непосредственный руководитель")),)
+    )
+
+
+class ApprovalProcess(models.Model):
+    STARTING_STEP_NUMBER = 1
+    route = models.ForeignKey(ApprovalRoute, verbose_name=_(u"Маршрут"), related_name='processes')
+    attempt_number = models.IntegerField(_(u"Попытка утверждения №"))
+    is_current = models.BooleanField(_(u"Текущий процесс"))
+    current_step_number = models.IntegerField(verbose_name=_(u"Текущий шаг"), default=STARTING_STEP_NUMBER)
+
+
+class ApprovalProcessAction(models.Model):
+    ACTION_APPROVE = 'approve'
+    ACTION_REJECT = 'reject'
+    process = models.ForeignKey(ApprovalProcess, verbose_name=_(u"Попытка утверждения"), related_name='actions')
+    step = models.ForeignKey(ApprovalRouteStep, verbose_name=_(u"Шаг утверждения"))
+    action = models.CharField(
+        _(u"Действие"), max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH, null=False,
+        choices=((ACTION_APPROVE, _(u"Утвердить")), (ACTION_REJECT, _(u"Отклонить")),)
+    )
+
+    action_taken = models.DateTimeField(_(u"Время принятия решения"))
+    actor = models.ForeignKey(UserProfile, verbose_name=_(u"Кто принял решение"))
 
 
 class RequestManager(models.Manager):
@@ -320,7 +355,8 @@ class Request(models.Model):
     updated = models.DateField(_(u'Дата последних изменений'), auto_now=True)
     accepted = models.DateField(_(u'Дата согласования'), blank=True, null=True)
 
-    comments = models.CharField(_(u'Комментарии'), max_length=ModelConstants.MAX_VARCHAR_LENGTH, null=True, blank=True)
+    comments = models.CharField(_(u'Комментарии'), max_length=ModelConstants.MAX_VARCHAR_LENGTH, null=True,
+                                blank=True)
 
     class Meta:
         verbose_name = _(u'Заявка')
@@ -351,22 +387,6 @@ class Request(models.Model):
             user.has_perm(Permissions._(Permissions.Request.CAN_VIEW_ALL_REQUESTS)) or
             (self.approval_route and self.approval_route.steps.exists(approver__exact=user.profile))
         )
-
-
-class ApprovalProcess(models.Model):
-    route = models.ForeignKey(ApprovalRoute, verbose_name=_(u"Маршрут"), related_name='processes')
-    attempt_number = models.IntegerField(_(u"Попытка утверждения №"))
-    is_current = models.BooleanField(_(u"Текущий процесс"))
-
-
-class ApprovalProcessAction(models.Model):
-    ACTION_APPROVE = 'approve'
-    ACTION_REJECT = 'reject'
-    step = models.ForeignKey(ApprovalRouteStep, verbose_name=_(u"Шаг утверждения"))
-    action = models.CharField(_(u"Действие"), max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH)
-
-    action_taken = models.DateTimeField(_(u"Время принятия решения"))
-    actor = models.ForeignKey(UserProfile, verbose_name=_(u"Кто принял решение"))
 
 
 class RequestFactory(object):
