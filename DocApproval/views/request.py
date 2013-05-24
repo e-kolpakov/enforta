@@ -11,7 +11,7 @@ from guardian.decorators import permission_required
 
 from ..menu import RequestContextMenuManagerExtension, MenuModifierViewMixin
 from ..messages import CommonMessages, RequestMessages
-from ..models import (Request, RequestStatus, Permissions, RequestFactory)
+from ..models import Request, RequestStatus, Permissions, RequestFactory
 from ..url_naming.names import (Request as RequestUrl, Profile as ProfileUrl)
 from ..forms import (CreateRequestForm, CreateContractForm, UpdateRequestForm, UpdateContractForm)
 

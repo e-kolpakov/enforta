@@ -14,7 +14,7 @@ from django.db.models import Q
 from django.http import HttpResponse
 
 from ..menu import MenuModifierViewMixin, RequestContextMenuManagerExtension
-from ..models import ApprovalRoute, Request, Permissions
+from ..models import ApprovalRoute, Permissions
 from ..messages import ApprovalRouteMessages
 from ..url_naming.names import ApprovalRoute as ApprovalRouteUrls
 from ..utilities.utility import get_url_base
