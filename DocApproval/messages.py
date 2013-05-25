@@ -3,6 +3,9 @@ from django.utils.translation import ugettext as _
 
 
 class CommonMessages:
+    CREATE = _(u"Создать")
+    MODIFY = _(u"Изменить")
+
     ACCESS_DENIED = _(u"Доступ запрещен")
     FILE_MISSING = _(u"[Файл не найден]")
     IMAGE_MISSING = _(u"[Изображение отсутсвует]")
@@ -14,8 +17,11 @@ class CommonMessages:
 
 
 class RequestMessages:
+    CREATE_REQUEST = _(u"Новая заявка")
+    MODIFY_REQUEST = _(u"Изменение заявки")
     REQUEST_CREATED = _(u"Заявка создана успешно")
     REQUEST_MODIFIED = _(u"Заявка изменена успешно")
+
     DOES_NOT_EXIST = _(u"Запрошенной заявки не существует")
     ACCESS_DENIED = _(u"Доступ запрещен")
     CANT_CHANGE_CITY = _(u"Невозможно изменить город существующей заявки")
@@ -38,3 +44,7 @@ class ApprovalRouteMessages:
     STEPS_COUNT = _(u"Количество этапов")
 
     DEFAULT_TEMPLATE_APPROVAL_ROUTE_NAME = _(u"Шаблонный маршрут №{0}")
+
+
+class PeriodMessages:
+    DAYS = _(u"дней")

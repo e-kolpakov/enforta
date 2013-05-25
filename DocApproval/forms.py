@@ -1,13 +1,12 @@
 #-*- coding: utf-8 -*-
-
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth.models import Permission
 from django.contrib.auth.forms import UserChangeForm
 from django.utils.translation import ugettext as _
 
-from models import (UserProfile, Request, Contract, Permissions)
-from widgets import DatePickerWidget
+from models import UserProfile, Request, Contract, Permissions
+from widgets import DatePickerWidget, PeriodSelectorWidget
 
 
 class CreateRequestForm(forms.ModelForm):
@@ -22,14 +21,15 @@ class CreateRequestForm(forms.ModelForm):
         }
 
 
-class CreateContractForm(forms.ModelForm):
+class EditContractForm(forms.ModelForm):
     #TODO: use bootstrap's appended buttons to provide sets of common active periods, e.g. 1 year, 6 month, etc.
 
     class Meta:
         model = Contract
         fields = ('date', 'prolongation', 'active_period', 'document')
         widgets = {
-            'date': DatePickerWidget(attrs={'class': 'span4'})
+            'date': DatePickerWidget(attrs={'class': 'span4'}),
+            'active_period': PeriodSelectorWidget(attrs={'class': 'qwe'})
         }
 
 
@@ -43,15 +43,6 @@ class UpdateRequestForm(forms.ModelForm):
             'status': forms.Select(attrs={'class': 'span4'}),
             'send_on_approval': forms.Select(attrs={'class': 'span4'}),
             'comments': forms.Textarea(attrs={'rows': 10, 'class': 'span4'}),
-        }
-
-
-class UpdateContractForm(forms.ModelForm):
-    class Meta:
-        model = Contract
-        fields = ('date', 'prolongation', 'active_period', 'document')
-        widgets = {
-            'date': DatePickerWidget(attrs={'class': 'span4'})
         }
 
 

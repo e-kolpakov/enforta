@@ -8,7 +8,7 @@
 {% endblock scripts %}
 
 {% block maincontent %}
-    <h3>{% trans "Изменение заявки" %}</h3>
+    <h3>{% trans form_heading %}</h3>
     <form action="{{ action }}" method="post"
           {% if request_form.is_multipart or contract_form.is_multipart %}enctype="multipart/form-data"{% endif %}
           class='form-horizontal'>
@@ -22,7 +22,7 @@
             </div>
         </div>
         <div class="form-actions">
-            <input type="submit" class="btn btn-primary" value='{% trans "Сохранить" %}'/>
+            <input type="submit" class="btn btn-primary" value='{% trans form_submit %}'/>
             <a href="{{ return_url }}" class="btn">{% trans "Отмена" %}</a>
         </div>
     </form>

@@ -13,7 +13,7 @@ from ..menu import RequestContextMenuManagerExtension, MenuModifierViewMixin
 from ..messages import CommonMessages, RequestMessages
 from ..models import Request, RequestStatus, Permissions, RequestFactory
 from ..url_naming.names import (Request as RequestUrl, Profile as ProfileUrl)
-from ..forms import (CreateRequestForm, CreateContractForm, UpdateRequestForm, UpdateContractForm)
+from ..forms import CreateRequestForm, EditContractForm, UpdateRequestForm
 
 from ..utilities.utility import (get_url_base, reprint_form_errors)
 from ..utilities.datatables import JsonConfigurableDatatablesBaseView
@@ -27,6 +27,9 @@ class CreateUpdateRequestView(TemplateView):
 
     request_form_class = None
     contract_form_class = None
+
+    form_heading = None
+    form_submit = None
 
     success_message = None
 
@@ -57,7 +60,10 @@ class CreateUpdateRequestView(TemplateView):
         return render(request, self.template_name, {
             'request_form': request_form,
             'contract_form': contract_form,
+            'form_heading': self.form_heading,
+            'form_submit': self.form_submit,
             'return_url': self.get_return_url(pk)
+
         })
 
     def post(self, request, *args, **kwargs):
@@ -86,8 +92,11 @@ class CreateUpdateRequestView(TemplateView):
 # Permission protection is on the base class
 class CreateRequestView(CreateUpdateRequestView):
     request_form_class = CreateRequestForm
-    contract_form_class = CreateContractForm
-    template_name = 'request/create.html'
+    contract_form_class = EditContractForm
+    template_name = 'request/edit.html'
+
+    form_heading = RequestMessages.CREATE_REQUEST
+    form_submit = CommonMessages.CREATE
 
     override_request_status = RequestStatus.PROJECT
     success_message = RequestMessages.REQUEST_CREATED
@@ -108,10 +117,12 @@ class CreateRequestView(CreateUpdateRequestView):
 # Permission protection is on the base class
 class UpdateRequestView(CreateUpdateRequestView, MenuModifierViewMixin):
     request_form_class = UpdateRequestForm
-    contract_form_class = UpdateContractForm
-    template_name = 'request/update.html'
+    contract_form_class = EditContractForm
+    template_name = 'request/edit.html'
     extender_class = RequestContextMenuManagerExtension
 
+    form_heading = RequestMessages.MODIFY_REQUEST
+    form_submit = CommonMessages.MODIFY
     success_message = RequestMessages.REQUEST_MODIFIED
 
     def get_instances(self, pk):
