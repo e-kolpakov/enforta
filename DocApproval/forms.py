@@ -9,7 +9,7 @@ from models import UserProfile, Request, Contract, Permissions
 from widgets import DatePickerWidget, PeriodSelectorWidget
 
 
-class CreateRequestForm(forms.ModelForm):
+class EditRequestForm(forms.ModelForm):
     class Meta:
         model = Request
         fields = ('name', 'city', 'send_on_approval', 'comments')
@@ -30,19 +30,6 @@ class EditContractForm(forms.ModelForm):
         widgets = {
             'date': DatePickerWidget(attrs={'class': 'span4'}),
             'active_period': PeriodSelectorWidget(attrs={'class': 'qwe'})
-        }
-
-
-class UpdateRequestForm(forms.ModelForm):
-    class Meta:
-        model = Request
-        fields = ('name', 'city', 'status', 'send_on_approval', 'comments')
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'span4'}),
-            'city': forms.Select(attrs={'class': 'span4'}),
-            'status': forms.Select(attrs={'class': 'span4'}),
-            'send_on_approval': forms.Select(attrs={'class': 'span4'}),
-            'comments': forms.Textarea(attrs={'rows': 10, 'class': 'span4'}),
         }
 
 

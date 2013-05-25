@@ -13,7 +13,7 @@ from ..menu import RequestContextMenuManagerExtension, MenuModifierViewMixin
 from ..messages import CommonMessages, RequestMessages
 from ..models import Request, RequestStatus, Permissions, RequestFactory
 from ..url_naming.names import (Request as RequestUrl, Profile as ProfileUrl)
-from ..forms import CreateRequestForm, EditContractForm, UpdateRequestForm
+from ..forms import EditRequestForm, EditContractForm
 
 from ..utilities.utility import (get_url_base, reprint_form_errors)
 from ..utilities.datatables import JsonConfigurableDatatablesBaseView
@@ -44,10 +44,6 @@ class CreateUpdateRequestView(TemplateView):
 
     def get_initial_contract(self, request, *args, **kwargs):
         return {}
-
-    @method_decorator(permission_required(Permissions._(Permissions.Request.CAN_CREATE_REQUESTS), raise_exception=True))
-    def dispatch(self, request, *args, **kwargs):
-        return super(CreateUpdateRequestView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         pk = kwargs.get('pk', 0)
@@ -91,7 +87,7 @@ class CreateUpdateRequestView(TemplateView):
 
 # Permission protection is on the base class
 class CreateRequestView(CreateUpdateRequestView):
-    request_form_class = CreateRequestForm
+    request_form_class = EditRequestForm
     contract_form_class = EditContractForm
     template_name = 'request/edit.html'
 
@@ -100,6 +96,10 @@ class CreateRequestView(CreateUpdateRequestView):
 
     override_request_status = RequestStatus.PROJECT
     success_message = RequestMessages.REQUEST_CREATED
+
+    @method_decorator(permission_required(Permissions._(Permissions.Request.CAN_CREATE_REQUESTS), raise_exception=True))
+    def dispatch(self, request, *args, **kwargs):
+        return super(CreateUpdateRequestView, self).dispatch(request, *args, **kwargs)
 
     def get_instances(self, pk):
         return None, None
@@ -116,7 +116,7 @@ class CreateRequestView(CreateUpdateRequestView):
 
 # Permission protection is on the base class
 class UpdateRequestView(CreateUpdateRequestView, MenuModifierViewMixin):
-    request_form_class = UpdateRequestForm
+    request_form_class = EditRequestForm
     contract_form_class = EditContractForm
     template_name = 'request/edit.html'
     extender_class = RequestContextMenuManagerExtension
@@ -124,6 +124,14 @@ class UpdateRequestView(CreateUpdateRequestView, MenuModifierViewMixin):
     form_heading = RequestMessages.MODIFY_REQUEST
     form_submit = CommonMessages.MODIFY
     success_message = RequestMessages.REQUEST_MODIFIED
+
+    @method_decorator(permission_required(
+        Permissions._(Permissions.Request.CAN_EDIT_REQUEST),
+        (Request, 'pk', 'pk'),
+        return_403=True)
+    )
+    def dispatch(self, request, *args, **kwargs):
+        return super(CreateUpdateRequestView, self).dispatch(request, *args, **kwargs)
 
     def get_instances(self, pk):
         request = get_object_or_404(Request, pk=pk)
