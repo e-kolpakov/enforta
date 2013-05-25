@@ -176,7 +176,7 @@ class RequestFactory(object):
 
 
 class RequestStatusManager(object):
-    _logger = logging.getLogger(__name__ + __class__.__name__)
+    _logger = logging.getLogger(__name__ + ".RequestStatusManager")
 
     def __init__(self, instance):
         self._instance = instance
