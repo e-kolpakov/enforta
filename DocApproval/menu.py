@@ -21,7 +21,7 @@ class MenuException(Exception):
 class MenuModifierViewMixin(object):
     extender_class = None
 
-    def _apply_extender(self, request, entity, extender_class = None):
+    def _apply_extender(self, request, entity, extender_class=None):
         effective_extender_class = extender_class or self.extender_class
         extender = effective_extender_class(request)
         extender.extend(entity)
@@ -42,11 +42,14 @@ class BaseMenuItem(object):
         self.add_children(children if children is not None else [])
         super(BaseMenuItem, self).__init__(**kwargs)
 
-    def add_child(self, child):
+    def add_child(self, child, order=None):
         if not isinstance(child, BaseMenuItem):
             raise MenuException(MenuException.ERROR_MESSAGE_TEMPLATE.format("BaseMenuItem", child.__class__.__name__))
         child.parent = self
-        self._children.append(child)
+        if order is None:
+            self._children.append(child)
+        else:
+            self._children.insert(order, child)
 
     def add_children(self, children, continue_on_error=False):
         for child in children:
@@ -113,15 +116,18 @@ class MenuManager(object):
             self._build_menu()
         return self._root_items
 
-    def add_item(self, item):
+    def add_item(self, item, order=None):
         if not self._menu_built:
-            self._delayed_items.append(item)
+            self._delayed_items.append((item, order))
         else:
-            self._add_root_item(item)
+            self._add_root_item(item, order)
 
-    def _add_root_item(self, item):
+    def _add_root_item(self, item, order=None):
         if item is not None:
-            self._root_items.append(item)
+            if order is None:
+                self._root_items.append(item)
+            else:
+                self._root_items.insert(order, item)
 
     def _build_menu(self):
         self._add_root_item(
@@ -131,8 +137,8 @@ class MenuManager(object):
         if self.user.has_perm(Permissions._(Permissions.ApprovalRoute.CAN_MANAGE_TEMPLATES)):
             self._add_root_item(self._build_approvals_menu())
         self._add_root_item(self._build_profile_menu())
-        for item in self._delayed_items:
-            self._add_root_item(item)
+        for item, order in self._delayed_items:
+            self._add_root_item(item, order)
         self._delayed_items[:] = []
         self._menu_built = True
 
@@ -166,11 +172,13 @@ class MenuManager(object):
 
     def _build_profile_menu(self):
         root_item = NavigableMenuItem(
-            caption=_(u"Пользователь ") + self.user.username,
+            caption=_(u"Ваш профиль"),
             url=reverse(url_names.Profile.PROFILE, kwargs={'pk': self.user.profile.pk}),
             children=(
                 NavigableMenuItem(caption=_(u"Профиль"), image="icons/user_profile.png",
                                   url=reverse(url_names.Profile.PROFILE, kwargs={'pk': self.user.profile.pk})),
+                NavigableMenuItem(caption=_(u"Редактировать"), image='icons/edit.png',
+                                  url=reverse(url_names.Profile.UPDATE, kwargs={'pk': self.user.profile.pk})),
                 NavigableMenuItem(caption=_(u"Выход"), image="icons/logout.png",
                                   url=reverse(url_names.Authentication.LOGOUT)),
             ))
@@ -188,50 +196,48 @@ class MenuManager(object):
         return root_item
 
 
-class UserProfileContextMenuManagerExtension(object):
-    def __init__(self, request, allow_edit):
+class MenuManagerExtensionBase(object):
+    def __init__(self, request, *args, **kwargs):
         self._user = request.user
         self._target_menu_manager = request.menu_manager
-        self._allow_edit = allow_edit
+        super(MenuManagerExtensionBase, self).__init__(*args, **kwargs)
 
-    def extend(self, profile_id):
-        self._target_menu_manager.add_item(self._build_root_item(profile_id))
+    def check_user_permissions(self, class_permissions=None, instance_permissions=None, instance=None):
+        result = False
+        if class_permissions:
+            result = result or any(self._user.has_perm(Permissions._(perm)) for perm in class_permissions)
 
-    def _build_root_item(self, profile_id):
-        root_item = None
-        child_items = []
-        if self._allow_edit:
-            child_items.append(
-                NavigableMenuItem(caption=_(u"Редактировать"), image='icons/edit.png',
-                                  url=reverse(url_names.Profile.UPDATE, kwargs={'pk': profile_id}))
-            )
-        if len(child_items) > 0:
-            root_item = HtmlMenuItem(caption=_(u"Действия"))
-            root_item.add_children(child_items)
-        return root_item
+        if instance_permissions and instance:
+            result = result or any(self._user.has_perm(Permissions._(perm), instance) for perm in instance_permissions)
+
+        return result
 
 
-# TODO: Make ordering more concise, move "Request" menu item just after "Requests"
-class RequestContextMenuManagerExtension(object):
-    def __init__(self, request):
-        self._user = request.user
-        self._target_menu_manager = request.menu_manager
-
+class RequestContextMenuManagerExtension(MenuManagerExtensionBase):
     def extend(self, req):
-        self._target_menu_manager.add_item(self._build_root_item(req))
+        self._target_menu_manager.add_item(self._build_root_item(req), order=2)
 
     def _build_root_item(self, req):
         root_item = None
         child_items = []
-        if req.accessible_by(self._user):
+        if self.check_user_permissions(
+                class_permissions=(Permissions.Request.CAN_VIEW_ALL_REQUESTS,),
+                instance_permissions=(Permissions.Request.CAN_VIEW_REQUEST,),
+                instance=req):
             child_items.append(
                 NavigableMenuItem(caption=_(u"Профиль"), image='icons/profile.png',
                                   url=reverse(url_names.Request.DETAILS, kwargs={'pk': req.pk}))
             )
+        if self.check_user_permissions(
+                instance_permissions=(Permissions.Request.CAN_EDIT_REQUEST,),
+                instance=req):
             child_items.append(
                 NavigableMenuItem(caption=_(u"Редактировать"), image='icons/edit.png',
                                   url=reverse(url_names.Request.UPDATE, kwargs={'pk': req.pk}))
             )
+        if self.check_user_permissions(
+                instance_permissions=(Permissions.Request.CAN_EDIT_ROUTE,),
+                instance=req):
             child_items.append(
                 NavigableMenuItem(caption=_(u"Маршрут утверждения"), image='icons/approval_route.png',
                                   url=reverse(url_names.ApprovalRoute.UPDATE, kwargs={'pk': req.approval_route.pk}))
