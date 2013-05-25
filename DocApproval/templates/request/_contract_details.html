@@ -5,7 +5,7 @@
     <table class='table table-condensed table-noborder'>
         <tr>
             <td class="{{ field_caption_class }}">{% trans "Дата договора" %}</td>
-            <td class="{{ field_value_class }}">{{ contract.date|date:"d-m-Y" }}</td>
+            <td class="{{ field_value_class }}">{{ contract.date|date:"DATE_FORMAT" }}</td>
         </tr>
         <tr>
             <td class="{{ field_caption_class }}">{% trans "Срок действия" %}</td>
@@ -14,14 +14,14 @@
         <tr>
             <td class="{{ field_caption_class }}">{% trans "Дата оплаты" %}</td>
             <td class="{{ field_value_class }}">
-                {% if contract.paid_date %}{{ contract.paid_date|date:"d-m-Y" }}
+                {% if contract.paid_date %}{{ contract.paid_date|date:"DATE_FORMAT" }}
                 {% else %}{% trans "Не оплачено" %}{% endif %}
             </td>
         </tr>
         {% if contract.activation_date %}
             <tr>
                 <td class="{{ field_caption_class }}">{% trans "Начало действия" %}</td>
-                <td class="{{ field_value_class }}">{{ contract.activation_date|date:"d-m-Y" }}</td>
+                <td class="{{ field_value_class }}">{{ contract.activation_date|date:"DATE_FORMAT" }}</td>
             </tr>
         {% endif %}
         <tr>
