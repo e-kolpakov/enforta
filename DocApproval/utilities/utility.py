@@ -18,6 +18,6 @@ def parse_string_to_timedelta(string):
     return timedelta(**dict(((key, int(value)) for key, value in d.items())))
 
 
-
-
-
+def public_view(func):
+    func.is_public = True
+    return func
