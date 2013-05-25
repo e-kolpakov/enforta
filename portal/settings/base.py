@@ -2,7 +2,7 @@
 import os
 import django
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 PROJECT_PATH = '/'.join(os.path.dirname(__file__).split('/')[0:-1])
@@ -15,7 +15,7 @@ ALLOWED_HOSTS = '*'
 
 # Optional settings
 ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
+# ('Your Name', 'your_email@example.com'),
 )
 
 LOGGING_DIRECTORY = "/var/log"
@@ -36,7 +36,6 @@ MEDIA_ROOT = "/var/uploads/doc-approval"
 # End of administrator defined options
 
 MANAGERS = ADMINS
-
 
 SITE_ID = 1
 
