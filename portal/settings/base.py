@@ -98,6 +98,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.transaction.TransactionMiddleware',
     'reversion.middleware.RevisionMiddleware',
+
     'DocApproval.middleware.RequireLoginMiddleware',
     'DocApproval.middleware.MenuMiddleware'
     # Uncomment the next line for simple clickjacking protection:
