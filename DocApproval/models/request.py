@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 import os
 import datetime
+import logging
 
 from django.core.urlresolvers import reverse
 from django.db import models, transaction
@@ -12,6 +13,9 @@ from .common import City, ModelConstants, Permissions
 from .approval import ApprovalRoute
 from DocApproval.url_naming.names import Request as RequestUrls
 from DocApproval.utilities.humanization import Humanizer
+
+
+_logger = logging.getLogger(__name__)
 
 
 class RequestStatus(models.Model):
@@ -122,6 +126,16 @@ class Request(models.Model):
             (Permissions.Request.CAN_EDIT_ROUTE, _(u"Может изменять маршрут утверждения"))
         )
 
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        try:
+            prev_status = Request.objects.get(pk=self.pk).status
+        except Request.DoesNotExist:
+            prev_status = None
+        super(Request, self).save(force_insert=force_insert, force_update=force_update, using=using,
+                                  update_fields=update_fields)
+        if prev_status and prev_status != self.status:
+            RequestStatusManager(self).handle_status_update(prev_status, self.status)
+
     def get_absolute_url(self):
         return reverse(RequestUrls.DETAILS, kwargs={'pk': self.pk})
 
@@ -162,3 +176,12 @@ class RequestFactory(object):
         assign_perm(Permissions._(Permissions.Request.CAN_EDIT_ROUTE), self._user, new_request)
 
         return new_request
+
+
+class RequestStatusManager(object):
+    def __init__(self, instance):
+        self._instance = instance
+
+    def handle_status_update(self, old_status, new_status):
+        _logger.debug(
+            u"Handling status change on instance {0} - {1} => {2}".format(self._instance, old_status, new_status))
