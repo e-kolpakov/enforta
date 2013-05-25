@@ -15,9 +15,6 @@ from DocApproval.url_naming.names import Request as RequestUrls
 from DocApproval.utilities.humanization import Humanizer
 
 
-_logger = logging.getLogger(__name__)
-
-
 class RequestStatus(models.Model):
     PROJECT = "project"
     NEGOTIATION = "negotiation"
@@ -179,9 +176,11 @@ class RequestFactory(object):
 
 
 class RequestStatusManager(object):
+    _logger = logging.getLogger(__name__ + __class__.__name__)
+
     def __init__(self, instance):
         self._instance = instance
 
     def handle_status_update(self, old_status, new_status):
-        _logger.debug(
+        self._logger.debug(
             u"Handling status change on instance {0} - {1} => {2}".format(self._instance, old_status, new_status))
