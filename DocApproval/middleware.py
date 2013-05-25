@@ -30,36 +30,36 @@ class RequireLoginMiddleware(object):
     define any exceptions (like login and logout URLs).
     """
 
-    logger = logging.getLogger(__name__)
+    _logger = logging.getLogger(__name__)
 
     def __init__(self):
         self.required = tuple(re.compile(url) for url in settings.LOGIN_REQUIRED_URLS)
         self.exceptions = tuple(re.compile(url) for url in settings.LOGIN_REQUIRED_URLS_EXCEPTIONS)
 
     def process_view(self, request, view_func, view_args, view_kwargs):
-        self.logger.debug("Processing view '%s' with args %s and kwargs %s" % (
+        self._logger.debug("Processing view '%s' with args %s and kwargs %s" % (
             view_func.__name__, view_args, view_kwargs
         ))
         # No need to process URLs if user already logged in
         if request.user.is_authenticated():
-            self.logger.debug("Already authenticated as {0}".format(request.user.username))
+            self._logger.debug("Already authenticated as {0}".format(request.user.username))
             return None
 
         if hasattr(view_func, 'is_public') and view_func.is_public:
-            self.logger.debug("View is public")
+            self._logger.debug("View is public")
             return None
 
         # An exception match should immediately return None
         for url in self.exceptions:
             if url.match(request.path):
-                self.logger.debug("URL matched exception %s" % url.pattern)
+                self._logger.debug("URL matched exception %s" % url.pattern)
                 return None
 
         # Requests matching a restricted URL pattern are returned
         # wrapped with the login_required decorator
         for url in self.required:
             if url.match(request.path):
-                self.logger.debug("Login required")
+                self._logger.debug("Login required")
                 return login_required(view_func)(request, *view_args, **view_kwargs)
 
         # Explicitly return None for all non-matching requests
@@ -67,10 +67,10 @@ class RequireLoginMiddleware(object):
 
 
 class MenuMiddleware(object):
-    logger = logging.getLogger(__name__)
+    _logger = logging.getLogger(__name__)
 
     def process_view(self, request, view_func, view_args, view_kwargs):
-        self.logger.debug("Processing view '%s' with args %s and kwargs %s" % (
+        self._logger.debug("Processing view '%s' with args %s and kwargs %s" % (
             view_func.__name__, view_args, view_kwargs
         ))
         request.menu_manager = MenuManager(request.user)
