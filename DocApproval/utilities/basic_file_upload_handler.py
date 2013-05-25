@@ -36,7 +36,7 @@ class BasicFileUploadHandler(upload_handler.FileUploadHandler):
 
     def handle_raw_input(self, input_data, META, content_length, boundary, encoding=None):
         self.valid_file = self.valid_file and self._match_length_restrictions(content_length)
-        super(BasicFileUploadHandler, self).handle_raw_input()
+        super(BasicFileUploadHandler, self).handle_raw_input(input_data, META, content_length, boundary, encoding)
 
     def _match_file_type(self, content_type):
         return content_type in self.allowed_mime_types
