@@ -150,6 +150,8 @@ class ApprovalProcessAction(models.Model):
         choices=((ACTION_APPROVE, _(u"Утвердить")), (ACTION_REJECT, _(u"Отклонить")),)
     )
 
+    comment = models.CharField(max_length=ModelConstants.MAX_VARCHAR_LENGTH, verbose_name=_(u"Комментарий"), null=True,
+                               blank=True)
     action_taken = models.DateTimeField(_(u"Время принятия решения"))
     actor = models.ForeignKey(UserProfile, verbose_name=_(u"Кто принял решение"))
 
