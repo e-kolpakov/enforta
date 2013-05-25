@@ -34,6 +34,8 @@ class ApprovalRoute(models.Model):
             raise NotImplementedError("Not implemented yet")
 
     class Meta:
+        verbose_name = _(u"Маршрут утверждения")
+        verbose_name_plural = _(u"Маршруты утверждения")
         app_label = "DocApproval"
         permissions = (
             (Permissions.ApprovalRoute.CAN_MANAGE_TEMPLATES, _(u"Может создавать шаблонные маршруты")),

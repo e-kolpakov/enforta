@@ -1,18 +1,18 @@
 #-*- coding: utf-8 -*-
 import os
 import datetime
-import logging
 
 from django.core.urlresolvers import reverse
-from django.db import models, transaction
+from django.db import models
 from django.utils.translation import ugettext as _
-from guardian.shortcuts import assign_perm, get_objects_for_user
+from guardian.shortcuts import get_objects_for_user
 
 from .user import UserProfile
 from .common import City, ModelConstants, Permissions
 from .approval import ApprovalRoute
 from DocApproval.url_naming.names import Request as RequestUrls
 from DocApproval.utilities.humanization import Humanizer
+from DocApproval.request_management.status_management import RequestStatusManager
 
 
 class RequestStatus(models.Model):
@@ -146,41 +146,3 @@ class Request(models.Model):
         return (step.approver for step in self.approval_route.steps)
 
 
-class RequestFactory(object):
-    def __init__(self, request_form, contract_form, user):
-        self._req_form = request_form
-        self._con_form = contract_form
-        self._user = user
-
-    @transaction.commit_on_success
-    def persist_request(self, override_status=None):
-        new_request = self._req_form.save(commit=False)
-
-        approval_route = ApprovalRoute()
-        approval_route.name = ApprovalRoute.REQUEST_ROUTE_NAMING_TEMPLATE.format(new_request.name)
-        approval_route.save()
-        if override_status:
-            new_request.status = RequestStatus.objects.get(pk=override_status)
-        new_request.creator = self._user.profile
-        new_request.last_updater = self._user.profile
-
-        new_request.contract = self._con_form.save()
-        new_request.approval_route = approval_route
-        new_request.save()
-
-        assign_perm(Permissions._(Permissions.Request.CAN_VIEW_REQUEST), self._user, new_request)
-        assign_perm(Permissions._(Permissions.Request.CAN_EDIT_REQUEST), self._user, new_request)
-        assign_perm(Permissions._(Permissions.Request.CAN_EDIT_ROUTE), self._user, new_request)
-
-        return new_request
-
-
-class RequestStatusManager(object):
-    _logger = logging.getLogger(__name__ + ".RequestStatusManager")
-
-    def __init__(self, instance):
-        self._instance = instance
-
-    def handle_status_update(self, old_status, new_status):
-        self._logger.debug(
-            u"Handling status change on instance {0} - {1} => {2}".format(self._instance, old_status, new_status))

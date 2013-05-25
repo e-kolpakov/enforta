@@ -17,7 +17,7 @@ signals.post_syncdb.disconnect(
 
 from common import Position, City, ModelConstants, Permissions
 from approval import ApprovalRoute, ApprovalRouteStep, ApprovalProcess, ApprovalProcessAction, NonTemplateApprovalRouteException
-from request import Request, RequestStatus, RequestFactory, Contract
+from request import Request, RequestStatus, Contract
 from user import UserProfile
 
 reversion.register(Request, follow=["contract"])

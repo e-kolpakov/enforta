@@ -8,10 +8,11 @@ from django.views.generic import (TemplateView, DetailView)
 from django.contrib import messages
 
 from guardian.decorators import permission_required
+from DocApproval.request_management.request_factory import RequestFactory
 
 from ..menu import RequestContextMenuManagerExtension, MenuModifierViewMixin
 from ..messages import CommonMessages, RequestMessages
-from ..models import Request, RequestStatus, Permissions, RequestFactory
+from ..models import Request, RequestStatus, Permissions
 from ..url_naming.names import (Request as RequestUrl, Profile as ProfileUrl)
 from ..forms import EditRequestForm, EditContractForm
 
