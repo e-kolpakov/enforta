@@ -56,3 +56,8 @@ class Profile:
     PROFILE = "profile"
     MY_PROFILE = "my_profile"
     UPDATE = "edit"
+
+
+class Media:
+    __metaclass__ = _NamesMeta
+    MEDIA = "media"

@@ -8,7 +8,6 @@
     SetEnv  EnvironmentType production
 
 	Alias /static 		/home/enfortit/docapproval/portal/static
-	Alias /media 		/var/uploads/doc-approval
 
 	LogLevel debug
 	ErrorLog ${APACHE_LOG_DIR}/docapproval.error.log
@@ -23,10 +22,6 @@
 	</Files>
 	</Directory>
 
-	<Directory "/media">
-		Options +Indexes
-	    SetHandler None
-	</Directory>
 
 	<Directory "/static">
 	    SetHandler None

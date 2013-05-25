@@ -9,8 +9,6 @@
 	lang='en_US.UTF-8' locale='en_US.UTF-8'
     WSGIProcessGroup docApproval
 
-	Alias /media 		/var/uploads/doc-approval
-
 	LogLevel error
 	ErrorLog ${APACHE_LOG_DIR}/docapproval.error.log
 	CustomLog ${APACHE_LOG_DIR}/docapproval.access.log combined
@@ -23,11 +21,5 @@
 	Allow from all
 	</Files>
 	</Directory>
-
-	<Location "/media">
-		Options +Indexes
-	    SetHandler None
-	</Location>
-
 
 </VirtualHost>

@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
-from DocApproval.url_naming import (authentication, request, profile, approval_route)
+from DocApproval.url_naming import (authentication, request, profile, approval_route, media)
 from DocApproval.url_naming.names import Common as common_urls
 from DocApproval.views import common
 
@@ -18,8 +18,10 @@ urlpatterns = patterns(
     url(r'^accounts/', include(authentication)),
     url(r'^requests/', include(request)),
     url(r'^profile/', include(profile)),
-    url(r'^approval/', include(approval_route))
+    url(r'^approval/', include(approval_route)),
+    url(r'^media/', include(media))
 )
 
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
 urlpatterns += staticfiles_urlpatterns()
