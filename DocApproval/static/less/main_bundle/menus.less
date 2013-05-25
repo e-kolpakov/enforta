@@ -1,3 +1,4 @@
+@import-once "../variables.less";
 
 .popup-menu {
   display: none;
@@ -14,9 +15,9 @@
     #menus > .menu-item-icon();
   }
 
-  li.dropdown:hover > ul.dropdown-menu{
+  li.dropdown:hover > ul.dropdown-menu {
     display: block;
-    margin-top:0px;
+    margin-top: 0px;
   }
 
   li > a {
@@ -32,135 +33,5 @@
     }
   }
 }
-//
-///*** Superfish essential styles ***/
-//.sf-menu {
-//  &, * {
-//    margin: 0;
-//    padding: 0;
-//    list-style: none;
-//  }
-//
-//  a {
-//    display: block;
-//    position: relative;
-//  }
-//
-//  & > li { float: left; }
-//
-//  li {
-//    position: relative;
-//
-//    &:hover,
-//    &:sfHover {
-//      & > ul {
-//        display: block;
-//      }
-//    }
-//  }
-//
-//  ul {
-//    position: absolute;
-//    display: none;
-//    top: 100%;
-//    left: 0;
-//    z-index: 99;
-//
-//    ul {
-//      top: 0;
-//      left: 100%;
-//    }
-//  }
-//}
-//
-///*** Nav menu skin ***/
-//.sf-menu {
-//  float: left;
-//
-//  img {
-//    #menus > .menu-item-icon();
-//  }
-//
-//  li {
-//    background: @menu-item-l1-bg-color;
-//    white-space: nowrap; /* no need for Supersubs plugin */
-//    *white-space: normal; /* ...unless you support IE7 (let it wrap) */
-//    -webkit-transition: background .2s;
-//    transition: background .2s;
-//    border-right: 1px solid @menu-border-color;
-//
-//    &:last-child{
-//      border-right: none;
-//    }
-//
-//    &:hover,
-//    &.sfHover {
-//      background: @menu-item-l1-hover-bg-color;
-//      /* only transition out, not in */
-//      -webkit-transition: none;
-//      transition: none;
-//
-//      & > a .sf-sub-indicator {
-//        background-position: -10px -100px;
-//      }
-//    }
-//  }
-//
-//  ul {
-//    box-shadow: 2px 2px 6px rgba(0,0,0,.2);
-//    min-width: 12em; /* allow long menu items to determine submenu width */
-//    *width: 12em; /* no auto sub width for IE7, see white-space comment below */
-//
-//    li {
-//      background: @menu-item-l2-bg-color;
-//      border-right: none;
-//
-//      &:hover,
-//      &.sfHover {
-//        background: @menu-item-l2-hover-bg-color;
-//        & > a .sf-sub-indicator {
-//          background-position: -10px 0px;
-//        }
-//      }
-//    }
-//
-//    ul {
-//      li {
-//        background: @menu-item-l3-bg-color
-//      }
-//    }
-//
-//    .sf-sub-indicator {
-//      background-position: -10px 0;
-//    }
-//  }
-//
-//  a {
-//    color: @menu-item-color;
-//    line-height: @menu-line-height;
-//
-//    padding: .75em 1em;
-//    text-decoration:none;
-//    zoom: 1; /* IE7 */
-//
-//    &.sf-with-ul {
-//      padding-right: 2.25em;
-//      min-width: 1px; /* trigger IE7 hasLayout so spans position accurately */
-//    }
-//  }
-//
-//  .sf-sub-indicator {
-//    position: absolute;
-//    display: block;
-//    right: .75em;
-//    top: .9em;
-//    width: 10px;
-//    height: 10px;
-//    text-indent: -999em;
-//    overflow: hidden;
-//    background: url(../img/arrows-ffffff.png) no-repeat 0 -100px;
-//  }
-//}
-
 
 

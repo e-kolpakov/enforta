@@ -2,25 +2,43 @@
 {% load i18n %}
 {% load model_details %}
 
+{% block scripts %}
+    {{ block.super }}
+    <script type='text/javascript' src="{{ STATIC_URL }}js/request_actions.js"></script>
+{% endblock %}
+
 {% block maincontent %}
     {% if doc_request %}
         <div class='row'>
-            <div class="span6">
-                <h4>{% trans "Заявка" %}</h4>
-                    <table class='table table-condensed table-noborder'>
-                        {% model_details doc_request exclude_fields=exclude_fields_req %}
-                            <tr>
-                                <td class="{{ field_caption_class }}">{{ caption }}</td>
-                                <td class="{{ field_value_class }}">{{ value }}</td>
-                            </tr>
-                        {% endmodel_details %}
-                    </table>
+            <div class='sidebar span3'>
+                <h5>{% trans "Действия" %}</h5>
+                {% include "request/_request_actions.html" with actions=actions element_id='action-panel' %}
             </div>
             <div class="span5">
-            <h4>{% trans "Договор" %}</h4>
-            {% include "request/_contract_details.html" with contract=contract %}
+                <h4>{% trans "Заявка" %}</h4>
+                <table class='table table-condensed table-noborder'>
+                    {% model_details doc_request exclude_fields=exclude_fields_req %}
+                        <tr>
+                            <td class="{{ field_caption_class }}">{{ caption }}</td>
+                            <td class="{{ field_value_class }}">{{ value }}</td>
+                        </tr>
+                    {% endmodel_details %}
+                </table>
+            </div>
+            <div class="span4">
+                <h4>{% trans "Договор" %}</h4>
+                {% include "request/_contract_details.html" with contract=contract %}
             </div>
 
         </div>
     {% endif %}
 {% endblock %}
+
+{% block scripts_for_execution %}
+    {{ block.super }}
+    <script type='text/javascript'>
+        $("#action-panel").request_actions_panel({
+            actions_list_url: '{{ actions_list_url }}'
+        });
+    </script>
+{% endblock scripts_for_execution %}

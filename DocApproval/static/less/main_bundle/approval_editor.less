@@ -1,15 +1,8 @@
-//@import "../variables.less";
-//@import "../mixins.less";
+@import-once "../variables.less";
 
 /*approval_editor.less*/
 div.approval-editor {
   div.sidebar {
-    border: 1px solid @default-border-color;
-    .rounded-borders-mixin(3px);
-    margin-bottom: -1px;
-    padding: 10px 20px;
-    background-color: @sidebar-color;
-
     div#template-routes-pane {
       td.apply-template-button-cell {
         #approval-editor > .button;
@@ -68,7 +61,6 @@ div.approval-editor {
           padding: 4px 2px;
           #approval-editor > .button(5px);
         }
-
 
       }
     }

@@ -8,6 +8,7 @@ from django.views.generic import (TemplateView, DetailView)
 from django.contrib import messages
 
 from guardian.decorators import permission_required
+from DocApproval.request_management.actions import RequestActionRepository
 from DocApproval.request_management.request_factory import RequestFactory
 
 from ..menu import RequestContextMenuManagerExtension, MenuModifierViewMixin
@@ -178,6 +179,15 @@ class DetailRequestView(DetailView, MenuModifierViewMixin):
     def dispatch(self, request, *args, **kwargs):
         return super(DetailRequestView, self).dispatch(request, *args, **kwargs)
 
+    def _get_actions(self, user, request):
+        """ request is an instance of models.Request here"""
+        return [
+            action
+            for key, action in RequestActionRepository.get_actions().items()
+            if action.is_available(user, request)
+        ]
+
+
     def get(self, request, *args, **kwargs):
         pk = kwargs.get(self.pk_url_kwarg, None)
         exclude_fields = ['id', 'contract']
@@ -192,7 +202,8 @@ class DetailRequestView(DetailView, MenuModifierViewMixin):
         return render(request, self.template_name, {
             'doc_request': req,
             'exclude_fields_req': exclude_fields,
-            'contract': contract
+            'contract': contract,
+            'actions': self._get_actions(request.user, req)
         })
 
 

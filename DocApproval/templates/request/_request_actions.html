@@ -1,0 +1,15 @@
+{% load i18n %}
+<table class='table table-striped' id='{{ element_id }}'>
+    {% for action in actions %}
+        <tr class="action-row">
+            <td class='action-label'>
+                {% if action.icon %}<img src="{{ STATIC_URL }}img/{{ action.icon }}"/>{% endif %}
+                <span>{{ action.label }}</span>
+            </td>
+        </tr>
+    {% empty %}
+        <tr class="action-row">
+            <td>{% trans "Нет доступных действий" %}</td>
+        </tr>
+    {% endfor %}
+</table>

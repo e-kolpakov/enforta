@@ -98,7 +98,7 @@
 }
 
 #approval-editor() {
-  .button(@margin-right: 0px, @img-size: 16px) {
+  .button(@margin-right: 0px, @img-size: @default-icon-size) {
     button.btn {
       height: 30px;
       width: 30px;
@@ -110,5 +110,13 @@
         height: @img-size;
       }
     }
+  }
+}
+
+#fixes() {
+  .border-box-fix() {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box
   }
 }
