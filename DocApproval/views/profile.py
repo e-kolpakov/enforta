@@ -1,33 +1,16 @@
-import logging
-
 from django.views.generic import (UpdateView, DetailView)
-from django.shortcuts import (render, )
-from django.core.exceptions import ObjectDoesNotExist
-from django.contrib import messages
+from django.shortcuts import (render, get_object_or_404)
 
-from ..models import (UserProfile )
-from ..messages import ProfileMessages
-from ..menu import UserProfileContextMenuManagerExtension
+from ..models import UserProfile
 from ..forms import UserProfileForm
 
 
 class UserProfileDetailsView(DetailView):
     template_name = "profile/details.html"
 
-    def _modify_menu(self, request, profile_id, allow_edit):
-        UserProfileContextMenuManagerExtension(request, allow_edit).extend(profile_id)
-
     def get(self, request, *args, **kwargs):
         user_id = int(kwargs.get(self.pk_url_kwarg, request.user.pk))
-        try:
-            user_profile = UserProfile.objects.get(pk=user_id)
-            allow_edit = (user_id == request.user.pk) or request.user.is_superuser
-            self._modify_menu(request, user_id, allow_edit)
-        except ObjectDoesNotExist, e:
-            logger = logging.getLogger(__name__)
-            logger.warning("User profile {0} not found. {1}".format(user_id, e))
-            messages.error(request, ProfileMessages.DOES_NOT_EXIST)
-            user_profile = None
+        user_profile = get_object_or_404(UserProfile, pk=user_id)
 
         exclude_fields = ("user",)
 

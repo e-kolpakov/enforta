@@ -1,12 +1,15 @@
 #-*- coding: utf-8 -*-
 from django.db import models, transaction
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 
 from guardian.shortcuts import assign_perm, remove_perm
 
 from .user import UserProfile
-from .common import City, Position, ModelConstants, Permissions
+from .common import ModelConstants, Permissions
+
+from DocApproval.url_naming.names import ApprovalRoute as ApprovalRouteUrls
 
 
 class NonTemplateApprovalRouteException(Exception):
@@ -35,6 +38,12 @@ class ApprovalRoute(models.Model):
         permissions = (
             (Permissions.ApprovalRoute.CAN_MANAGE_TEMPLATES, _(u"Может создавать шаблонные маршруты")),
         )
+
+    def get_absolute_url(self):
+        return reverse(ApprovalRouteUrls.UPDATE, kwargs={'pk': self.pk})
+
+    def __unicode__(self):
+        return self.name
 
     @classmethod
     @transaction.commit_on_success

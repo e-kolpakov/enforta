@@ -198,19 +198,16 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
         }
 
     def get_initial_queryset(self):
-        show_only = self.request.POST.get('show_only', None)
+        show_only = self.request.GET.get('show_only', None)
+        qs = self.model.objects.get_accessible_requests(self.request.user)
         if show_only == ListRequestView.MY_APPROVALS:
             qs = self.model.objects.get_awaiting_approval(self.request.user)
-        elif show_only == ListRequestView.MY_REQUESTS or show_only is None:
-            qs = self.model.objects.get_accessible_requests(self.request.user)
-
-        # sSearch = self.request.POST.get('sSearch', None)
-        # if sSearch:
-        #     qs = qs.filter(name__istartswith=sSearch)
+        elif show_only == ListRequestView.MY_REQUESTS:
+            pass
         return qs
 
     def filter_queryset(self, qs):
-        sSearch = self.request.POST.get('sSearch', None)
+        sSearch = self.request.GET.get('sSearch', None)
         if sSearch:
             qs = qs.filter(name__istartswith=sSearch)
         return qs

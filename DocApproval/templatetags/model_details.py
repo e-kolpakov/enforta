@@ -24,12 +24,21 @@ class ModelDetailsNode(template.Node):
             value = CommonMessages.IMAGE_MISSING
         return value
 
+    def _render_entity(self, entity):
+        if entity is None:
+            value = "-----"
+        # elif hasattr(entity, 'get_absolute_url'):
+        #     value = mark_safe("<a href='{1}'>{0}</a>".format(entity, entity.get_absolute_url()))
+        else:
+            value = entity
+        return value
+
     def _render_field(self, model, field, image_class):
         raw_value = getattr(model, field.name)
         if isinstance(field, models.ImageField):
             value = self._render_image(raw_value, image_class)
-        elif isinstance(field, (models.ForeignKey, models.ManyToManyField)) and raw_value is None:
-            value = "-----"
+        elif isinstance(field, (models.ForeignKey, models.ManyToManyField)):
+            value = self._render_entity(raw_value)
         elif isinstance(field, models.CharField) and field.max_length > ModelConstants.DEFAULT_VARCHAR_LENGTH:
             value = mark_safe("<pre>" + escape(raw_value) + "</pre>")
         else:

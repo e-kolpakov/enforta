@@ -169,7 +169,6 @@ class TemplatesListJson(View):
         templates = ApprovalRoute.objects.filter(is_template=True).select_related('steps')
         return templates
 
-    @method_decorator(permission_required(Permissions._(Permissions.ApprovalRoute.CAN_MANAGE_TEMPLATES)))
     def dispatch(self, request, *args, **kwargs):
         return super(TemplatesListJson, self).dispatch(request, *args, **kwargs)
 

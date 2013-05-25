@@ -5,7 +5,7 @@ import datetime
 from django.core.urlresolvers import reverse
 from django.db import models, transaction
 from django.utils.translation import ugettext as _
-from guardian.shortcuts import assign_perm, remove_perm, get_objects_for_user
+from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from .user import UserProfile
 from .common import City, ModelConstants, Permissions
@@ -81,7 +81,8 @@ class RequestManager(models.Manager):
         return get_objects_for_user(user, self.target_permissions, klass=Request, any_perm=True)
 
     def get_awaiting_approval(self, user):
-        return self.get_accessible_requests(user).filter(approval_route__steps__approver=user)
+        return self.get_accessible_requests(user).filter(approval_route__steps__approver=user,
+                                                         status__code=RequestStatus.NEGOTIATION)
 
 
 class Request(models.Model):
@@ -116,7 +117,9 @@ class Request(models.Model):
             (Permissions.Request.CAN_APPROVE_REQUESTS, _(u"Может утверждать документы")),
             (Permissions.Request.CAN_VIEW_ALL_REQUESTS, _(u"Может просматривать любые заявки")),
 
-            (Permissions.Request.CAN_VIEW_REQUEST, _(u"Имеет доступ к данной заявке"))
+            (Permissions.Request.CAN_VIEW_REQUEST, _(u"Имеет доступ к данной заявке")),
+            (Permissions.Request.CAN_EDIT_REQUEST, _(u"Может редактировать заявку")),
+            (Permissions.Request.CAN_EDIT_ROUTE, _(u"Может изменять маршрут утверждения"))
         )
 
     def get_absolute_url(self):
@@ -130,13 +133,6 @@ class Request(models.Model):
 
     def get_approvers(self):
         return (step.approver for step in self.approval_route.steps)
-
-    def accessible_by(self, user):
-        return (
-            self.creator == user.profile or
-            user.has_perm(Permissions._(Permissions.Request.CAN_VIEW_ALL_REQUESTS)) or
-            (self.approval_route and self.approval_route.steps.exists(approver__exact=user.profile))
-        )
 
 
 class RequestFactory(object):
@@ -162,5 +158,7 @@ class RequestFactory(object):
         new_request.save()
 
         assign_perm(Permissions._(Permissions.Request.CAN_VIEW_REQUEST), self._user, new_request)
+        assign_perm(Permissions._(Permissions.Request.CAN_EDIT_REQUEST), self._user, new_request)
+        assign_perm(Permissions._(Permissions.Request.CAN_EDIT_ROUTE), self._user, new_request)
 
         return new_request

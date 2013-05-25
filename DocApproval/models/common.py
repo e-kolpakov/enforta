@@ -26,6 +26,8 @@ class Permissions:
         CAN_VIEW_ALL_REQUESTS = "docapproval_can_view_all_requests"
         #guardian permissions (applied per model instance => shouldn't be shown in admin)
         CAN_VIEW_REQUEST = "guardian_can_view_request"
+        CAN_EDIT_REQUEST = "guardian_can_edit_request"
+        CAN_EDIT_ROUTE = "guardian_can_edit_route"
 
     class UserProfile:
         CAN_CHANGE_POSITION = "docapproval_can_change_position"
