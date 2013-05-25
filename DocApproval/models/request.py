@@ -39,10 +39,10 @@ class Contract(models.Model):
     @classmethod
     def _get_path(cls, subpath, filename):
         now = datetime.datetime.now()
-        cur_date = now.date()
-        cur_time = now.time()
-        parts = ('documents', subpath, cur_date.strftime("%Y_%m_%d"), cur_time.strftime("%H_%M_%S") + "_" + filename)
-        return os.path.join(*parts)
+        fname, ext = os.path.splitext(filename)
+        server_filename = u"{0}({1}){2}".format(fname, now.strftime("%Y_%m_%d_%H_%M_%S"), ext)
+
+        return os.path.join('documents', subpath, now.strftime("%Y_%m_%d"), server_filename)
 
     def upload_to(self, filename):
         return self._get_path('new', filename)
