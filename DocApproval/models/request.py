@@ -12,7 +12,6 @@ from .common import City, ModelConstants, Permissions
 from .approval import ApprovalRoute
 from DocApproval.url_naming.names import Request as RequestUrls
 from DocApproval.utilities.humanization import Humanizer
-from DocApproval.request_management.status_management import RequestStatusManager
 
 
 class RequestStatus(models.Model):
@@ -124,6 +123,9 @@ class Request(models.Model):
         )
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        # Avoiding circular import. Another solution would be to split models even further.
+        from DocApproval.request_management.status_management import RequestStatusManager
+
         try:
             prev_status = Request.objects.get(pk=self.pk).status
         except Request.DoesNotExist:
