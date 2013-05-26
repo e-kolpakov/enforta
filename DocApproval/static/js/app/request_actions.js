@@ -1,5 +1,5 @@
-/*global globals*/
-(function ($) {
+/*global globals, AjaxCommunicator, UiManager*/
+(function ($, Communicator, ui_manager) {
     "use strict";
 
     // Always keep in sync with codes in request_management/actions.py
@@ -21,38 +21,17 @@
             console.log(msg);
         }
     };
-    var ui_notifier = {
-        message: function (message) {
-            alert(message);
-        },
-        confirmation: function (question) {
-            return confirm(question);
-        }
-    };
 
-    var Communicator = function (csrf, actions_backend_url) {
-        var that = this;
-        if (csrf) {
-            $.ajaxSetup({
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("X-CSRFToken", csrf);
-                }
-            });
-        }
+    var Comm = function (csrf, actions_backend_url) {
+        var ajax_comm = new Communicator(csrf);
 
-        this.actions_backend_url = actions_backend_url;
         this.post_action = function (action, request_id, parameters) {
-            var ajax_call = $.ajax({
-                type: 'POST',
-                url: that.actions_backend_url,
-                dataType: 'json',
-                data: JSON.stringify({
-                    'action': action,
-                    'request_pk': request_id,
-                    'parameters': parameters
-                })
+            var data = JSON.stringify({
+                'action': action,
+                'request_pk': request_id,
+                'parameters': parameters
             });
-            return ajax_call.promise();
+            return ajax_comm.make_request({url: actions_backend_url, data: data});
         };
     };
 
@@ -65,12 +44,12 @@
 
     var ToApprovalActionHandler = function () {
         this.handle = function () {
-            return {post_action: ui_notifier.confirmation(Messages.confirm_to_negotiation)};
+            return {post_action: ui_manager.confirmation(Messages.confirm_to_negotiation)};
         };
     };
     var ToProjectActionHandler = function () {
         this.handle = function () {
-            return {post_action: ui_notifier.confirmation(Messages.confirm_to_project)};
+            return {post_action: ui_manager.confirmation(Messages.confirm_to_project)};
         };
     };
 
@@ -83,7 +62,7 @@
         ui_handlers[ActionCodes.TO_PROJECT] = new ToProjectActionHandler();
 
         function need_reload(force, ask) {
-            return force || (ask && ui_notifier.confirmation("Перезагрузить страницу?"));
+            return force || (ask && ui_manager.confirmation("Перезагрузить страницу?"));
         }
 
         this.handle = function (action, request_id) {
@@ -106,12 +85,12 @@
                         location.reload();
                     }
                 } else {
-                    ui_notifier.message(Messages.action_failed + response_data.errors.join("\n"));
+                    ui_manager.message(Messages.action_failed + response_data.errors.join("\n"));
                 }
             });
 
             action_promise.fail(function (jqXHR, textStatus, errorThrown) {
-                ui_notifier.message(errorThrown);
+                ui_manager.message(errorThrown);
             });
         };
     };
@@ -120,7 +99,7 @@
         var actions_backend_url = options.actions_backend_url;
         var csrf = options.csrftoken || $.cookie('csrftoken');
 
-        var comm = new Communicator(csrf, actions_backend_url);
+        var comm = new Comm(csrf, actions_backend_url);
         var action_handler = new ActionHandler(comm);
 
         $('tr.action-row', this).click(function (e) {
@@ -128,4 +107,4 @@
             action_handler.handle(action, request_id);
         });
     };
-}(window.jQuery));
+}(window.jQuery, AjaxCommunicator, UiManager));

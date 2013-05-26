@@ -1,6 +1,6 @@
-/*globals $*/
+/*globals $, AjaxCommunicator*/
 
-(function ($) {
+(function ($, Communicator) {
 
     var html_helper = {
         _create_header: function (target) {
@@ -107,26 +107,16 @@
         var self = this;
         var datatables_options = datatables_opts || {};
         var parser = config_parser(options);
-        var csrf = options.csrftoken || $.cookie('csrftoken');
-        if (csrf) {
-            $.ajaxSetup({
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("X-CSRFToken", csrf);
-                }
-            });
-        }
-        $.ajax({
-            url: options.config_url,
-            type: 'get',
-            dataType: 'json',
-            success: function (datatables_config) {
-                var config = parser.parse_config(datatables_config, datatables_options);
-                html_helper.make_header(self, config.columns, config.column_order);
-                if (options.caption) {
-                    html_helper.add_caption(self, options.caption);
-                }
-                html_helper.create_table(self, config.options);
+        var comm = new Communicator(options.csrftoken);
+        var promise = comm.make_request({url: options.config_url, type: 'GET'});
+
+        promise.done(function (datatables_config, textStatus, jqXHR) {
+            var config = parser.parse_config(datatables_config, datatables_options);
+            html_helper.make_header(self, config.columns, config.column_order);
+            if (options.caption) {
+                html_helper.add_caption(self, options.caption);
             }
+            html_helper.create_table(self, config.options);
         });
     };
-}($));
+}($, AjaxCommunicator));

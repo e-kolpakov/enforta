@@ -1,5 +1,5 @@
 /*global globals*/
-(function ($, globals) {
+(function ($, globals, Communicator, ui_manager) {
     "use strict";
 
     var Messages = {
@@ -15,7 +15,6 @@
             console.log(msg);
         }
     };
-    var ui_notifier = alert;
 
     var HtmlHelper = {
 
@@ -50,46 +49,19 @@
         }
     };
 
-    var Communicator = function (csrf, approver_list_url, template_route_source_url, approval_route_backend_url) {
-        var that = this;
-        this.approver_list_url = approver_list_url;
-        this.template_route_source_url = template_route_source_url;
-        this.approval_route_backend_url = approval_route_backend_url;
-
-        if (csrf) {
-            $.ajaxSetup({
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("X-CSRFToken", csrf);
-                }
-            });
-        }
+    var Comm = function (csrf, approver_list_url, template_route_source_url, approval_route_backend_url) {
+        var ajax_comm = new Communicator(csrf);
 
         this.download_approver_list = function () {
-            var ajax_call = $.ajax({
-                type: 'POST',
-                url: that.approver_list_url,
-                dataType: 'json'
-            });
-            return ajax_call.promise();
-        };
-
-        this.save_approval_route = function (approval_route_data) {
-            var ajax_call = $.ajax({
-                type: 'POST',
-                url: that.approval_route_backend_url,
-                data: approval_route_data,
-                dataType: 'json'
-            });
-            return ajax_call.promise();
+            return ajax_comm.make_request({url: approver_list_url});
         };
 
         this.download_template_list = function () {
-            var ajax_call = $.ajax({
-                type: 'POST',
-                url: that.template_route_source_url,
-                dataType: 'json'
-            });
-            return ajax_call.promise();
+            return ajax_comm.make_request({url: template_route_source_url});
+        };
+
+        this.save_approval_route = function (approval_route_data) {
+            return ajax_comm.make_request({url: approval_route_backend_url, data: approval_route_data});
         };
     };
 
@@ -115,8 +87,9 @@
         }
 
         function set_ctrl_data($ctrl, data, safe) {
-            if (!safe || $ctrl.val() === '')
+            if (!safe || $ctrl.val() === '') {
                 $ctrl.val(data);
+            }
         }
 
         var that = this;
@@ -129,8 +102,9 @@
             set_ctrl_data(name_input, data.name || '', eff_safe || !is_template);
             set_ctrl_data(desc_input, data.description || '', eff_safe || !is_template);
 
-            if (!eff_safe)
+            if (!eff_safe) {
                 set_controls_availability(is_template);
+            }
         };
 
         this.validate = function () {
@@ -403,9 +377,8 @@
 
     $.fn.approval_route_editor = function (options, initial_data) {
         var target = $(this);
-        var csrf = options.csrftoken || $.cookie('csrftoken');
 
-        var comm = new Communicator(csrf, options.approvers_source_url, options.template_route_source_url, options.approval_route_backend);
+        var comm = new Comm(options.csrftoken, options.approvers_source_url, options.template_route_source_url, options.approval_route_backend);
         var editor = new Editor(target);
         var header_editor = new HeaderEditor(options.$form, options.controls);
         var template_manager = new TemplateManager(options.$template_routes_pane, apply_template);
@@ -431,15 +404,15 @@
 
                 save_promise.done(function (response_data, textStatus, jqXHR) {
                     if (response_data.success) {
-                        ui_notifier(Messages.save_success);
+                        ui_manager.message(Messages.save_success);
                     }
                     else {
-                        ui_notifier(Messages.save_error + response_data.errors.join("\n"));
+                        ui_manager.message(Messages.save_error + response_data.errors.join("\n"));
                     }
                 });
 
                 save_promise.fail(function (jqXHR, textStatus, errorThrown) {
-                    ui_notifier(errorThrown);
+                    ui_manager.message(errorThrown);
                 });
             }
             return false;
@@ -472,13 +445,11 @@
 
         // TODO: add real error handling
         approver_list_promise.fail(function (jqXHR, textStatus, errorThrown) {
-            ui_notifier(errorThrown);
+            ui_manager.message(errorThrown);
         });
 
         template_list_promise.fail(function (jqXHR, textStatus, errorThrown) {
-            ui_notifier(errorThrown);
+            ui_manager.message(errorThrown);
         });
     };
-}(window.jQuery, window.globals)
-    )
-;
+}(window.jQuery, window.globals, AjaxCommunicator, UiManager));

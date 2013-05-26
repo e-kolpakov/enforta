@@ -6,6 +6,8 @@
 
 {% block scripts %}
     {{ block.super }}
+    <script language="JavaScript" type="text/javascript" src="{% static "js/app/ajax_communicator.js" %}"></script>
+    <script language="JavaScript" type="text/javascript" src="{% static "js/app/ui_manager.js" %}"></script>
     <script language="JavaScript" type="text/javascript" src="{% static "js/app/approval_route_editor.js" %}"></script>
 {% endblock scripts %}
 

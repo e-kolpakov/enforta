@@ -1,10 +1,13 @@
 {% extends "base_layout.html" %}
 {% load i18n %}
 {% load model_details %}
+{% load static from staticfiles %}
 
 {% block scripts %}
     {{ block.super }}
-    <script type='text/javascript' src="{{ STATIC_URL }}js/app/request_actions.js"></script>
+    <script language="JavaScript" type="text/javascript" src="{% static "js/app/ajax_communicator.js" %}"></script>
+    <script language="JavaScript" type="text/javascript" src="{% static "js/app/ui_manager.js" %}"></script>
+    <script language="JavaScript" type='text/javascript' src="{% static "js/app/request_actions.js" %}"></script>
 {% endblock %}
 
 {% block maincontent %}
