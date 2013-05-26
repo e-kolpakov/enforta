@@ -2,11 +2,12 @@
 {% load static from staticfiles %}
 
 {% block styles %}
-    <link rel='stylesheet' type="text/css" href="{% static "css/jquery.dataTables.css" %}"/>
-    <link rel='stylesheet' type="text/css" href="{% static "css/dt_bootstrap.css" %}"/>
+    {{ block.super }}
+    <link rel='stylesheet' type="text/css" href="{% static "css/datatables_bundle.css" %}"/>
 {% endblock styles %}
 
 {% block scripts %}
+    {{ block.super }}
     <script type='text/javascript' src="{% static "js/lib/datatables/jquery.dataTables.min.js" %}"></script>
     <script type='text/javascript' src="{% static "js/lib/datatables/dt_bootstrap.js" %}"></script>
     <script type='text/javascript' src="{% static "js/lib/datatables/ajax_configurable_datatables.js" %}"></script>

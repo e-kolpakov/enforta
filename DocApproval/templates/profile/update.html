@@ -2,13 +2,14 @@
 {% load i18n %}
 
 {% block scripts %}
-    <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/forms.js"></script>
+    {{ block.super }}
+    <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/app/forms.js"></script>
 {% endblock scripts %}
 
 
 {% block maincontent %}
     <h3>{% trans "Редактирование профиля" %}</h3>
-    {%  include "common/_generic_edit_form.html" with submit_label="Сохранить" action="" %}
+    {% include "common/_generic_edit_form.html" with submit_label="Сохранить" action="" %}
 {% endblock %}
 
 {% block scripts_for_execution %}
