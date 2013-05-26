@@ -21,13 +21,16 @@ class Authentication:
 class Request:
     __metaclass__ = _NamesMeta
     CREATE = "create"
-    LIST = "all_list" #aka (R)equest
-    LIST_JSON = "list_json"
-    LIST_JSON_CONF = "list_json_conf"
     UPDATE = "edit"
-    DETAILS = "details" #aka (R)equest
+    DETAILS = "details"
+
+    LIST = "all_list"
     MY_REQUESTS = "my_requests_list"
     MY_APPROVALS = "my_approval_list"
+
+    LIST_JSON = "list_json"
+    LIST_JSON_CONF = "list_json_conf"
+    ACTIONS_BACKEND_JSON = "actions"
 
     ARCHIVE = "archive"
     ARCHIVE_YEAR = "archive_year"

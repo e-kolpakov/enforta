@@ -1,10 +1,12 @@
 #-*- coding: utf-8 -*-
+import json
 import logging
 
 from django.core.urlresolvers import reverse
-from django.shortcuts import (render, HttpResponseRedirect, get_object_or_404)
+from django.http.response import HttpResponse
+from django.shortcuts import render, HttpResponseRedirect, get_object_or_404
 from django.utils.decorators import method_decorator
-from django.views.generic import (TemplateView, DetailView)
+from django.views.generic import View, TemplateView, DetailView
 from django.contrib import messages
 
 from guardian.decorators import permission_required
@@ -14,16 +16,16 @@ from DocApproval.request_management.request_factory import RequestFactory
 from ..menu import RequestContextMenuManagerExtension, MenuModifierViewMixin
 from ..messages import CommonMessages, RequestMessages
 from ..models import Request, RequestStatus, Permissions
-from ..url_naming.names import (Request as RequestUrl, Profile as ProfileUrl)
+from ..url_naming.names import Request as RequestUrl, Profile as ProfileUrl
 from ..forms import EditRequestForm, EditContractForm
 
-from ..utilities.utility import (get_url_base, reprint_form_errors)
+from ..utilities.utility import get_url_base, reprint_form_errors
 from ..utilities.datatables import JsonConfigurableDatatablesBaseView
-
-logger = logging.getLogger(__name__)
 
 
 class CreateUpdateRequestView(TemplateView):
+    _logger = logging.getLogger(__name__)
+
     override_request_status = None
     template_name = None
 
@@ -79,7 +81,7 @@ class CreateUpdateRequestView(TemplateView):
         else:
             messages.error(request, CommonMessages.FORM_VALIDATION_ERROR)
             errors = reprint_form_errors(request_form.errors) + reprint_form_errors(contract_form.errors)
-            logger.error(u"Error saving the request:\n{0}".format(u"\n".join(errors)))
+            self._logger.error(u"Error saving the request:\n{0}".format(u"\n".join(errors)))
             return render(request, self.template_name, {
                 'request_form': request_form,
                 'contract_form': contract_form,
@@ -89,6 +91,8 @@ class CreateUpdateRequestView(TemplateView):
 
 # Permission protection is on the base class
 class CreateRequestView(CreateUpdateRequestView):
+    _logger = logging.getLogger(__name__)
+
     request_form_class = EditRequestForm
     contract_form_class = EditContractForm
     template_name = 'request/edit.html'
@@ -118,6 +122,8 @@ class CreateRequestView(CreateUpdateRequestView):
 
 # Permission protection is on the base class
 class UpdateRequestView(CreateUpdateRequestView, MenuModifierViewMixin):
+    _logger = logging.getLogger(__name__)
+
     request_form_class = EditRequestForm
     contract_form_class = EditContractForm
     template_name = 'request/edit.html'
@@ -187,7 +193,6 @@ class DetailRequestView(DetailView, MenuModifierViewMixin):
             if action.is_available(user, request)
         ]
 
-
     def get(self, request, *args, **kwargs):
         pk = kwargs.get(self.pk_url_kwarg, None)
         exclude_fields = ['id', 'contract']
@@ -203,7 +208,8 @@ class DetailRequestView(DetailView, MenuModifierViewMixin):
             'doc_request': req,
             'exclude_fields_req': exclude_fields,
             'contract': contract,
-            'actions': self._get_actions(request.user, req)
+            'actions': self._get_actions(request.user, req),
+            'actions_backend_url': reverse(RequestUrl.ACTIONS_BACKEND_JSON)
         })
 
 
@@ -258,6 +264,25 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
             'creator_pk': item.creator.pk,
             'current_approvers': [profile.get_short_name() for profile in item.approval_route.get_current_reviewers()]
         }
+
+
+class RequestActionsJson(View):
+    _logger = logging.getLogger(__name__)
+
+    def _parse_parameters(self, request):
+        if request.is_ajax():
+            raw_data = request.body
+            data = json.loads(raw_data)
+            return {
+                'action': data.get('action', None),
+                'parameters': data.get('parameters', None)
+            }
+        else:
+            raise ValueError("Data should be json-formatted")
+
+    def post(self, request, *args, **kwargs):
+        data = self._parse_parameters(request)
+        return HttpResponse(json.dumps(data), content_type="application/json")
 
 
 def archive(request, year=None, month=None):

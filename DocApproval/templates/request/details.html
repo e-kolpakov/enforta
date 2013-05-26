@@ -37,8 +37,9 @@
 {% block scripts_for_execution %}
     {{ block.super }}
     <script type='text/javascript'>
-        $("#action-panel").request_actions_panel({
-            actions_list_url: '{{ actions_list_url }}'
-        });
+        $("#action-panel").request_actions_panel({{ doc_request.pk }},
+                {
+                    actions_backend_url: '{{ actions_backend_url }}'
+                });
     </script>
 {% endblock scripts_for_execution %}

@@ -9,6 +9,7 @@
     };
 
     // TODO: add real logging/notifying
+    // TODO: use injection instead of copy-pasting
     var logger = function (msg) {
         if (console && console.log) {
             console.log(msg);
@@ -19,7 +20,7 @@
     var HtmlHelper = {
 
         template_manager_button_config: {
-            apply: {image: "apply_template.png", cssClass: 'btn add-button'},
+            apply: {image: "apply_template.png", cssClass: 'btn add-button'}
         },
 
         editor_button_config: {
@@ -197,7 +198,8 @@
                 create_row(template_id, templates[template_id]).appendTo(table);
             }
             if (!has_data) {
-                create_no_data_row().appendTo(table);;
+                create_no_data_row().appendTo(table);
+                ;
             }
         };
     };
