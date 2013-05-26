@@ -14,23 +14,26 @@
     {% endblock styles %}
 
     {% block scripts %}
+        <script type='text/javascript' language="JavaScript" src="{{ STATIC_URL }}js/require.js"
+                data-main="{{ STATIC_URL }}js/main.js"></script>
         <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/lib/jquery/jquery.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/lib/jquery/jquery.cookie.js"></script>
-        <script type="text/javascript" language="JavaScript"
-                src="{{ STATIC_URL }}js/lib/jquery/jquery-ui/jquery-ui.js"></script>
-        <script type="text/javascript" language="JavaScript"
-                src="{{ STATIC_URL }}js/lib/jquery/jquery-ui/jquery.ui.datepicker-ru.js"></script>
-        <script src="{{ STATIC_URL }}js/lib/bootstrap.js"></script>
-
         <script type="text/javascript" language="JavaScript">
             $("html").addClass('JS'); // allows to hide the content to be shown by JS while the page is loading
             window.globals = {
                 static_root: "{{ STATIC_URL }}" //need a way to pass the static_root to JS.
             };
         </script>
-        <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/app/global_settings.js"></script>
-        <script type="text/javascript" language="JavaScript"
-                src="{{ STATIC_URL }}js/lib/jquery/jquery-ui/enhancements.js"></script>
+        {#        <script type="text/javascript" src="{{ STATIC_URL }}js/lib/jquery/jquery.cookie.js"></script>#}
+        {#        <script type="text/javascript" language="JavaScript"#}
+        {#                src="{{ STATIC_URL }}js/lib/jquery/jquery-ui/jquery-ui.js"></script>#}
+        {#        <script type="text/javascript" language="JavaScript"#}
+        {#                src="{{ STATIC_URL }}js/lib/jquery/jquery-ui/jquery.ui.datepicker-ru.js"></script>#}
+        {#        <script src="{{ STATIC_URL }}js/lib/bootstrap.js"></script>#}
+        {##}
+        {#        #}
+        {#        <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/app/global_settings.js"></script>#}
+        {#        <script type="text/javascript" language="JavaScript"#}
+        {#                src="{{ STATIC_URL }}js/lib/jquery/jquery-ui/enhancements.js"></script>#}
     {% endblock scripts %}
 </head>
 <body class='{% block body_class %}main-body{% endblock body_class %}'>
@@ -40,11 +43,11 @@
     {% endblock content %}
 </div>
 {% block scripts_for_execution %}
-    <script type="text/javascript" language="JavaScript">
-        $(function () {
-            $(".datepicker").wrapped_datepicker();
-        });
-    </script>
+    {#    <script type="text/javascript" language="JavaScript">#}
+    {#        $(function () {#}
+    {#            $(".datepicker").wrapped_datepicker();#}
+    {#        });#}
+    {#    </script>#}
 {% endblock %}
 
 </body>
