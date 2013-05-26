@@ -22,13 +22,14 @@
         }
 
         this.actions_backend_url = actions_backend_url;
-        this.post_action = function (action, parameters) {
+        this.post_action = function (action, request_id, parameters) {
             var ajax_call = $.ajax({
                 type: 'POST',
                 url: that.actions_backend_url,
                 dataType: 'json',
                 data: JSON.stringify({
                     'action': action,
+                    'request_pk': request_id,
                     'parameters': parameters
                 })
             });
@@ -39,7 +40,15 @@
     var ActionHandler = function (communicator) {
         this.handle = function (action, request_id) {
             logger("Handling action " + action + " on request " + request_id);
-            communicator.post_action(action, {request_id: request_id});
+            var action_promise = communicator.post_action(action, request_id, { test: 'test' });
+            action_promise.done(function (response, textStatus, jqXHR) {
+                logger(response);
+                if (response.response.ask_for_reload) {
+                    if (confirm("Перезагрузить страницу")) {
+                        location.reload();
+                    }
+                }
+            });
         };
     };
 

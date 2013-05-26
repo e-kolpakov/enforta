@@ -189,7 +189,7 @@ class DetailRequestView(DetailView, MenuModifierViewMixin):
         """ request is an instance of models.Request here"""
         return [
             action
-            for key, action in RequestActionRepository.get_actions().items()
+            for key, action in RequestActionRepository().items()
             if action.is_available(user, request)
         ]
 
@@ -275,13 +275,34 @@ class RequestActionsJson(View):
             data = json.loads(raw_data)
             return {
                 'action': data.get('action', None),
+                'request_pk': data.get('request_pk', None),
                 'parameters': data.get('parameters', None)
             }
         else:
             raise ValueError("Data should be json-formatted")
 
     def post(self, request, *args, **kwargs):
-        data = self._parse_parameters(request)
+        try:
+            parsed_parameters = self._parse_parameters(request)
+            action = RequestActionRepository()[parsed_parameters['action']]
+            req = Request.objects.get(pk=parsed_parameters['request_pk'])
+
+            if action.is_available(request.user, req):
+                response = action.execute(request.user, req)
+            else:
+                response = RequestMessages.ACTION_IS_NOT_ACCESSIBLE
+
+            data = {
+                'success': True,
+                'response': response
+            }
+        except Exception as e:
+            self._logger.exception(e.message)
+            data = {
+                'success': False,
+                'response': None,
+                'errors': [e.message]
+            }
         return HttpResponse(json.dumps(data), content_type="application/json")
 
 

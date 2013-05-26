@@ -28,6 +28,8 @@ class RequestMessages:
 
     CURRENT_REVIEVERS = _(u"Ожидает утверждения")
 
+    ACTION_IS_NOT_ACCESSIBLE = _(u"Нельзя совершить выбранное действие над данной заявкой")
+
 
 class ProfileMessages:
     DOES_NOT_EXIST = _(u"Запрошен профиль неизвестного пользователя")
