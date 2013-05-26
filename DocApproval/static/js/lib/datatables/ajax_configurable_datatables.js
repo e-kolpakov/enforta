@@ -25,7 +25,7 @@
             }
         },
 
-        add_caption: function(target, caption){
+        add_caption: function (target, caption) {
             $("<caption></caption>").text(caption).appendTo(target);
         },
 
