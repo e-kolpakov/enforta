@@ -2,6 +2,10 @@
 (function ($) {
     "use strict";
 
+    var Messages = {
+        action_failed: "Не удалось совершить действие: "
+    }
+
     // TODO: add real logging/notifying
     // TODO: use injection instead of copy-pasting
     var logger = function (msg) {
@@ -38,16 +42,27 @@
     };
 
     var ActionHandler = function (communicator) {
+        function need_reload(force, ask) {
+            return force || (ask && confirm("Перезагрузить страницу?"));
+        }
+
         this.handle = function (action, request_id) {
             logger("Handling action " + action + " on request " + request_id);
             var action_promise = communicator.post_action(action, request_id, { test: 'test' });
-            action_promise.done(function (response, textStatus, jqXHR) {
-                logger(response);
-                if (response.response.ask_for_reload) {
-                    if (confirm("Перезагрузить страницу")) {
+            action_promise.done(function (response_data, textStatus, jqXHR) {
+                if (response_data.success) {
+                    var response = response_data.response;
+                    logger(response);
+                    if (need_reload(response.reload_require, response.reload_ask)) {
                         location.reload();
                     }
+                } else {
+                    ui_notifier(Messages.action_failed + response_data.errors.join("\n"));
                 }
+            });
+
+            action_promise.fail(function (jqXHR, textStatus, errorThrown) {
+                ui_notifier(errorThrown);
             });
         };
     };

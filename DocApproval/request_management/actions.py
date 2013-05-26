@@ -7,8 +7,8 @@ from DocApproval.models.request import RequestStatus
 
 
 class RequestActionBase(object):
-    requires_reload = False
-    ask_for_reload = True
+    reload_ask = False
+    reload_require = True
 
     def __init__(self, label, icon=None, *args, **kwargs):
         self.label = label
@@ -30,8 +30,8 @@ class RequestActionBase(object):
     def execute(self, user, request):
         result = self._execute(user, request)
         base_result = {
-            'requires_reload': self.requires_reload,
-            'ask_for_reload': self.ask_for_reload,
+            'reload_ask': self.reload_ask,
+            'reload_require': self.reload_require,
         }
         try:
             response = base_result.update(result)
@@ -42,8 +42,8 @@ class RequestActionBase(object):
 
 class SendToApprovalAction(RequestActionBase):
     code = 'to_approval'
-    requires_reload = False
-    ask_for_reload = True
+    reload_ask = False
+    reload_require = True
 
     def _check_condition(self, user, request):
         return request.status.code == RequestStatus.PROJECT and self._editable_by_user(user, request)
@@ -56,8 +56,8 @@ class SendToApprovalAction(RequestActionBase):
 
 class SendToProjectAction(RequestActionBase):
     code = 'to_project'
-    requires_reload = False
-    ask_for_reload = True
+    reload_ask = False
+    reload_require = True
 
     def _check_condition(self, user, request):
         return request.status.code == RequestStatus.NEGOTIATION and self._editable_by_user(user, request)

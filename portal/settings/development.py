@@ -55,6 +55,11 @@ LOGGING = {
             'level': 'WARNING',
             'propagate': False
         },
+        'DocApproval.middleware': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': False
+        },
         'DocApproval': {
             'handlers': ['file'],
             'level': 'DEBUG',
