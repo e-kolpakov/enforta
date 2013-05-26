@@ -2,11 +2,6 @@
 {% load i18n %}
 {% load model_details %}
 
-{% block scripts %}
-    {{ block.super }}
-    <script type='text/javascript' src="{{ STATIC_URL }}js/app/request_actions.js"></script>
-{% endblock %}
-
 {% block maincontent %}
     {% if doc_request %}
         <div class='row'>
@@ -37,9 +32,11 @@
 {% block scripts_for_execution %}
     {{ block.super }}
     <script type='text/javascript'>
-        $("#action-panel").request_actions_panel({{ doc_request.pk }},
-                {
-                    actions_backend_url: '{{ actions_backend_url }}'
-                });
+        require(['jquery', 'app/request_actions'], function ($) {
+            $("#action-panel").request_actions_panel({{ doc_request.pk }},
+                    {
+                        actions_backend_url: '{{ actions_backend_url }}'
+                    });
+        });
     </script>
 {% endblock scripts_for_execution %}

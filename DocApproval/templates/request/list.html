@@ -9,13 +9,15 @@
 {% block scripts_for_execution %}
     {{ block.super }}
     <script type="text/javascript" language="JavaScript">
-        $(function () {
-            $('#grid').ajaxConfigurableDatatables({
-                data_url: '{% url datatables_data %}',
-                config_url: '{% url datatables_config %}',
-                {% if show_only %}
-                    extra_server_params: {'show_only': '{{ show_only }}'}
-                {% endif %}
+        require(['jquery', 'app/ajax_configurable_datatables'], function ($) {
+            $(function () {
+                $('#grid').ajaxConfigurableDatatables({
+                    data_url: '{% url datatables_data %}',
+                    config_url: '{% url datatables_config %}',
+                    {% if show_only %}
+                        extra_server_params: {'show_only': '{{ show_only }}'}
+                    {% endif %}
+                });
             });
         });
     </script>

@@ -14,8 +14,5 @@ requirejs.config({
 });
 
 
-requirejs(['jquery', 'bootstrap', 'root/startup'], function ($) {
-    $(function () {
-
-    });
+requirejs(['root/startup'], function ($) {
 });

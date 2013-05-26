@@ -2,12 +2,6 @@
 {% load i18n %}
 {% load static from staticfiles %}
 
-{% block scripts %}
-    {{ block.super }}
-    <script type="text/javascript" language="JavaScript" src="{{ STATIC_URL }}js/app/forms.js"
-            xmlns="http://www.w3.org/1999/html"></script>
-{% endblock scripts %}
-
 {% block maincontent %}
     <h3>{% trans form_heading %}</h3>
     <form action="{{ action }}" method="post"
@@ -32,11 +26,13 @@
 {% block scripts_for_execution %}
     {{ block.super }}
     <script type='text/javascript' language="JavaScript">
-        $(function () {
-            $('div.edit-form').error_handling_form({
-                error_popup_selector: "div.field_errors_list",
-                field_errors_selector: '.field_errors'
+        require(['jquery', 'app/forms'], function ($) {
+            $(function () {
+                $('div.edit-form').error_handling_form({
+                    error_popup_selector: "div.field_errors_list",
+                    field_errors_selector: '.field_errors'
+                });
             });
-        });
+        })
     </script>
 {% endblock scripts_for_execution %}
