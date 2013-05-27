@@ -13,14 +13,16 @@
         <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}css/lib_bundle.css"/>
     {% endblock styles %}
 
-    <script type="text/javascript" language="JavaScript">
-        window.globals = {
-            static_root: "{{ STATIC_URL }}" //need a way to pass the static_root to JS.
-        };
-    </script>
-    <script type='text/javascript' language="JavaScript" src="{{ STATIC_URL }}js/require.js"
-            data-main="{{ STATIC_URL }}js/main.js"></script>
-    {% block scripts %}{% endblock scripts %}
+
+    {% block scripts %}
+        <script type="text/javascript" language="JavaScript">
+            window.globals = {
+                static_root: "{{ STATIC_URL }}" //need a way to pass the static_root to JS.
+            };
+        </script>
+        <script type='text/javascript' language="JavaScript" src="{{ STATIC_URL }}js/require.js"
+                data-main="{{ STATIC_URL }}js/main.js" data-start="{% block data_start %}{% endblock %}"></script>
+    {% endblock scripts %}
 </head>
 <body class='{% block body_class %}main-body{% endblock body_class %}'>
 <div class='container'>

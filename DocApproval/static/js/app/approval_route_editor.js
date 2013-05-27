@@ -69,7 +69,7 @@ define(
 
         var HeaderEditor = function (form, controls) {
             function get_element(selector) {
-                return $(selector, form);
+                return $(selector, $(form));
             }
 
             var error_class = 'error';
@@ -129,14 +129,14 @@ define(
             };
         };
 
-        var TemplateManager = function ($placeholder, apply_template_callback) {
+        var TemplateManager = function (placeholder, apply_template_callback) {
             var that = this;
             var templates = {};
             var table;
 
             function create_table() {
-                $placeholder.empty();
-                table = HtmlHelper.create_elem("table").addClass("table table-striped").appendTo($placeholder);
+                $(placeholder).empty();
+                table = HtmlHelper.create_elem("table").addClass("table table-striped").appendTo($(placeholder));
             }
 
             function create_row(template_id, template_data) {
@@ -175,7 +175,6 @@ define(
                 }
                 if (!has_data) {
                     create_no_data_row().appendTo(table);
-                    ;
                 }
             };
         };
@@ -382,8 +381,8 @@ define(
 
             var comm = new Communicator(options.csrftoken, options.approvers_source_url, options.template_route_source_url, options.approval_route_backend);
             var editor = new Editor(target);
-            var header_editor = new HeaderEditor(options.$form, options.controls);
-            var template_manager = new TemplateManager(options.$template_routes_pane, apply_template);
+            var header_editor = new HeaderEditor(options.form, options.controls);
+            var template_manager = new TemplateManager(options.template_routes_pane, apply_template);
 
             function validate_editors() {
                 // Both editors needs to be validated, thus can't do
@@ -436,8 +435,8 @@ define(
                 editor.set_approvers(data);
                 editor.set_data(initial_data.steps);
 
-                (options.$save_trigger).click(save_click_handler);
-                (options.$revert_trigger).click(revert_click_handler);
+                $(options.save_trigger).click(save_click_handler);
+                $(options.revert_trigger).click(revert_click_handler);
             });
 
             template_list_promise.done(function (data, textStatus, jqXHR) {

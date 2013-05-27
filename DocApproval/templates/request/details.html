@@ -29,14 +29,17 @@
     {% endif %}
 {% endblock %}
 
-{% block scripts_for_execution %}
+{% block data_start %}pages/request_details{% endblock %}
+
+{% block scripts %}
     {{ block.super }}
     <script type='text/javascript'>
-        require(['jquery', 'app/request_actions'], function ($) {
-            $("#action-panel").request_actions_panel({{ doc_request.pk }},
-                    {
-                        actions_backend_url: '{{ actions_backend_url }}'
-                    });
-        });
+        var page_data = {
+            target: "#action-panel",
+            request_id: {{ doc_request.pk }},
+            config: {
+                actions_backend_url: '{{ actions_backend_url }}'
+            }
+        };
     </script>
-{% endblock scripts_for_execution %}
+{% endblock scripts %}

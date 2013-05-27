@@ -40,38 +40,38 @@
     </div>
 {% endblock maincontent %}
 
-{% block scripts_for_execution %}
+{% block data_start %}pages/approval_editor{% endblock %}
+
+{% block scripts %}
     {{ block.super }}
     <script type='text/javascript'>
-        require(['jquery', 'app/approval_route_editor'], function ($) {
-            $(function () {
-                $("#approval-steps-editor").approval_route_editor(
-                        {
-                            approvers_source_url: '{% url approver_list_url %}',
-                            template_route_source_url: '{% url template_route_list_url %}',
-                            approval_route_backend: '{% url approval_route_backend_url %}',
-                            $form: $("#editor-form"),
-                            $template_routes_pane: $("#template-routes-pane"),
-                            $save_trigger: $('#btn-save'),
-                            $revert_trigger: $('#btn-revert'),
-                            controls: {
-                                pk_input_selector: "#route-pk",
-                                name_input_selector: '#route-name',
-                                desc_input_selector: '#route-description',
-                                is_template_input_selector: '#route-is-template'
-                            }
-                        },
-                        {
-                            header_data: {
-                                pk: {{ route_data.pk }},
-                                name: '{{ route_data.name }}',
-                                description: '{{ route_data.description }}',
-                                is_template: {{ route_data.is_template|lower }}
-                            },
-                            steps: {{ route_data.steps_as_json|safe }}
-                        }
-                );
-            });
-        });
+        var page_data = {
+            target: "#approval-steps-editor",
+            page_config: {
+                approvers_source_url: '{% url approver_list_url %}',
+                template_route_source_url: '{% url template_route_list_url %}',
+                approval_route_backend: '{% url approval_route_backend_url %}',
+                form: "#editor-form",
+                template_routes_pane: "#template-routes-pane",
+                save_trigger: '#btn-save',
+                revert_trigger: '#btn-revert',
+                controls: {
+                    pk_input_selector: "#route-pk",
+                    name_input_selector: '#route-name',
+                    desc_input_selector: '#route-description',
+                    is_template_input_selector: '#route-is-template'
+                }
+            },
+            initial_data: {
+                header_data: {
+                    pk: {{ route_data.pk }},
+                    name: '{{ route_data.name }}',
+                    description: '{{ route_data.description }}',
+                    is_template: {{ route_data.is_template|lower }}
+                },
+                steps: {{ route_data.steps_as_json|safe }}
+            }
+        }
+
     </script>
-{% endblock scripts_for_execution %}
+{% endblock scripts %}
