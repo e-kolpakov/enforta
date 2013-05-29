@@ -1,4 +1,6 @@
 #-*- coding: utf-8 -*-
+import logging
+
 from django.db import models, transaction
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -10,6 +12,8 @@ from .user import UserProfile
 from .common import ModelConstants, Permissions
 
 from DocApproval.url_naming.names import ApprovalRoute as ApprovalRouteUrls
+
+_logger = logging.getLogger(__name__)
 
 
 class NonTemplateApprovalRouteException(Exception):
@@ -26,12 +30,6 @@ class ApprovalRoute(models.Model):
     modified = models.DateField(_(u"Последнее изменение"), auto_now=True)
 
     is_template = models.BooleanField(_(u"Шаблонный маршрут"), default=False)
-
-    def roll_template_route(self):
-        if not self.is_template:
-            raise NonTemplateApprovalRouteException("Current route is not a template route")
-        else:
-            raise NotImplementedError("Not implemented yet")
 
     class Meta:
         verbose_name = _(u"Маршрут утверждения")
@@ -140,7 +138,6 @@ class ApprovalProcess(models.Model):
     attempt_number = models.IntegerField(_(u"Попытка утверждения №"))
     is_current = models.BooleanField(_(u"Текущий процесс"))
     current_step_number = models.IntegerField(verbose_name=_(u"Текущий шаг"), default=STARTING_STEP_NUMBER, null=False)
-    total_steps = models.IntegerField(verbose_name=_(u"Всего шагов"), default=1, null=False)
 
     class Meta:
         app_label = "DocApproval"
@@ -158,10 +155,8 @@ class ApprovalProcessAction(models.Model):
 
     comment = models.CharField(max_length=ModelConstants.MAX_VARCHAR_LENGTH, verbose_name=_(u"Комментарий"), null=True,
                                blank=True)
-    action_taken = models.DateTimeField(_(u"Время принятия решения"))
+    action_taken = models.DateTimeField(_(u"Время принятия решения"), auto_now_add=True)
     actor = models.ForeignKey(UserProfile, verbose_name=_(u"Кто принял решение"))
 
     class Meta:
         app_label = "DocApproval"
-
-

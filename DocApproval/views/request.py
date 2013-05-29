@@ -276,7 +276,7 @@ class RequestActionsJson(View):
             return {
                 'action': data.get('action', None),
                 'request_pk': data.get('request_pk', None),
-                'parameters': data.get('parameters', None)
+                'parameters': data.get('parameters', {})
             }
         else:
             raise ValueError("Data should be json-formatted")
@@ -288,7 +288,7 @@ class RequestActionsJson(View):
             req = Request.objects.get(pk=parsed_parameters['request_pk'])
 
             if action.is_available(request.user, req):
-                response = action.execute(request.user, req)
+                response = action.execute(request.user, req, **parsed_parameters['parameters'])
             else:
                 response = RequestMessages.ACTION_IS_NOT_ACCESSIBLE
 
