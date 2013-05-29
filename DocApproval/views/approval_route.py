@@ -215,7 +215,7 @@ class SaveApprovalRouteView(View):
                 'success': True
             }
         except Exception as e:
-            _logger.exception(e.message)
+            _logger.exception(e)
             data = {
                 'success': False,
                 'errors': [e.message]
