@@ -82,7 +82,7 @@ class RequestManager(models.Manager):
 
     def get_awaiting_approval(self, user):
         return self.get_accessible_requests(user).filter(approval_route__steps__approver=user,
-                                                         status__code=RequestStatus.NEGOTIATION)
+                                                         status__code=RequestStatus.NEGOTIATION).distinct()
 
 
 class Request(models.Model):
