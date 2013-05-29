@@ -1,7 +1,8 @@
 /*global globals, define*/
 define(
     ['jquery', 'app/ui_interaction_manager', 'app/ajax_communicator', 'libjquery/jquery.cookie'],
-    function ($, ui_manager, communicator) {
+    function ($, UIManager, Communicator) {
+        var Editor;
         "use strict";
 
         var Messages = {
@@ -17,6 +18,8 @@ define(
                 console.log(msg);
             }
         };
+
+        var ui_manager = new UIManager();
 
         var HtmlHelper = {
 
@@ -51,8 +54,8 @@ define(
             }
         };
 
-        var Communicator = function (csrf, approver_list_url, template_route_source_url, approval_route_backend_url) {
-            var ajax_comm = new communicator(csrf);
+        var Comm = function (csrf, approver_list_url, template_route_source_url, approval_route_backend_url) {
+            var ajax_comm = new Communicator(csrf);
 
             this.download_approver_list = function () {
                 return ajax_comm.make_request({url: approver_list_url});
@@ -179,7 +182,7 @@ define(
             };
         };
 
-        var Editor = function (target) {
+        Editor = function (target) {
             var that = this;
             var row_count = 0;
 
@@ -308,8 +311,8 @@ define(
                 that.approvers = approvers;
             }
             this.render = function () {
+                var has_rows;
                 clean();
-                var has_rows = false;
                 that.editor_wrapper = make_wrapper().appendTo(that.target);
                 for (var k in that.data) {
                     if (!that.data.hasOwnProperty(k))
@@ -340,10 +343,10 @@ define(
             };
             this.add_approver = function (marker) {
                 make_approver(that.approvers, {}).insertBefore(marker);
-            }
+            };
             this.remove_approver = function (marker) {
                 $(marker).remove();
-            }
+            };
 
             this.validate = function () {
                 var valid = true;
@@ -364,7 +367,7 @@ define(
                     valid &= row_valid;
                 });
                 return valid;
-            }
+            };
 
             this.get_data = function () {
                 var result = {};
@@ -379,7 +382,7 @@ define(
         $.fn.approval_route_editor = function (options, initial_data) {
             var target = $(this);
 
-            var comm = new Communicator(options.csrftoken, options.approvers_source_url, options.template_route_source_url, options.approval_route_backend);
+            var comm = new Comm(options.csrftoken, options.approvers_source_url, options.template_route_source_url, options.approval_route_backend);
             var editor = new Editor(target);
             var header_editor = new HeaderEditor(options.form, options.controls);
             var template_manager = new TemplateManager(options.template_routes_pane, apply_template);
@@ -413,7 +416,7 @@ define(
                     });
 
                     save_promise.fail(function (jqXHR, textStatus, errorThrown) {
-                        ui_manager.message(errorThrown);
+                        ui_manager.error(errorThrown);
                     });
                 }
                 return false;
@@ -446,11 +449,11 @@ define(
 
             // TODO: add real error handling
             approver_list_promise.fail(function (jqXHR, textStatus, errorThrown) {
-                ui_manager.message(errorThrown);
+                ui_manager.error(errorThrown);
             });
 
             template_list_promise.fail(function (jqXHR, textStatus, errorThrown) {
-                ui_manager.message(errorThrown);
+                ui_manager.error(errorThrown);
             });
         };
     }

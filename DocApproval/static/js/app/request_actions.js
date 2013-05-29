@@ -1,7 +1,7 @@
 /*global globals, define*/
 define(
     ['jquery', 'app/ui_interaction_manager', 'app/ajax_communicator'],
-    function ($, ui_manager, communicator) {
+    function ($, UIManager, Communicator) {
         "use strict";
 
         // Always keep in sync with codes in request_management/actions.py
@@ -24,8 +24,10 @@ define(
             }
         };
 
-        var Communicator = function (csrf, actions_backend_url) {
-            var ajax_comm = new communicator(csrf);
+        var ui_manager = new UIManager();
+
+        var Comm = function (csrf, actions_backend_url) {
+            var ajax_comm = new Communicator(csrf);
 
             this.post_action = function (action, request_id, parameters) {
                 var data = JSON.stringify({
@@ -92,7 +94,7 @@ define(
                 });
 
                 action_promise.fail(function (jqXHR, textStatus, errorThrown) {
-                    ui_manager.message(errorThrown);
+                    ui_manager.error(errorThrown);
                 });
             };
         };
@@ -101,7 +103,7 @@ define(
             var actions_backend_url = options.actions_backend_url;
             var csrf = options.csrftoken || $.cookie('csrftoken');
 
-            var comm = new Communicator(csrf, actions_backend_url);
+            var comm = new Comm(csrf, actions_backend_url);
             var action_handler = new ActionHandler(comm);
 
             $('tr.action-row', this).click(function (e) {
