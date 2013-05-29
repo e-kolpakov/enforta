@@ -1,6 +1,6 @@
 /*global globals, define*/
 define(
-    ['jquery'],
+    ['jquery', 'libjquery/jquery.ui.datepicker-ru'],
     function ($) {
         "use strict";
         var settings = {

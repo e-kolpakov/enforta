@@ -25,6 +25,7 @@ define(
         };
 
         var ui_manager = new UIManager();
+        ui_manager.message("QWE", "asd");
 
         var Comm = function (csrf, actions_backend_url) {
             var ajax_comm = new Communicator(csrf);
