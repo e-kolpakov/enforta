@@ -1,11 +1,14 @@
 #-*- coding: utf-8 -*-
+import logging
+
 from collections import Mapping
 
 from django.utils.translation import gettext as _
-from DocApproval.models.approval import ApprovalProcessAction
+
 from DocApproval.models.common import Permissions
 from DocApproval.models.request import RequestStatus
-from DocApproval.request_management.approval_management import ApprovalManager
+
+_logger = logging.getLogger(__name__)
 
 
 class RequestActionBase(object):
@@ -62,6 +65,7 @@ class SendToApprovalAction(StatusBasedAction):
         return self._editable_by_user(user, request)
 
     def _execute(self, user, request, **kwargs):
+        _logger.info(u"User {0} sent request {1} to negotiation status".format(user, request))
         new_status = RequestStatus.objects.get(code=RequestStatus.NEGOTIATION)
         request.status = new_status
         request.save()
@@ -77,37 +81,71 @@ class SendToProjectAction(StatusBasedAction):
         return self._editable_by_user(user, request)
 
     def _execute(self, user, request, **kwargs):
+        _logger.info(u"User {0} sent request {1} to project status".format(user, request))
         new_status = RequestStatus.objects.get(code=RequestStatus.PROJECT)
         request.status = new_status
         request.save()
 
 
-class ApproveAction(StatusBasedAction):
-    code = 'approve'
-    reload_ask = False
-    reload_require = False
+class ApprovalProcessAction(StatusBasedAction):
     status_code = RequestStatus.NEGOTIATION
+    reload_ask = True
+    reload_require = False
 
     COMMENT_TOKEN = 'comment'
 
+    def is_available(self, user, request):
+        return (
+            user.profile in request.approval_route.get_current_reviewers() and
+            user.has_perm(Permissions._(Permissions.Request.CAN_APPROVE_REQUESTS)) and
+            super(ApprovalProcessAction, self).is_available(user, request))
+
+    def _get_approver_profile(self, user):
+        # TODO: add support for temporary approver replacement
+        return user
+
+
+class ApproveAction(ApprovalProcessAction):
+    code = 'approve'
+
     def _check_condition(self, user, request):
-        return user.profile in request.approval_route.get_current_reviewers()
+        #all the checks are in parent classes
+        return True
 
     def _execute(self, user, request, **kwargs):
-        comment = kwargs.get(self.COMMENT_TOKEN, '')
-        # TODO: add support for temporary approver replacement
-        ApprovalManager(request).process_approval_action(user, ApprovalProcessAction.ACTION_APPROVE, comment=comment)
+        _logger.info(u"User {0} approved request {1}".format(user, request))
+        comment = kwargs.get(self.COMMENT_TOKEN, None)
+
+        process = request.approval_route.get_current_process()
+        process.step_approved(user.profile, self._get_approver_profile(user).profile, comment)
+
+
+class RejectAction(ApprovalProcessAction):
+    code = 'reject'
+
+    def _check_condition(self, user, request):
+        #all the checks are in parent classes
+        return True
+
+    def _execute(self, user, request, **kwargs):
+        _logger.info(u"User {0} rejected request {1}".format(user, request))
+        comment = kwargs.get(self.COMMENT_TOKEN, None)
+
+        process = request.approval_route.get_current_process()
+        process.step_rejected(user.profile, self._get_approver_profile(user).profile, comment)
 
 
 class RequestActionRepository(Mapping):
     TO_APPROVAL = SendToApprovalAction.code
     TO_PROJECT = SendToProjectAction.code
     APPROVE = ApproveAction.code
+    REJECT = RejectAction.code
 
     _actions = {
         TO_APPROVAL: SendToApprovalAction(_(u"Отправить на утверждение"), icon="icons/to_approval.png"),
         TO_PROJECT: SendToProjectAction(_(u"Вернуть в статус проекта"), icon="icons/to_project.png"),
-        APPROVE: ApproveAction(_(u"Утвердить"), icon="icons/approve.png")
+        APPROVE: ApproveAction(_(u"Утвердить"), icon="icons/approve.png"),
+        REJECT: RejectAction(_(u"Отклонить"), icon="icons/reject.png")
     }
 
     __getitem__ = _actions.__getitem__

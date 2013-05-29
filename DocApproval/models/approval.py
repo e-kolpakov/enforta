@@ -4,6 +4,7 @@ import logging
 from django.db import models, transaction
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.dispatch.dispatcher import Signal
 from django.utils.translation import ugettext as _
 
 from guardian.shortcuts import assign_perm, remove_perm
@@ -14,6 +15,11 @@ from .common import ModelConstants, Permissions
 from DocApproval.url_naming.names import ApprovalRoute as ApprovalRouteUrls
 
 _logger = logging.getLogger(__name__)
+
+
+class LoggerMessages(object):
+    REQUEST_APPROVED = u"User {0} set final approve on request {1} on behalf of {2}"
+    REQUEST_REJECTED = u"User {0} rejected request {1} on behalf of {2}"
 
 
 class NonTemplateApprovalRouteException(Exception):
@@ -115,6 +121,14 @@ class ApprovalRoute(models.Model):
             active_step_number = ApprovalProcess.STARTING_STEP_NUMBER
         return [step.approver for step in self.steps.filter(step_number=active_step_number)]
 
+    def get_current_process(self):
+        try:
+            return self.processes.get(is_current=True)
+        except ApprovalProcess.DoesNotExist:
+            _logger.warning(
+                "Tried to get current approval process for route {0} no current approval process exist".format(self))
+            return None
+
 
 class ApprovalRouteStep(models.Model):
     DIRECT_MANAGER_PLACEHOLDER = '{manager}'
@@ -142,6 +156,28 @@ class ApprovalProcess(models.Model):
     class Meta:
         app_label = "DocApproval"
 
+    @transaction.commit_on_success
+    def step_approved(self, user_profile, approver, comment=None):
+        self._process_action(user_profile, ApprovalProcessAction.ACTION_APPROVE, comment, approver)
+        if self.current_step_number != self.route.get_steps_count():
+            self.current_step_number += 1
+            self.save()
+        else:
+            _logger.info(LoggerMessages.REQUEST_APPROVED.format(user_profile, self.route.request, approver))
+            final_approve_signal.send(ApprovalProcess, request_pk=self.route.request.pk, user_pk=user_profile.pk)
+
+    def step_rejected(self, user_profile, approver, comment=None):
+        self._process_action(user_profile, ApprovalProcessAction.ACTION_REJECT, comment, approver)
+        _logger.info(LoggerMessages.REQUEST_REJECTED.format(user_profile, self.route.request, approver))
+        reject_signal.send(ApprovalProcess, request_pk=self.route.request.pk, user_pk=user_profile.pk)
+
+    def _process_action(self, user_profile, action_code, comment, approver):
+        current_step = self.current_step_number
+        step = self.route.steps.get(approver=approver, step_number=current_step)
+
+        ApprovalProcessAction.objects.create(process=self, step=step, action=action_code, comment=comment,
+                                             actor=user_profile)
+
 
 class ApprovalProcessAction(models.Model):
     ACTION_APPROVE = 'approve'
@@ -160,3 +196,7 @@ class ApprovalProcessAction(models.Model):
 
     class Meta:
         app_label = "DocApproval"
+
+
+final_approve_signal = Signal(providing_args=(['request_pk', 'user_pk']))
+reject_signal = Signal(providing_args=(['request_pk', 'user_pk']))
