@@ -139,7 +139,8 @@ class ApprovalProcess(models.Model):
     route = models.ForeignKey(ApprovalRoute, verbose_name=_(u"Маршрут"), related_name='processes')
     attempt_number = models.IntegerField(_(u"Попытка утверждения №"))
     is_current = models.BooleanField(_(u"Текущий процесс"))
-    current_step_number = models.IntegerField(verbose_name=_(u"Текущий шаг"), default=STARTING_STEP_NUMBER)
+    current_step_number = models.IntegerField(verbose_name=_(u"Текущий шаг"), default=STARTING_STEP_NUMBER, null=False)
+    total_steps = models.IntegerField(verbose_name=_(u"Всего шагов"), default=1, null=False)
 
     class Meta:
         app_label = "DocApproval"
