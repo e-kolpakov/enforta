@@ -70,7 +70,7 @@ class ApprovalRoute(models.Model):
             route.add_step(step_number, set(approvers))
             steps_to_keep.append(int(step_number))
 
-        route.remove_steps(steps_to_keep)
+        route.remove_steps(exclude=steps_to_keep)
 
         return route
 
@@ -78,31 +78,34 @@ class ApprovalRoute(models.Model):
         if not isinstance(approvers, set) or not approvers:
             raise ValueError("Approvers parameter must be a non-empty set")
 
-        existing_approvers_in_step = set(step.approver.pk for step in self.steps.filter(step_number=step_number))
-        approvers_to_add = approvers - existing_approvers_in_step
-        approvers_to_remove = existing_approvers_in_step - approvers
+        incoming_approvers = set(User.objects.filter(pk__in=approvers))
+        existing_approvers_in_step = set(step.approver.user for step in self.steps.filter(step_number=step_number))
+        approvers_to_add = incoming_approvers - existing_approvers_in_step
+        approvers_to_remove = existing_approvers_in_step - incoming_approvers
 
-        for approver_id in approvers_to_add:
-            approver = User.objects.get(pk=approver_id)
+        for approver in approvers_to_add:
             self.steps.create(approver=approver.profile, step_number=step_number)
-            if self.request:
-                assign_perm(Permissions._(Permissions.Request.CAN_VIEW_REQUEST), approver, self.request)
 
-        if self.request:
-            for approver_id in approvers_to_remove:
-                approver = User.objects.get(pk=approver_id)
-                remove_perm(Permissions._(Permissions.Request.CAN_VIEW_REQUEST), approver, self.request)
+        self.process_request_permissions(to_add=approvers_to_add, to_remove=approvers_to_remove)
 
-        self.steps.filter(approver__pk__in=approvers_to_remove).delete()
+        self.steps.filter(approver__user__in=approvers_to_remove).delete()
 
-    def remove_steps(self, steps_to_keep):
-        to_remove = self.steps.exclude(step_number__in=steps_to_keep)
-        if self.request:
-            for step in to_remove:
-                approver = User.objects.get(pk=step.approver.pk)
-                remove_perm(Permissions._(Permissions.Request.CAN_VIEW_REQUEST), approver, self.request)
+    def remove_steps(self, exclude=None):
+        steps_to_remove = self.steps.exclude(step_number__in=exclude).select_related('approver')
+        users_to_remove_permissions = [step.approver.user for step in steps_to_remove]
+        self.process_request_permissions(to_remove=users_to_remove_permissions)
 
-        to_remove.delete()
+        steps_to_remove.delete()
+
+    def process_request_permissions(self, to_remove=None, to_add=None):
+        if self.is_template:
+            return
+
+        for approver in (to_remove or []):
+            remove_perm(Permissions._(Permissions.Request.CAN_VIEW_REQUEST), approver, self.request)
+
+        for approver in (to_add or []):
+            assign_perm(Permissions._(Permissions.Request.CAN_VIEW_REQUEST), approver, self.request)
 
     def get_steps_count(self):
         return self.steps.all().aggregate(models.Max('step_number')).get('step_number__max')
@@ -119,7 +122,7 @@ class ApprovalRouteStep(models.Model):
     DIRECT_MANAGER_PLACEHOLDER = '{manager}'
 
     route = models.ForeignKey(ApprovalRoute, verbose_name=_(u"Маршрут утверждения"), related_name='steps')
-    approver = models.ForeignKey(UserProfile, verbose_name=_(u"Утверждающий"), null=True)
+    approver = models.ForeignKey(UserProfile, verbose_name=_(u"Утверждающий"), null=True, related_name='approval_steps')
     step_number = models.IntegerField(verbose_name=_(u"Номер шага"))
     calc_step = models.CharField(
         verbose_name=_(u"Вычисляемый утверждающий"), null=True, blank=True, default=None,
