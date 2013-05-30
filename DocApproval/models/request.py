@@ -1,17 +1,23 @@
 #-*- coding: utf-8 -*-
 import os
+import logging
 import datetime
 
-from django.core.urlresolvers import reverse
 from django.db import models
+from django.dispatch import receiver
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 from guardian.shortcuts import get_objects_for_user
+from DocApproval.models.approval import ApprovalProcess
 
 from .user import UserProfile
 from .common import City, ModelConstants, Permissions
-from .approval import ApprovalRoute
+from .approval import ApprovalRoute, final_approve_signal, reject_signal
 from DocApproval.url_naming.names import Request as RequestUrls
 from DocApproval.utilities.humanization import Humanizer
+
+
+_logger = logging.getLogger(__name__)
 
 
 class RequestStatus(models.Model):
@@ -146,5 +152,30 @@ class Request(models.Model):
 
     def get_approvers(self):
         return (step.approver for step in self.approval_route.steps)
+
+
+@receiver(final_approve_signal, sender=ApprovalProcess)
+def final_approve_handler(sender, **kwargs):
+    request_id = kwargs.get('request_pk', 0)
+    try:
+        request = Request.objects.get(pk=request_id)
+        _logger.info("Handling final approve on request {0}", request)
+        request.status = RequestStatus.objects.get(code=RequestStatus.NEGOTIATED_NO_PAYMENT)
+        request.save()
+    except Request.DoesNotExist:
+        _logger.warning("Final approve signal emitted with non-existing request parameter")
+
+
+@receiver(reject_signal, sender=ApprovalProcess)
+def rejection_handler(sender, **kwargs):
+    request_id = kwargs.get('request_pk', 0)
+    try:
+        request = Request.objects.get(pk=request_id)
+        _logger.info("Handling rejection on request {0}", request)
+        request.status = RequestStatus.objects.get(code=RequestStatus.PROJECT)
+        request.save()
+    except Request.DoesNotExist:
+        _logger.warning("Final approve signal emitted with non-existing request parameter")
+
 
 

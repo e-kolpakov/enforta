@@ -159,6 +159,7 @@ class ApprovalProcess(models.Model):
     @transaction.commit_on_success
     def step_approved(self, user_profile, approver, comment=None):
         self._process_action(user_profile, ApprovalProcessAction.ACTION_APPROVE, comment, approver)
+        approve_signal.send(ApprovalProcess, request_pk=self.route.request.pk, user_pk=user_profile.pk)
         if self.current_step_number != self.route.get_steps_count():
             self.current_step_number += 1
             self.save()
@@ -166,9 +167,10 @@ class ApprovalProcess(models.Model):
             _logger.info(LoggerMessages.REQUEST_APPROVED.format(user_profile, self.route.request, approver))
             final_approve_signal.send(ApprovalProcess, request_pk=self.route.request.pk, user_pk=user_profile.pk)
 
+    @transaction.commit_on_success
     def step_rejected(self, user_profile, approver, comment=None):
-        self._process_action(user_profile, ApprovalProcessAction.ACTION_REJECT, comment, approver)
         _logger.info(LoggerMessages.REQUEST_REJECTED.format(user_profile, self.route.request, approver))
+        self._process_action(user_profile, ApprovalProcessAction.ACTION_REJECT, comment, approver)
         reject_signal.send(ApprovalProcess, request_pk=self.route.request.pk, user_pk=user_profile.pk)
 
     def _process_action(self, user_profile, action_code, comment, approver):
@@ -198,5 +200,6 @@ class ApprovalProcessAction(models.Model):
         app_label = "DocApproval"
 
 
+approve_signal = Signal(providing_args=(['request_pk', 'user_pk']))
 final_approve_signal = Signal(providing_args=(['request_pk', 'user_pk']))
 reject_signal = Signal(providing_args=(['request_pk', 'user_pk']))
