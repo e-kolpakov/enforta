@@ -1,6 +1,6 @@
 /*global define*/
 define(
-    ['jquery'],
+    ['jquery', 'bootstrap'],
     function ($) {
         function Popup(buttons) {
 
