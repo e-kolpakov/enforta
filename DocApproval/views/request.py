@@ -288,7 +288,8 @@ class RequestActionsJson(View):
             req = Request.objects.get(pk=parsed_parameters['request_pk'])
 
             if action.is_available(request.user, req):
-                response = action.execute(request.user, req, **parsed_parameters['parameters'])
+                params = parsed_parameters['parameters']
+                response = action.execute(request.user, req, **params)
             else:
                 response = RequestMessages.ACTION_IS_NOT_ACCESSIBLE
 

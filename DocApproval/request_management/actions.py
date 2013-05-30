@@ -33,7 +33,7 @@ class RequestActionBase(object):
         return self._check_condition(user, request)
 
     def execute(self, user, request, **kwargs):
-        result = self._execute(user, request)
+        result = self._execute(user, request, **kwargs)
         base_result = {
             'reload_ask': self.reload_ask,
             'reload_require': self.reload_require,

@@ -61,6 +61,13 @@ define(
             this.confirmation = function (question) {
                 return confirm(question);
             };
+            this.input = function (caption, callback) {
+                var comment = prompt(caption);
+                return {
+                    success: !!comment, // mnemonic boolean coercion
+                    comment: comment
+                }
+            };
             this.error = function (message) {
                 that.message(message);
             };

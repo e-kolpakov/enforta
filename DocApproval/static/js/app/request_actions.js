@@ -7,13 +7,17 @@ define(
         // Always keep in sync with codes in request_management/actions.py
         var ActionCodes = {
             TO_APPROVAL: 'to_approval',
-            TO_PROJECT: 'to_project'
+            TO_PROJECT: 'to_project',
+            APPROVE: 'approve',
+            REJECT: 'reject'
         };
 
         var Messages = {
             action_failed: "Не удалось совершить действие: ",
             confirm_to_negotiation: 'Перевод заявки в состояние "В согласовании" начнет процесс утверждения. Продолжить?',
-            confirm_to_project: 'Перевод заявки в состояние "Проект" приведет к остановке текущего процесса утверждения. Продолжить?'
+            confirm_to_project: 'Перевод заявки в состояние "Проект" приведет к остановке текущего процесса утверждения. Продолжить?',
+            confirm_approve: "Утвердить заявку?",
+            confirm_rejection: "Отклонить заявку?"
         };
 
         // TODO: add real logging/notifying
@@ -25,7 +29,6 @@ define(
         };
 
         var ui_manager = new UIManager();
-        ui_manager.message("QWE", "asd");
 
         var Comm = function (csrf, actions_backend_url) {
             var ajax_comm = new Communicator(csrf);
@@ -58,13 +61,41 @@ define(
             };
         };
 
+        var ApproveActionHandler = function () {
+            this.handle = function () {
+                var confirm_and_get_comment = ui_manager.input(Messages.confirm_approve);
+                return {
+                    post_action: confirm_and_get_comment.success,
+                    data: {
+                        comment: confirm_and_get_comment.comment
+                    }
+                };
+            };
+        };
+
+        var RejectActionHandler = function () {
+            this.handle = function () {
+                var confirm_and_get_comment = ui_manager.input(Messages.confirm_rejection);
+                return {
+                    post_action: confirm_and_get_comment.success,
+                    data: {
+                        comment: confirm_and_get_comment.comment
+                    }
+                };
+            };
+        };
+
         ToApprovalActionHandler.prototype = new BaseActionHandler();
         ToProjectActionHandler.prototype = new BaseActionHandler();
+        ApproveActionHandler.prototype = new BaseActionHandler();
+        RejectActionHandler.prototype = new BaseActionHandler();
 
         var ActionHandler = function (communicator) {
             var ui_handlers = {};
             ui_handlers[ActionCodes.TO_APPROVAL] = new ToApprovalActionHandler();
             ui_handlers[ActionCodes.TO_PROJECT] = new ToProjectActionHandler();
+            ui_handlers[ActionCodes.APPROVE] = new ApproveActionHandler();
+            ui_handlers[ActionCodes.REJECT] = new RejectActionHandler();
 
             function need_reload(force, ask) {
                 return force || (ask && ui_manager.confirmation("Перезагрузить страницу?"));
@@ -73,15 +104,17 @@ define(
             this.handle = function (action, request_id) {
                 logger("Handling action " + action + " on request " + request_id);
                 var post_action = true;
+                var parameters = {};
                 if (ui_handlers[action]) {
                     var handler = ui_handlers[action];
                     var ui_result = handler.handle();
                     post_action &= ui_result.post_action;
+                    parameters = ui_result.data;
                 }
                 if (!post_action) {
                     return;
                 }
-                var action_promise = communicator.post_action(action, request_id, { test: 'test' });
+                var action_promise = communicator.post_action(action, request_id, parameters);
                 action_promise.done(function (response_data, textStatus, jqXHR) {
                     if (response_data.success) {
                         var response = response_data.response;
