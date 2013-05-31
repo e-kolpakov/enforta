@@ -64,13 +64,17 @@ define(
         var ToApprovalActionHandler = function (request_id) {
             var action_code = ActionCodes.TO_APPROVAL;
             this.process_action = function (callback) {
-                callback(action_code, request_id, {post_action: ui_manager.confirmation(Messages.confirm_to_negotiation)});
+                ui_manager.confirmation(Messages.confirm_to_negotiation, function (is_confirmed) {
+                    callback(action_code, request_id, {post_action: is_confirmed});
+                });
             };
         };
         var ToProjectActionHandler = function (request_id) {
             var action_code = ActionCodes.TO_PROJECT;
             this.process_action = function (callback) {
-                callback(action_code, request_id, {post_action: ui_manager.confirmation(Messages.confirm_to_project)});
+                ui_manager.confirmation(Messages.confirm_to_project, function (is_confirmed) {
+                    callback(action_code, request_id, {post_action: is_confirmed});
+                });
             };
         };
 
