@@ -44,44 +44,59 @@ define(
         };
 
         function BaseActionHandler() {
-            this.handle = function () {
-                logger("In BaseActionHandler.handle");
-                return {post_action: false};
+            var action_code = "";
+            this.validate_callback = function (callback_to_validate) {
+                return (callback_to_validate && typeof(callback_to_validate) === "function");
+            };
+
+            this.process_action = function (callback) {
+                logger("Should be overridden in child classes");
+                callback({post_action: false});
+            };
+
+            this.handle = function (callback) {
+                if (this.validate_callback(callback)) {
+                    this.process_action(callback);
+                }
             };
         }
 
-        var ToApprovalActionHandler = function () {
-            this.handle = function () {
-                return {post_action: ui_manager.confirmation(Messages.confirm_to_negotiation)};
+        var ToApprovalActionHandler = function (request_id) {
+            var action_code = ActionCodes.TO_APPROVAL;
+            this.process_action = function (callback) {
+                callback(action_code, request_id, {post_action: ui_manager.confirmation(Messages.confirm_to_negotiation)});
             };
         };
-        var ToProjectActionHandler = function () {
-            this.handle = function () {
-                return {post_action: ui_manager.confirmation(Messages.confirm_to_project)};
+        var ToProjectActionHandler = function (request_id) {
+            var action_code = ActionCodes.TO_PROJECT;
+            this.process_action = function (callback) {
+                callback(action_code, request_id, {post_action: ui_manager.confirmation(Messages.confirm_to_project)});
             };
         };
 
-        var ApproveActionHandler = function () {
-            this.handle = function () {
+        var ApproveActionHandler = function (request_id) {
+            var action_code = ActionCodes.APPROVE;
+            this.process_action = function (callback) {
                 var confirm_and_get_comment = ui_manager.input(Messages.confirm_approve);
-                return {
+                callback(action_code, request_id, {
                     post_action: confirm_and_get_comment.success,
                     data: {
                         comment: confirm_and_get_comment.comment
                     }
-                };
+                });
             };
         };
 
-        var RejectActionHandler = function () {
-            this.handle = function () {
+        var RejectActionHandler = function (request_id) {
+            var action_code = ActionCodes.REJECT;
+            this.process_action = function (callback) {
                 var confirm_and_get_comment = ui_manager.input(Messages.confirm_rejection);
-                return {
+                callback(action_code, request_id, {
                     post_action: confirm_and_get_comment.success,
                     data: {
                         comment: confirm_and_get_comment.comment
                     }
-                };
+                });
             };
         };
 
@@ -92,44 +107,45 @@ define(
 
         var ActionHandler = function (communicator) {
             var ui_handlers = {};
-            ui_handlers[ActionCodes.TO_APPROVAL] = new ToApprovalActionHandler();
-            ui_handlers[ActionCodes.TO_PROJECT] = new ToProjectActionHandler();
-            ui_handlers[ActionCodes.APPROVE] = new ApproveActionHandler();
-            ui_handlers[ActionCodes.REJECT] = new RejectActionHandler();
+            ui_handlers[ActionCodes.TO_APPROVAL] = ToApprovalActionHandler;
+            ui_handlers[ActionCodes.TO_PROJECT] = ToProjectActionHandler;
+            ui_handlers[ActionCodes.APPROVE] = ApproveActionHandler;
+            ui_handlers[ActionCodes.REJECT] = RejectActionHandler;
 
             function need_reload(force, ask) {
                 return force || (ask && ui_manager.confirmation("Перезагрузить страницу?"));
             }
 
+            function handle_callback(action, request_id, action_handler_result) {
+                var post_action = action_handler_result.post_action;
+                var parameters = action_handler_result.data;
+
+                if (post_action) {
+                    var action_promise = communicator.post_action(action, request_id, parameters);
+                    action_promise.done(function (response_data, textStatus, jqXHR) {
+                        if (response_data.success) {
+                            var response = response_data.response;
+                            logger(response);
+                            if (need_reload(response.reload_require, response.reload_ask)) {
+                                location.reload();
+                            }
+                        } else {
+                            ui_manager.message(Messages.action_failed + response_data.errors.join("\n"));
+                        }
+                    });
+
+                    action_promise.fail(function (jqXHR, textStatus, errorThrown) {
+                        ui_manager.error(errorThrown);
+                    });
+                }
+            }
+
             this.handle = function (action, request_id) {
                 logger("Handling action " + action + " on request " + request_id);
-                var post_action = true;
-                var parameters = {};
                 if (ui_handlers[action]) {
-                    var handler = ui_handlers[action];
-                    var ui_result = handler.handle();
-                    post_action &= ui_result.post_action;
-                    parameters = ui_result.data;
+                    var handler = new ui_handlers[action](request_id);
+                    handler.handle(handle_callback);
                 }
-                if (!post_action) {
-                    return;
-                }
-                var action_promise = communicator.post_action(action, request_id, parameters);
-                action_promise.done(function (response_data, textStatus, jqXHR) {
-                    if (response_data.success) {
-                        var response = response_data.response;
-                        logger(response);
-                        if (need_reload(response.reload_require, response.reload_ask)) {
-                            location.reload();
-                        }
-                    } else {
-                        ui_manager.message(Messages.action_failed + response_data.errors.join("\n"));
-                    }
-                });
-
-                action_promise.fail(function (jqXHR, textStatus, errorThrown) {
-                    ui_manager.error(errorThrown);
-                });
             };
         };
 
