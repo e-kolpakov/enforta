@@ -10,6 +10,12 @@ requirejs.config({
 
         'app': "../app",
         'pages': '../pages' //page-specific scripts go here
+    },
+    shim: {
+        "bootstrap": {
+            deps: ["jquery"],
+            exports: "$.fn.modal"
+        }
     }
 });
 
