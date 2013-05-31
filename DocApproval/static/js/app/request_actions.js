@@ -1,7 +1,7 @@
 /*global globals, define*/
 define(
-    ['jquery', 'app/ui_interaction_manager', 'app/ajax_communicator'],
-    function ($, UIManager, Communicator) {
+    ['jquery', 'app/ui_interaction_manager', 'app/ajax_communicator', 'extend'],
+    function ($, UIManager, Communicator, extend) {
         "use strict";
 
         // Always keep in sync with codes in request_management/actions.py
@@ -44,21 +44,26 @@ define(
         };
 
         function BaseActionHandler() {
-            var action_code = "";
-            this.validate_callback = function (callback_to_validate) {
-                return (callback_to_validate && typeof(callback_to_validate) === "function");
-            };
+        }
 
-            this.process_action = function (callback) {
+        BaseActionHandler.prototype = {
+            validate_callback: function (callback_to_validate) {
+                return (callback_to_validate && typeof callback_to_validate === "function");
+            },
+
+            process_action: function (callback) {
                 logger("Should be overridden in child classes");
                 callback({post_action: false});
-            };
+            },
 
-            this.handle = function (callback) {
+            handle: function (callback) {
                 if (this.validate_callback(callback)) {
                     this.process_action(callback);
                 }
-            };
+            }
+        };
+
+        function StatusActionHandler() {
         }
 
         var ToApprovalActionHandler = function (request_id) {
@@ -104,10 +109,10 @@ define(
             };
         };
 
-        ToApprovalActionHandler.prototype = new BaseActionHandler();
-        ToProjectActionHandler.prototype = new BaseActionHandler();
-        ApproveActionHandler.prototype = new BaseActionHandler();
-        RejectActionHandler.prototype = new BaseActionHandler();
+        extend(ToApprovalActionHandler, BaseActionHandler);
+        extend(ToProjectActionHandler, BaseActionHandler);
+        extend(ApproveActionHandler, BaseActionHandler);
+        extend(RejectActionHandler, BaseActionHandler);
 
         var ActionHandler = function (communicator) {
             var ui_handlers = {};
