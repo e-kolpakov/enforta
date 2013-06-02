@@ -6,7 +6,8 @@ from django.core.urlresolvers import reverse
 from django.http.response import HttpResponse
 from django.shortcuts import render, HttpResponseRedirect, get_object_or_404
 from django.utils.decorators import method_decorator
-from django.views.generic import View, TemplateView, DetailView
+from django.views.generic import View, TemplateView, DetailView, ListView
+from django.views.generic.detail import SingleObjectMixin
 from django.contrib import messages
 
 from guardian.decorators import permission_required
@@ -15,7 +16,7 @@ from DocApproval.request_management.request_factory import RequestFactory
 
 from ..menu import RequestContextMenuManagerExtension, MenuModifierViewMixin
 from ..messages import CommonMessages, RequestMessages
-from ..models import Request, RequestStatus, Permissions
+from ..models import Request, RequestStatus, Permissions, ApprovalProcessAction
 from ..url_naming.names import Request as RequestUrl, Profile as ProfileUrl
 from ..forms import EditRequestForm, EditContractForm
 
@@ -211,6 +212,25 @@ class DetailRequestView(DetailView, MenuModifierViewMixin):
             'actions': self._get_actions(request.user, req),
             'actions_backend_url': reverse(RequestUrl.ACTIONS_BACKEND_JSON)
         })
+
+
+class RequestApprovalHistoryView(SingleObjectMixin, ListView, MenuModifierViewMixin):
+    paginate_by = 50
+    template_name = "request/request_approval_history.html"
+    _logger = logging.getLogger(__name__)
+    extender_class = RequestContextMenuManagerExtension
+
+    def get_context_data(self, **kwargs):
+        kwargs['request'] = self.object
+        return super(RequestApprovalHistoryView, self).get_context_data(**kwargs)
+
+    def get_queryset(self):
+        self.object = self.get_object(Request.objects.all())
+        return ApprovalProcessAction.objects.filter(process__route__request=self.object).order_by('action_taken')
+
+    def get(self, request, *args, **kwargs):
+        self._apply_extender(request, self.get_object(Request.objects.all()))
+        return super(RequestApprovalHistoryView, self).get(request, *args, **kwargs)
 
 
 class RequestListJson(JsonConfigurableDatatablesBaseView):

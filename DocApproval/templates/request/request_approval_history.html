@@ -1,0 +1,12 @@
+{% extends "base_layout.html" %}
+{% load i18n %}
+
+{% block page_title %}Approval history list{% endblock page_title %}
+
+{% block maincontent %}
+    {% for action in page_obj %}
+        <div>
+            {{ action }} -> {{ action.action_taken }}
+        </div>
+    {% endfor %}
+{% endblock maincontent %}

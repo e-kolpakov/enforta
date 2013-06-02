@@ -7,12 +7,20 @@ from ..utilities.datatables import JsonConfigurableDatatablesBaseView as JCDBV
 
 urlpatterns = patterns(
     '',
+    # json backends
     url(r"^list.json.config", request.RequestListJson.as_view(), {JCDBV.CONFIG_MARKER: True},
         name=request_names.LIST_JSON_CONF),
     url(r"^list.json", request.RequestListJson.as_view(), name=request_names.LIST_JSON),
     url(r"^actions.json", request.RequestActionsJson.as_view(), name=request_names.ACTIONS_BACKEND_JSON),
 
+    # single request pages
     url(r"^create", request.CreateRequestView.as_view(), name=request_names.CREATE),
+    url(r"^edit/(?P<pk>\d+)", request.UpdateRequestView.as_view(), name=request_names.UPDATE),
+    url(r"^details/(?P<pk>\d+)", request.DetailRequestView.as_view(), name=request_names.DETAILS),
+    url(r"^approval_history/(?P<pk>\d+)", request.RequestApprovalHistoryView.as_view(),
+        name=request_names.APPROVAL_HISTORY),
+
+    # active request list pages
     url(r"^list", ensure_csrf_cookie(request.ListRequestView.as_view()), name=request_names.LIST),
     url(r"^my_requests/", ensure_csrf_cookie(request.ListRequestView.as_view()),
         {request.ListRequestView.SHOW_ONLY_PARAM: request.ListRequestView.MY_REQUESTS},
@@ -20,9 +28,8 @@ urlpatterns = patterns(
     url(r"^my_approvals/", ensure_csrf_cookie(request.ListRequestView.as_view()),
         {request.ListRequestView.SHOW_ONLY_PARAM: request.ListRequestView.MY_APPROVALS},
         name=request_names.MY_APPROVALS),
-    url(r"^edit/(?P<pk>\d+)", request.UpdateRequestView.as_view(), name=request_names.UPDATE),
-    url(r"^details/(?P<pk>\d+)", request.DetailRequestView.as_view(), name=request_names.DETAILS),
 
+    # archive request list pages
     url(r"^archive/(?P<year>\d{4})/(?P<month>\d{2})", request.archive, name=request_names.ARCHIVE_MONTH),
     url(r"^archive/(?P<year>\d{4})", request.archive, name=request_names.ARCHIVE_YEAR),
     url(r"^archive/", request.archive, name=request_names.ARCHIVE),

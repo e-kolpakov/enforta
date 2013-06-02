@@ -32,6 +32,8 @@ class Request:
     LIST_JSON_CONF = "list_json_conf"
     ACTIONS_BACKEND_JSON = "actions"
 
+    APPROVAL_HISTORY = "approval_history"
+
     ARCHIVE = "archive"
     ARCHIVE_YEAR = "archive_year"
     ARCHIVE_MONTH = "archive_month"

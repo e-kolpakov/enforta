@@ -200,6 +200,8 @@ class MenuManagerExtensionBase(object):
     def __init__(self, request, *args, **kwargs):
         self._user = request.user
         self._target_menu_manager = request.menu_manager
+        self._children_to_add = []
+        self._root_item = None
         super(MenuManagerExtensionBase, self).__init__(*args, **kwargs)
 
     def check_user_permissions(self, class_permissions=None, instance_permissions=None, instance=None):
@@ -212,40 +214,48 @@ class MenuManagerExtensionBase(object):
 
         return result
 
+    def _accumulate_child(self, menu_item, order=0):
+        self._children_to_add.append((order, menu_item))
+
+    def _add_children_to_root(self):
+        self._children_to_add.sort(key=lambda item: item[0])
+        child_items = (item[1] for item in self._children_to_add)
+        self._root_item.add_children(child_items)
+
 
 class RequestContextMenuManagerExtension(MenuManagerExtensionBase):
     def extend(self, req):
         self._target_menu_manager.add_item(self._build_root_item(req), order=2)
 
     def _build_root_item(self, req):
-        root_item = None
-        child_items = []
         if self.check_user_permissions(
                 class_permissions=(Permissions.Request.CAN_VIEW_ALL_REQUESTS,),
                 instance_permissions=(Permissions.Request.CAN_VIEW_REQUEST,),
                 instance=req):
-            child_items.append(
+            self._accumulate_child(
                 NavigableMenuItem(caption=_(u"Профиль"), image='icons/profile.png',
-                                  url=reverse(url_names.Request.DETAILS, kwargs={'pk': req.pk}))
-            )
+                                  url=reverse(url_names.Request.DETAILS, kwargs={'pk': req.pk})), order=0)
+            self._accumulate_child(
+                NavigableMenuItem(caption=_(u"История утверждения"), image='icons/history.png',
+                                  url=reverse(url_names.Request.APPROVAL_HISTORY, kwargs={'pk': req.pk})), order=5)
         if self.check_user_permissions(
                 instance_permissions=(Permissions.Request.CAN_EDIT_REQUEST,),
                 instance=req):
-            child_items.append(
+            self._accumulate_child(
                 NavigableMenuItem(caption=_(u"Редактировать"), image='icons/edit.png',
-                                  url=reverse(url_names.Request.UPDATE, kwargs={'pk': req.pk}))
+                                  url=reverse(url_names.Request.UPDATE, kwargs={'pk': req.pk})), order=10
             )
         if self.check_user_permissions(
                 instance_permissions=(Permissions.Request.CAN_EDIT_ROUTE,),
                 instance=req):
-            child_items.append(
+            self._accumulate_child(
                 NavigableMenuItem(caption=_(u"Маршрут утверждения"), image='icons/approval_route.png',
-                                  url=reverse(url_names.ApprovalRoute.UPDATE, kwargs={'pk': req.approval_route.pk}))
-            )
-        if len(child_items) > 0:
-            root_item = HtmlMenuItem(caption=_(u"Заявка"))
-            root_item.add_children(child_items)
-        return root_item
+                                  url=reverse(url_names.ApprovalRoute.UPDATE,
+                                              kwargs={'pk': req.approval_route.pk})), order=20)
+            if len(self._children_to_add) > 0:
+                self._root_item = HtmlMenuItem(caption=_(u"Заявка"))
+                self._add_children_to_root()
+        return self._root_item
 
 
 def menu_context_processor(request):
