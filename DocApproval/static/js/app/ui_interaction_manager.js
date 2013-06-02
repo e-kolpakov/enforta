@@ -29,6 +29,7 @@ define(
                 var popup = instantiate_modal(eff_caption, question);
                 popup.set_buttons({
                     ok: function () {
+                        popup.dispose();
                         callback(true);
                     },
                     cancel: function () {
@@ -40,10 +41,10 @@ define(
             };
             this.input = function (caption, callback) {
                 var comment = prompt(caption);
-                return {
+                callback({
                     success: !!comment, // mnemonic boolean coercion
                     comment: comment
-                };
+                });
             };
             this.error = function (message) {
                 that.message(message, "Ошибка");
