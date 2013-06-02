@@ -1,7 +1,7 @@
 /*global define*/
 define(
-    ['app/modal_popup'],
-    function (modal_popup_module_exports) {
+    ['jquery', 'app/modal_popup'],
+    function ($, modal_popup_module_exports) {
         var BasicPopupClass = modal_popup_module_exports.basic_popup_class;
         var ApproveActionPopupClass = modal_popup_module_exports.approve_action_popup_class;
         var modal_buttons_config = modal_popup_module_exports.buttons_config;
@@ -44,15 +44,20 @@ define(
             };
             this.input = function (caption, callback) {
                 var popup = instantiate_modal(caption, "Комментарий", ApproveActionPopupClass);
+
+                function handle(success) {
+                    var data = popup.get_data();
+                    popup.dispose();
+                    callback($.extend({}, data, {success: success}));
+                }
+
                 popup.create_controls(false, {});
                 popup.set_buttons({
                     ok: function () {
-                        popup.dispose();
-                        callback(true);
+                        handle(true);
                     },
                     cancel: function () {
-                        popup.dispose();
-                        callback(false);
+                        handle(false);
                     }
                 });
                 popup.show();

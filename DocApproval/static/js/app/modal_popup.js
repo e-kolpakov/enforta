@@ -97,11 +97,12 @@ define(
                         make_elem("label").text(control.label).addClass('control-label')
                             .attr('for', control.id).appendTo(row);
                     }
-                    var input_ctrl = make_elem(control.type).attr('id', control.id);
+                    var ctrls = make_elem("div").addClass("controls").appendTo(row);
+                    var input_ctrl = make_elem(control.type).attr({id: control.id, rows: 10}).addClass('input-xlarge');
                     if (control.initial) {
                         input_ctrl.val(control.initial);
                     }
-                    row.append(input_ctrl);
+                    input_ctrl.appendTo(ctrls);
                     row.appendTo(form);
                 }
             }
@@ -121,6 +122,12 @@ define(
 
             ApproveActionPopup.prototype.set_label = function (label) {
                 this.comment_label = label;
+            };
+
+            ApproveActionPopup.prototype.get_data = function () {
+                return {
+                    comment: $('#action-reason', this.fragments.body).val()
+                };
             };
         }());
 

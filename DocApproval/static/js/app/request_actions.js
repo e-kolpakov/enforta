@@ -56,7 +56,7 @@ define(
                 var post_action = action_handler_result.post_action;
                 var parameters = action_handler_result.data;
 
-                if (post_action && false) {
+                if (post_action) {
                     var action_promise = communicator.post_action(action, request_id, parameters);
                     action_promise.done(function (response_data, textStatus, jqXHR) {
                         if (response_data.success) {
