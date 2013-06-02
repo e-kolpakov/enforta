@@ -1,7 +1,7 @@
 /*global define*/
 define(
-    ['jquery', 'bootstrap'],
-    function ($) {
+    ['jquery', 'extend', 'bootstrap'],
+    function ($, extend) {
         var button_types = {
             ok: {text: 'OK', cssClass: 'btn btn-primary', id: 'btn-ok'},
             save: {text: 'Сохранить', cssClass: 'btn btn-primary', id: 'btn-save'},
@@ -19,8 +19,9 @@ define(
         }
 
         function ModalPopup() {
-            var that = this;
+        }
 
+        ModalPopup.prototype = new function () {
             this.create_fragments = function () {
                 var result = {};
                 result.popup = make_elem("div").addClass("modal hide fade").attr({
@@ -41,46 +42,93 @@ define(
             this.set_buttons = function (buttons) {
                 var eff_buttons = buttons || {};
 
-                for (var btn in buttons) {
-                    if (!buttons.hasOwnProperty(btn) || !button_types.hasOwnProperty(btn)) continue;
-                    make_button(button_types[btn], that.fragments.footer, buttons[btn]);
+                for (var btn in eff_buttons) {
+                    if (!eff_buttons.hasOwnProperty(btn) || !button_types.hasOwnProperty(btn)) continue;
+                    make_button(button_types[btn], this.fragments.footer, buttons[btn]);
                 }
             };
 
             this.set_header = function (header) {
-                that.fragments.caption.empty();
-                that.fragments.caption.text(header);
+                this.fragments.caption.empty();
+                this.fragments.caption.text(header);
             };
 
-            this.set_content = function (message) {
-                that.fragments.body.empty();
-                that.fragments.body.text(message);
+            this.set_label = function (message) {
+                this.fragments.body.empty();
+                this.fragments.body.text(message);
             };
 
             this.show = function () {
-                that.fragments.popup.modal({
+                this.fragments.popup.modal({
                     backdrop: true,
                     keyboard: true
                 });
             };
 
             this.hide = function () {
-                that.fragments.popup.modal('hide');
+                this.fragments.popup.modal('hide');
             };
 
             this.dispose = function () {
-                that.hide();
-                that.fragments.popup.empty();
-                that.fragments.popup.remove();
-                delete that.fragments;
+                this.hide();
+                this.fragments.popup.empty();
+                this.fragments.popup.remove();
+                delete this.fragments;
             };
 
             this.fragments = this.create_fragments();
+        };
+
+        function ApproveActionPopup() {
+            this.fragments = this.create_fragments();
         }
+
+        extend(ApproveActionPopup, ModalPopup);
+        (function () {
+            function make_form() {
+                return make_elem('form').addClass('form-horizontal');
+            }
+
+            function make_form_rows(form, controls) {
+                for (var i = 0; i < controls.length; i++) {
+                    var row = make_elem('div').addClass('control-group');
+                    var control = controls[i];
+                    if (control.label) {
+                        make_elem("label").text(control.label).addClass('control-label')
+                            .attr('for', control.id).appendTo(row);
+                    }
+                    var input_ctrl = make_elem(control.type).attr('id', control.id);
+                    if (control.initial) {
+                        input_ctrl.val(control.initial);
+                    }
+                    row.append(input_ctrl);
+                    row.appendTo(form);
+                }
+            }
+
+            ApproveActionPopup.prototype.create_controls = function (with_on_behalf, on_behalf_list) {
+                var form = make_form();
+                var controls = [
+                    {
+                        type: 'textarea',
+                        id: 'action-reason',
+                        label: this.comment_label || "Комментарий"
+                    }
+                ];
+                make_form_rows(form, controls);
+                form.appendTo(this.fragments.body);
+            };
+
+            ApproveActionPopup.prototype.set_label = function (label) {
+                this.comment_label = label;
+            };
+        }());
 
         return {
             basic_popup_class: ModalPopup,
+            approve_action_popup_class: ApproveActionPopup,
             buttons_config: button_types
         };
     }
-);
+)
+;

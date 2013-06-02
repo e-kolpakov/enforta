@@ -3,6 +3,7 @@ define(
     ['app/modal_popup'],
     function (modal_popup_module_exports) {
         var BasicPopupClass = modal_popup_module_exports.basic_popup_class;
+        var ApproveActionPopupClass = modal_popup_module_exports.approve_action_popup_class;
         var modal_buttons_config = modal_popup_module_exports.buttons_config;
 
         function UIManager() {
@@ -11,8 +12,10 @@ define(
             function instantiate_modal(caption, message, dlg_class) {
                 var DialogClass = dlg_class || BasicPopupClass;
                 var popup = new DialogClass();
-                popup.set_content(message);
-                popup.set_header(caption);
+                if (message)
+                    popup.set_label(message);
+                if (caption)
+                    popup.set_header(caption);
                 return popup;
             }
 
@@ -40,11 +43,19 @@ define(
                 popup.show();
             };
             this.input = function (caption, callback) {
-                var comment = prompt(caption);
-                callback({
-                    success: !!comment, // mnemonic boolean coercion
-                    comment: comment
+                var popup = instantiate_modal(caption, "Комментарий", ApproveActionPopupClass);
+                popup.create_controls(false, {});
+                popup.set_buttons({
+                    ok: function () {
+                        popup.dispose();
+                        callback(true);
+                    },
+                    cancel: function () {
+                        popup.dispose();
+                        callback(false);
+                    }
                 });
+                popup.show();
             };
             this.error = function (message) {
                 that.message(message, "Ошибка");
