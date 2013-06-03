@@ -19,6 +19,7 @@ define(
         }
 
         function ModalPopup() {
+            this.fragments = this.create_fragments();
         }
 
         ModalPopup.prototype = new function () {
@@ -75,8 +76,6 @@ define(
                 this.fragments.popup.remove();
                 delete this.fragments;
             };
-
-            this.fragments = this.create_fragments();
         };
 
         function ApproveActionPopup() {
