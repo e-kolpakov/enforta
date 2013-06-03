@@ -19,13 +19,11 @@ define(
                 return row;
             },
 
-            make_header: function (target, headers, headers_order) {
+            make_header: function (target, columns) {
                 var header_row = this._create_header(target);
-                for (var i = 0; i < headers_order.length; i++) {
-                    var key = headers_order[i];
-                    if (!headers.hasOwnProperty(key))
-                        continue;
-                    $("<th></th>").text(headers[key]).appendTo(header_row);
+                for (var i = 0; i < columns.length; i++) {
+                    var column = columns[i];
+                    $("<th></th>").text(column.name).appendTo(header_row);
                 }
             },
 
@@ -41,15 +39,16 @@ define(
 
         var config_parser = function (options) {
             function get_column_config(data) {
-                var order = data.column_order;
-                var links = data.links;
+                var columns = data.columns;
                 var result = [];
-                for (var i = 0; i < order.length; i++) {
-                    var col = order[i];
-                    var column = {'mData': col, 'sName': col};
-                    if (links.hasOwnProperty(col)) {
-                        var link_spec = links[col];
-                        column['mRender'] = CustomColumnRenderersFactory.createEntityLinkRenderer(link_spec);
+                for (var i = 0; i < columns.length; i++) {
+                    var col = columns[i];
+                    var column = {'mData': col.column, 'sName': col.column};
+                    if (col.link_config) {
+                        column['mRender'] = CustomColumnRenderersFactory.createEntityLinkRenderer(col.link_config);
+                    }
+                    if (col.is_calculated) {
+                        column['bSortable'] = false;
                     }
                     result.push(column);
                 }
@@ -117,7 +116,7 @@ define(
 
             promise.done(function (datatables_config, textStatus, jqXHR) {
                 var config = parser.parse_config(datatables_config, datatables_options);
-                html_helper.make_header(self, config.columns, config.column_order);
+                html_helper.make_header(self, config.columns);
                 if (options.caption) {
                     html_helper.add_caption(self, options.caption);
                 }

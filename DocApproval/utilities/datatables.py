@@ -2,6 +2,24 @@ from django.core.exceptions import ImproperlyConfigured
 from django_datatables_view.base_datatable_view import BaseDatatableView
 
 
+class ColumnDefinition(object):
+    def __init__(self, column, name, is_calculated=False, link_config=None):
+        self.column = column
+        self.name = name
+        self.is_calculated = is_calculated
+        self.link_config = link_config
+
+    def to_dict(self):
+        result = {
+            'column': self.column,
+            'name': self.name,
+            'is_calculated': self.is_calculated
+        }
+        if self.link_config:
+            result['link_config'] = self.link_config
+        return result
+
+
 class JsonConfigurableDatatablesBaseView(BaseDatatableView):
     CONFIG_MARKER = 'config'
 
@@ -41,24 +59,30 @@ class JsonConfigurableDatatablesBaseView(BaseDatatableView):
             return super(JsonConfigurableDatatablesBaseView, self).get_context_data(self, *args, **kwargs)
 
     def get_columns_config(self):
-        columns = {}
+        columns = []
+        links_config = self.get_links_config()
         for field in self.get_model_fields():
             field_def = self.model._meta.get_field_by_name(field)[0]
             if field_def is None:
                 raise ImproperlyConfigured("Field {0} not found for model {1}".format(field, self.model.__class__.name))
-            columns[field] = field_def.verbose_name
+            col_def = ColumnDefinition(field, field_def.verbose_name, is_calculated=False,
+                                       link_config=links_config.get(field, None))
+            columns.append(col_def)
         for field, caption in self.get_calculated_fields().iteritems():
-            columns[field] = caption
-        return columns
+            col_def = ColumnDefinition(field, caption, is_calculated=True,
+                                       link_config=links_config.get(field, None))
+            columns.append(col_def)
+
+        column_order = self.get_order_columns()
+        columns.sort(key=lambda col: column_order.index(col.column))
+        return [col.to_dict() for col in columns]
 
     def get_links_config(self):
         return None
 
     def get_config(self, **kwargs):
         return {
-            'links': self.get_links_config(),
-            'columns': self.get_columns_config(),
-            'column_order': self.get_order_columns()
+            'columns': self.get_columns_config()
         }
 
     def prepare_results(self, qs):

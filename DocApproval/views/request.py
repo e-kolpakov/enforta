@@ -238,7 +238,7 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
     model = Request
     link_field = 'name'
     model_fields = ('name', 'city', 'status', 'creator', 'send_on_approval', 'created', 'accepted')
-    calculated_fields = {'current_approvers': RequestMessages.CURRENT_REVIEVERS, }
+    # calculated_fields = {'current_approvers': RequestMessages.CURRENT_REVIEVERS, }
 
     def get_links_config(self):
         return {
@@ -283,7 +283,7 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
             'accepted': accepted,
             'send_on_approval_pk': item.send_on_approval.pk,
             'creator_pk': item.creator.pk,
-            'current_approvers': [profile.get_short_name() for profile in item.approval_route.get_current_reviewers()]
+            # 'current_approvers': [profile.get_short_name() for profile in item.get_current_approvers()]
         }
 
 

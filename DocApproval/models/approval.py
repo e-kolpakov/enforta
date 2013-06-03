@@ -114,7 +114,7 @@ class ApprovalRoute(models.Model):
     def get_steps_count(self):
         return self.steps.all().aggregate(models.Max('step_number')).get('step_number__max')
 
-    def get_current_reviewers(self):
+    def get_current_approvers(self):
         try:
             active_step_number = self.processes.get(is_current=True).current_step_number
         except ApprovalProcess.DoesNotExist:

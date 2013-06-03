@@ -150,8 +150,11 @@ class Request(models.Model):
     def get_initiator(self):
         return self.creator
 
-    def get_approvers(self):
-        return (step.approver for step in self.approval_route.steps)
+    def get_current_approvers(self):
+        if self.status.code == RequestStatus.NEGOTIATION:
+            return self.approval_route.get_current_approvers()
+        else:
+            return []
 
 
 @receiver(final_approve_signal, sender=ApprovalProcess)
