@@ -1,0 +1,20 @@
+{% load i18n %}
+<div class="pagination">
+    <ul>
+        <li class='prev {% if not page_data.has_previous %}disabled{% endif %}'>
+            <a href="{% if page_data.has_previous %}?page={{ page_data.previous_page_number }}{% else %}#{% endif %}">
+                {% trans "Пред." %}
+            </a>
+        </li>
+        {% for page_number in paginator.page_range %}
+            <li {% if page_number == page_data.number %}class='active'{% endif %}>
+                <a href="?page={{ page_number }}">{{ page_number }}</a>
+            </li>
+        {% endfor %}
+        <li class='next {% if not page_data.has_next %}disabled{% endif %}'>
+            <a href="{% if page_data.has_next %}?page={{ page_data.next_page_number }}{% else %}#{% endif %}">
+                {% trans "След." %}
+            </a>
+        </li>
+    </ul>
+</div>
