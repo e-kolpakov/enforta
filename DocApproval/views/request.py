@@ -225,12 +225,12 @@ class RequestApprovalHistoryView(SingleObjectMixin, ListView, MenuModifierViewMi
         return super(RequestApprovalHistoryView, self).get_context_data(**kwargs)
 
     def get_queryset(self):
-        self.object = self.get_object(Request.objects.all())
         return ApprovalProcessAction.objects.filter(process__route__request=self.object) \
             .select_related('process').order_by('action_taken')
 
     def get(self, request, *args, **kwargs):
-        self._apply_extender(request, self.get_object(Request.objects.all()))
+        self.object = self.get_object(Request.objects.all())
+        self._apply_extender(request, self.object)
         return super(RequestApprovalHistoryView, self).get(request, *args, **kwargs)
 
 

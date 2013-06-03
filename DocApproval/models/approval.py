@@ -199,6 +199,12 @@ class ApprovalProcessAction(models.Model):
     class Meta:
         app_label = "DocApproval"
 
+    def get_action_display_past_form(self):
+        return {
+            self.ACTION_APPROVE: _(u"Утверждена"),
+            self.ACTION_REJECT: _(u"Отклонена")
+        }.get(self.action, _(u"Действие неизвестно"))
+
 
 approve_signal = Signal(providing_args=(['request_pk', 'user_pk']))
 final_approve_signal = Signal(providing_args=(['request_pk', 'user_pk']))
