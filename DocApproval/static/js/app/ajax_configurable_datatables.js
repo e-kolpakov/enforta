@@ -1,6 +1,9 @@
 /*globals define*/
 define(
-    ['jquery', 'app/ajax_communicator', 'datatables/jquery.dataTables'],
+    [
+        'jquery', 'app/ajax_communicator',
+        'datatables/jquery.dataTables', 'datatables/dt_bootstrap', 'datatables/datatables-ru'
+    ],
     function ($, Communicator) {
 
         var html_helper = {
@@ -73,7 +76,8 @@ define(
                 parse_config: function (datables_config, datatables_options) {
                     var new_options = {
                         sAjaxSource: options.data_url,
-                        aoColumns: get_column_config(datables_config)
+                        aoColumns: get_column_config(datables_config),
+                        aLengthMenu: [5, 10, 25, 50, 100]
                     };
                     if (options.extra_server_params) {
                         var extra_params = transform_extra_params(options.extra_server_params);
