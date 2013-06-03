@@ -196,7 +196,7 @@ class DetailRequestView(DetailView, MenuModifierViewMixin):
 
     def get(self, request, *args, **kwargs):
         pk = kwargs.get(self.pk_url_kwarg, None)
-        exclude_fields = ['id', 'contract']
+        exclude_fields = ['id', 'contract', 'approval_route']
         req = get_object_or_404(Request, pk=pk)
         self._apply_extender(request, req)
 
