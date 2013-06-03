@@ -161,6 +161,7 @@ def final_approve_handler(sender, **kwargs):
         request = Request.objects.get(pk=request_id)
         _logger.info("Handling final approve on request {0}", request)
         request.status = RequestStatus.objects.get(code=RequestStatus.NEGOTIATED_NO_PAYMENT)
+        request.accepted = datetime.datetime.now()
         request.save()
     except Request.DoesNotExist:
         _logger.warning("Final approve signal emitted with non-existing request parameter")
