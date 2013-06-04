@@ -33,6 +33,7 @@ class Request:
     ACTIONS_BACKEND_JSON = "actions"
 
     APPROVAL_HISTORY = "approval_history"
+    APPROVAL_SHEET = "approval_sheet"
 
     ARCHIVE = "archive"
     ARCHIVE_YEAR = "archive_year"

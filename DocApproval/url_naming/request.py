@@ -19,6 +19,8 @@ urlpatterns = patterns(
     url(r"^details/(?P<pk>\d+)", request.DetailRequestView.as_view(), name=request_names.DETAILS),
     url(r"^approval_history/(?P<pk>\d+)", request.RequestApprovalHistoryView.as_view(),
         name=request_names.APPROVAL_HISTORY),
+    url(r"^approval_sheet/(?P<pk>\d+)", request.RequestApprovalSheetView.as_view(),
+        name=request_names.APPROVAL_SHEET),
 
     # active request list pages
     url(r"^list", ensure_csrf_cookie(request.ListRequestView.as_view()), name=request_names.LIST),

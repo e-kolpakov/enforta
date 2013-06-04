@@ -234,6 +234,11 @@ class RequestApprovalHistoryView(SingleObjectMixin, ListView, MenuModifierViewMi
         return super(RequestApprovalHistoryView, self).get(request, *args, **kwargs)
 
 
+class RequestApprovalSheetView(DetailView):
+    template_name = "request/request_approval_sheet.html"
+    model = Request
+
+
 class RequestListJson(JsonConfigurableDatatablesBaseView):
     model = Request
     link_field = 'name'

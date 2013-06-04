@@ -156,6 +156,11 @@ class Request(models.Model):
         else:
             return []
 
+    def is_approved(self):
+        return self.status.code in (
+            RequestStatus.NEGOTIATED_NO_PAYMENT, RequestStatus.ACTIVE, RequestStatus.BILL_REQUIRED,
+            RequestStatus.OUTDATED)
+
 
 @receiver(final_approve_signal, sender=ApprovalProcess)
 def final_approve_handler(sender, **kwargs):
