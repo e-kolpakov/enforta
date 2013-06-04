@@ -1,0 +1,12 @@
+@import-once "../variables";
+@import-once "../mixins";
+
+table.table {
+  tr.no-data {
+    td {
+      text-align: center;
+      #fonts > .empty-data-row;
+    }
+    border-bottom: 1px solid @default-border-color;
+  }
+}

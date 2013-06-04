@@ -42,6 +42,11 @@
     @color: #f33;
     .define(@size, @color, @family, @weight);
   }
+
+  .empty-data-row() {
+    @size: 14px;
+    .define(@size, @color, @family, @weight);
+  }
 }
 
 .rounded-borders-mixin(@radius: 5px) {

@@ -11,6 +11,7 @@
             <th>Действие</th>
             <th>Дата</th>
             <th>Пользователь</th>
+            <th>Комментарий</th>
         </tr>
         {% for action in page_obj %}
             <tr>
@@ -18,7 +19,11 @@
                 <td>{{ action.get_action_display_past_form }}</td>
                 <td>{{ action.action_taken }}</td>
                 <td>{{ action.actor }}</td>
+                <td>{{ action.comment|linebreaksbr }}</td>
             </tr>
+        {% empty %}
+            <tr class='no-data'>
+            <td colspan="5">{% trans "Нет данных" %}</td>
         {% endfor %}
     </table>
     {% include "common/_paginator.html" with page_data=page_obj %}
