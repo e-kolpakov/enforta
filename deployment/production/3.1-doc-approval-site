@@ -9,7 +9,7 @@
 
 	Alias /static 		/home/enfortit/docapproval/portal/static
 
-	LogLevel warning
+	LogLevel warn
 	ErrorLog ${APACHE_LOG_DIR}/docapproval.error.log
 	CustomLog ${APACHE_LOG_DIR}/docapproval.access.log combined
 	ServerSignature On
