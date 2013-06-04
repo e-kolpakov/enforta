@@ -2,6 +2,19 @@
 {% load i18n %}
 {% load static from staticfiles %}
 
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript" language="JavaScript">
+        var page_data = {
+            target: 'div.edit-form',
+            error_popup_selector: "div.field_errors_list",
+            field_errors_selector: '.field_errors'
+        }
+    </script>
+{% endblock scripts %}
+
+{% block data_start %}pages/edit_form{% endblock %}
+
 {% block maincontent %}
     <h3>{% trans form_heading %}</h3>
     <form action="{{ action }}" method="post"
@@ -22,17 +35,3 @@
         </div>
     </form>
 {% endblock %}
-
-{% block scripts_for_execution %}
-    {{ block.super }}
-    <script type='text/javascript' language="JavaScript">
-        require(['jquery', 'app/forms'], function ($) {
-            $(function () {
-                $('div.edit-form').error_handling_form({
-                    error_popup_selector: "div.field_errors_list",
-                    field_errors_selector: '.field_errors'
-                });
-            });
-        })
-    </script>
-{% endblock scripts_for_execution %}
