@@ -3,14 +3,16 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <title>
         {% block maintitle %}{% trans "Утверждение документов" %}{% endblock maintitle %}
         {% block subtitle %}{% endblock subtitle %}
     </title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}css/print.css"/>
 </head>
 <body>
-Лист утверждения
+<div class='page'>
+    Лист утверждения {{ request_name }}
+</div>
 </body>
 </html>

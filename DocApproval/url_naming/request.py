@@ -2,7 +2,7 @@ from django.conf.urls import patterns, url
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from names import Request as request_names
-from ..views import ( request)
+from ..views import request, approval_list
 from ..utilities.datatables import JsonConfigurableDatatablesBaseView as JCDBV
 
 urlpatterns = patterns(
@@ -19,7 +19,8 @@ urlpatterns = patterns(
     url(r"^details/(?P<pk>\d+)", request.DetailRequestView.as_view(), name=request_names.DETAILS),
     url(r"^approval_history/(?P<pk>\d+)", request.RequestApprovalHistoryView.as_view(),
         name=request_names.APPROVAL_HISTORY),
-    url(r"^approval_sheet/(?P<pk>\d+)", request.RequestApprovalSheetView.as_view(),
+
+    url(r"^approval_sheet/(?P<pk>\d+)", approval_list.ApprovalListPrint.as_view(), {'as_html': False},
         name=request_names.APPROVAL_SHEET),
 
     # active request list pages
