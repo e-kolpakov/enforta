@@ -47,6 +47,37 @@
     @size: 14px;
     .define(@size, @color, @family, @weight);
   }
+
+  #approval-list {
+    @family: "Times New Roman";
+    @size: @ordinary-font-size;
+    .base-font() {
+      .define(@size, @color, @family, @weight);
+    }
+
+    .table-font() {
+      @size: @table-font-size;
+      .define(@size, @color, @family, @weight);
+    }
+
+    .heading() {
+      .define(@size, @color, @family, @weight);
+      font-style: italic;
+    }
+
+    .title() {
+      @weight: bold;
+      @size: @title-font-size;
+      .define(@size, @color, @family, @weight);
+      text-align: center;
+      -pdf-keep-with-next: false;
+    }
+
+    .table-label() {
+      @weight: bold;
+      .define(@size, @color, @family, @weight);
+    }
+  }
 }
 
 .rounded-borders-mixin(@radius: 5px) {

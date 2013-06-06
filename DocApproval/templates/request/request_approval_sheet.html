@@ -12,7 +12,22 @@
 </head>
 <body class="{{ media }}">
 <div class='page'>
-    Лист утверждения {{ request_name }}
+    <p class='doc-heading'>
+        Приложение №1<br/>
+        к Положению о договорной работе<br/>
+        от {{ request.created|date:"«d» E Yг." }}
+    </p>
+
+    <p class='doc-title'>Лист согласования</p>
+    <table class='main-table'>
+        {% for row in rows %}
+            <tr class='{{ row.css_class }}'>
+                {% for cell in row.cells %}
+                    <td class='{{ cell.css_class }}'>{{ cell.content }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
 </div>
 </body>
 </html>

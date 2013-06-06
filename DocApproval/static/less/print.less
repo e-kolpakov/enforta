@@ -3,26 +3,118 @@
 
 /* Font declararions */
 @font-face {
-  font-family: "Times New Roman Cyr";
-  src: url(../fonts/Times-New-Roman-Cyr-Regular.ttf);
+  font-family: "Times New Roman";
+  src: url(../fonts/Times_New_Roman.ttf);
+}
+
+@font-face {
+  font-family: "Times New Roman";
+  src: url(../fonts/Times_New_Roman_Italic.ttf);
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Times New Roman";
+  src: url(../fonts/Times_New_Roman_Bold.ttf);
+  font-weight: bold;
 }
 
 /* End Font declarations */
+@page {
+  size: a4 portrait;
+  margin: @page-margin-top @page-margin-right @page-margin-bottom @page-margin-left;
+}
 
 body {
   margin: 0;
   padding: 0;
 
   div.page {
+    #fonts > #approval-list > .base-font;
 
-    font-family: "Times New Roman Cyr";
-    width: 210mm;
-    height: 265mm;
+    p {
+      margin: 0;
+      &.doc-heading {
+        text-align: right;
+        #fonts > #approval-list > .heading;
+        margin-right: 1cm;
+      }
+      &.doc-title {
+        margin-top: 12pt;
+        #fonts > #approval-list > .title;
+      }
+    }
+
+    table.main-table {
+      border-collapse: collapse;
+      width: 100%;
+      #fonts > #approval-list > .table-font;
+      tr {
+        &.row-height1 {
+          height: 1*@approval-list-row-line-height;
+        }
+
+        &.row-height2 {
+          height: 2*@approval-list-row-line-height;
+        }
+
+        &.row-height3 {
+          height: 3*@approval-list-row-line-height;
+        }
+
+        td {
+          border: 1px solid black;
+          padding: 0 2mm;
+          line-height: @title-font-size + 2;
+          vertical-align: bottom;
+
+          &.cell1 {
+            width: @approval-list-cell1;
+            #fonts > #approval-list > .table-label;
+          }
+          &.cell2 {
+            width: @approval-list-cell2;
+          }
+          &.cell3 {
+            width: @approval-list-cell3;
+            text-align: center;
+          }
+          &.cell4 {
+            width: @approval-list-cell4;
+            #fonts > #approval-list > .table-label;
+            text-align: right;
+          }
+          &.cell5 {
+            width: @approval-list-cell5;
+          }
+          &.cell6 {
+            width: @approval-list-cell6;
+          }
+
+          &.cell1-colspan2 {
+            width: @approval-list-cell1 + @approval-list-cell2;
+            #fonts > #approval-list > .table-label;
+          }
+
+          &.cell4-colspan2 {
+            width: @approval-list-cell4 + @approval-list-cell5;
+            #fonts > #approval-list > .table-label;
+          }
+
+          &.cell1-colspan3 {
+            width: @approval-list-cell1 + @approval-list-cell2 + @approval-list-cell3;
+          }
+        }
+      }
+    }
   }
 }
 
 body.screen {
   div.page {
-    margin: 20mm 15mm 12mm 30mm;
+    padding: @page-margin-top @page-margin-right @page-margin-bottom @page-margin-left;
+    width: 210mm;
+    height: 297mm;
+    box-sizing: border-box;
   }
 }
