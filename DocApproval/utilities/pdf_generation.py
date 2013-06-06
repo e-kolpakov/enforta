@@ -22,6 +22,7 @@ class PdfView(View):
     )
 
     def _get_html(self, payload, context=None):
+        payload.update({'media': self._media})
         return render_to_string(self.pdf_template, payload, context_instance=context)
 
     def _get_pdf(self, markup):
@@ -40,8 +41,10 @@ class PdfView(View):
         return uri
 
     def get(self, request, *args, **kwargs):
+        as_html = kwargs.get('as_html', False)
+        self._media = 'screen' if as_html else 'print'
         markup = self._get_html(self._get_payload(*args, **kwargs), RequestContext(request))
-        if kwargs.get('as_html', False):
+        if as_html:
             return HttpResponse(markup)
         else:
             pdf_success, pdf_file = self._get_pdf(markup)
