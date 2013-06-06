@@ -72,3 +72,21 @@ LOGGING = {
         }
     }
 }
+
+
+class InvalidVarException(object):
+    def __mod__(self, missing):
+        try:
+            missing_str = unicode(missing)
+        except:
+            missing_str = 'Failed to create string representation'
+        raise Exception('Unknown template variable %r %s' % (missing, missing_str))
+
+    def __contains__(self, search):
+        if search == '%s':
+            return True
+        return False
+
+
+TEMPLATE_DEBUG = True
+TEMPLATE_STRING_IF_INVALID = InvalidVarException()
