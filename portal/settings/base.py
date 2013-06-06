@@ -192,6 +192,11 @@ LOGGING = {
             'level': 'WARNING',
             'propagate': False
         },
+        'weasyprint': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
         'DocApproval': {
             'handlers': ['file'],
             'level': 'INFO',

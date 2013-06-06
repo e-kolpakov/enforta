@@ -1,5 +1,6 @@
 #-*- coding: utf-8 -*-
 import StringIO
+import logging
 
 from django.utils import html
 from django.conf import settings
@@ -8,7 +9,7 @@ from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.views.generic import View
 
-from weasyprint import HTML
+from weasyprint import HTML, CSS
 
 
 class PdfView(View):
@@ -25,12 +26,21 @@ class PdfView(View):
         return render_to_string(self.pdf_template, payload, context_instance=context)
 
     def _get_pdf(self, markup, base_url):
+        logger = logging.getLogger(__name__)
+
         pdf_file = StringIO.StringIO()
-        HTML(
+        logger.critical("Creating weasy")
+        weasy = HTML(
             file_obj=StringIO.StringIO(markup.encode("UTF-8")),
             encoding='UTF-8',
             base_url=base_url
-        ).write_pdf(target=pdf_file)
+        )
+        logger.critical("Starting pdf generation")
+        document = weasy.render(
+            stylesheets=[CSS(file_obj=open("/home/john/GitRoot/Enforta/enforta/DocApproval/static/css/print.css"))])
+        logger.critical("PDF generated, writing results")
+        document.write_pdf(pdf_file)
+        logger.critical("Results stored, returning")
         return pdf_file.getvalue()
 
     def _get_payload(self, *args, **kwargs):
