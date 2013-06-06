@@ -127,7 +127,7 @@ FILE_UPLOAD_HANDLERS = (
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = 'common.home_page' # we want to land on index after login
 LOGIN_REQUIRED_URLS = (".*",)
-LOGIN_REQUIRED_URLS_EXCEPTIONS = (LOGIN_URL, "/admin", STATIC_URL, MEDIA_URL)
+LOGIN_REQUIRED_URLS_EXCEPTIONS = (LOGIN_URL, "/admin", STATIC_URL, MEDIA_URL, '/requests/approval_sheet/42')
 
 ROOT_URLCONF = 'portal.urls'
 

@@ -23,7 +23,7 @@
         {% for row in rows %}
             <tr class='{{ row.css_class }}'>
                 {% for cell in row.cells %}
-                    <td class='{{ cell.css_class }}'>{{ cell.content }}</td>
+                    <td colspan="{{ cell.colspan }}" class='{{ cell.css_class }}'>{{ cell.content }}</td>
                 {% endfor %}
             </tr>
         {% endfor %}

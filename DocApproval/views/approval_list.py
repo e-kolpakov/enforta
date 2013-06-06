@@ -85,7 +85,7 @@ class ApprovalListPrint(PdfView, SingleObjectMixin):
             ApprovalListRow.get_row(6, cell_contents={1: u"Комментарии"}),
             ApprovalListRow.get_row(6),
             ApprovalListRow.get_row(6),
-            # ApprovalListRow.get_row(4, height=2, cell_contents={2: date_tpl, 4:date_tpl}),
+            ApprovalListRow.get_row(4, height=2, cell_contents={2: date_tpl, 4: date_tpl}),
         )
 
     def _get_payload(self, *args, **kwargs):

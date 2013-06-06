@@ -1,6 +1,5 @@
 #-*- coding: utf-8 -*-
 import StringIO
-import os
 
 from django.utils import html
 from django.conf import settings
@@ -9,7 +8,7 @@ from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.views.generic import View
 
-from sx.pisa3 import pisa
+from weasyprint import HTML
 
 
 class PdfView(View):
@@ -25,20 +24,17 @@ class PdfView(View):
         payload.update({'media': self._media})
         return render_to_string(self.pdf_template, payload, context_instance=context)
 
-    def _get_pdf(self, markup):
+    def _get_pdf(self, markup, base_url):
         pdf_file = StringIO.StringIO()
-        pdf = pisa.pisaDocument(markup.encode("UTF-8"), pdf_file,
-                                link_callback=self._fetch_resources)
-        return not pdf.err, pdf_file.getvalue()
+        HTML(
+            file_obj=StringIO.StringIO(markup.encode("UTF-8")),
+            encoding='UTF-8',
+            base_url=base_url
+        ).write_pdf(target=pdf_file)
+        return pdf_file.getvalue()
 
     def _get_payload(self, *args, **kwargs):
         raise NotImplementedError("Must be overridden in children")
-
-    def _fetch_resources(self, uri, rel):
-        for old_val, new_val in self._resource_replacements:
-            if old_val in uri:
-                uri = os.path.join(new_val, uri.replace(old_val, ""))
-        return uri
 
     def get(self, request, *args, **kwargs):
         as_html = kwargs.get('as_html', False)
@@ -47,11 +43,10 @@ class PdfView(View):
         if as_html:
             return HttpResponse(markup)
         else:
-            pdf_success, pdf_file = self._get_pdf(markup)
-            if pdf_success:
+            try:
+                pdf_file = self._get_pdf(markup, request.build_absolute_uri('/'))
                 response = HttpResponse(pdf_file, mimetype='application/pdf')
                 response['Content-Disposition'] = 'attachment; filename=list.pdf'
-
-            else:
-                response = HttpResponse("Error generating PDF" + html.escape(markup))
+            except Exception as e:
+                response = HttpResponse(u"Error generating PDF: {0}<br/><br/>{1}".format(e, html.escape(markup)))
             return response
