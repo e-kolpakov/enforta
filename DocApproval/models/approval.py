@@ -129,6 +129,9 @@ class ApprovalRoute(models.Model):
                 "Tried to get current approval process for route {0} no current approval process exist".format(self))
             return None
 
+    def get_successful_process(self):
+        return self.processes.get(is_successful=True)
+
 
 class ApprovalRouteStep(models.Model):
     DIRECT_MANAGER_PLACEHOLDER = '{manager}'
@@ -165,6 +168,8 @@ class ApprovalProcess(models.Model):
             self.current_step_number += 1
             self.save()
         else:
+            self.is_successful = True
+            self.save()
             _logger.info(LoggerMessages.REQUEST_APPROVED.format(user_profile, self.route.request, approver))
             final_approve_signal.send(ApprovalProcess, request_pk=self.route.request.pk, user_pk=user_profile.pk)
 
