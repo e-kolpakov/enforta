@@ -161,6 +161,12 @@ class Request(models.Model):
             RequestStatus.NEGOTIATED_NO_PAYMENT, RequestStatus.ACTIVE, RequestStatus.BILL_REQUIRED,
             RequestStatus.OUTDATED)
 
+    def get_successful_approval(self):
+        if not self.is_approved():
+            return None
+
+        return self.approval_route.get_successful_process().get_approval_actions()
+
 
 @receiver(final_approve_signal, sender=ApprovalProcess)
 def final_approve_handler(sender, **kwargs):

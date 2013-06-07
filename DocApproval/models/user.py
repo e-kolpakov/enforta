@@ -9,10 +9,11 @@ from django.utils.translation import ugettext as _
 from .common import City, Position, ModelConstants, Permissions
 from DocApproval.url_naming.names import Profile as ProfileUrls
 
+
 class UserProfile(models.Model):
     def upload_to(self, filename):
         fname, fext = os.path.splitext(filename)
-        return u'signs/{0}/sign.{1}'.format(self.pk, fext)
+        return u'signs/{0}/sign{1}'.format(self.pk, fext)
 
     user = models.OneToOneField(User, primary_key=True, verbose_name=_(u'Учетная запись'), related_name='profile')
     last_name = models.CharField(_(u'Фамилия'), max_length=ModelConstants.MAX_NAME_LENGTH)

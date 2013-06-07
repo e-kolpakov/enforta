@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import itertools
 from django.utils.safestring import mark_safe
-
+from django.template.defaultfilters import date as _date
 from django.views.generic.detail import SingleObjectMixin
+
 from DocApproval.models.request import Request
 from DocApproval.utilities.pdf_generation import PdfView
 
@@ -82,7 +83,9 @@ class ApprovalListPrint(PdfView, SingleObjectMixin):
     model = Request
     pdf_template = "request/request_approval_sheet.html"
 
-    date_tpl = u'"___"__________201_г.'
+    date_format = "«d» E Yг."
+
+    date_tpl = u'«___»__________201_г.'
     signature = u"подпись"
 
     departments = (
@@ -92,16 +95,26 @@ class ApprovalListPrint(PdfView, SingleObjectMixin):
         u"Юридический отдел",
     )
 
-    def _get_departments(self):
-        return self.departments
+    def _make_signature_img(self, url):
+        return mark_safe("<img src='{0}' class='signature'/>".format(url))
 
-    def _get_approver_rows(self, approver):
+    def _get_approver_rows(self, approval):
+        user = approval.step.approver
         return (
-            ApprovalListRow.get_row(ApprovalListRow.THREE_CELL_ROW1,
-                                    cell_contents={1: u"Согласовано: {0}".format(approver), 3: self.date_tpl}),
+            ApprovalListRow.get_row(
+                ApprovalListRow.THREE_CELL_ROW1,
+                cell_contents={
+                    1: u"Согласовано: {0}".format(user.get_full_name()),
+                    2: self._make_signature_img(user.sign.url),
+                    3: _date(approval.action_taken, self.date_format)
+                }
+            ),
             ApprovalListRow.get_row(ApprovalListRow.THREE_CELL_ROW2,
                                     cell_contents={1: u"Фамилия И.О. ", 2: self.signature}),
         )
+
+    def _get_departments(self):
+        return self.departments
 
     def _get_department_rows(self, department):
         return (
@@ -145,7 +158,8 @@ class ApprovalListPrint(PdfView, SingleObjectMixin):
                                     cell_contents={1: u"Подпись инициатора", 3: u"Подпись руководителя дирекции"}),
         )
 
-        app_part = itertools.chain.from_iterable([self._get_approver_rows(i) for i in range(3)])
+        app_part = itertools.chain.from_iterable(
+            [self._get_approver_rows(approver) for approver in request.get_successful_approval()])
         last_part = itertools.chain.from_iterable(self._get_department_rows(dep) for dep in self._get_departments())
 
         return itertools.chain(first_part, app_part, last_part)
@@ -154,5 +168,6 @@ class ApprovalListPrint(PdfView, SingleObjectMixin):
         req = self.get_object()
         return {
             'request': req,
-            'rows': self._get_rows(req)
+            'rows': self._get_rows(req),
+            'date_format': self.date_format
         }

@@ -154,7 +154,7 @@ class ApprovalProcess(models.Model):
     route = models.ForeignKey(ApprovalRoute, verbose_name=_(u"Маршрут"), related_name='processes')
     attempt_number = models.IntegerField(_(u"Попытка утверждения №"))
     is_current = models.BooleanField(_(u"Текущий процесс"))
-    is_successful = models.BooleanField(_(u"Завершился успешно"), default=False),
+    is_successful = models.BooleanField(_(u"Завершился успешно"), default=False)
     current_step_number = models.IntegerField(verbose_name=_(u"Текущий шаг"), default=STARTING_STEP_NUMBER, null=False)
 
     class Meta:
@@ -185,6 +185,9 @@ class ApprovalProcess(models.Model):
 
         ApprovalProcessAction.objects.create(process=self, step=step, action=action_code, comment=comment,
                                              actor=user_profile)
+
+    def get_approval_actions(self):
+        return self.actions.all().select_related('step__approver__profile')
 
 
 class ApprovalProcessAction(models.Model):
