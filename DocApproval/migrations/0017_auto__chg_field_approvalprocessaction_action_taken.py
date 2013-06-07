@@ -5,11 +5,21 @@ from south.v2 import SchemaMigration
 
 class Migration(SchemaMigration):
     def forwards(self, orm):
+        # Adding field 'ApprovalProcess.is_successful'
+        db.add_column(u'DocApproval_approvalprocess', 'is_successful',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
+                      keep_default=False)
+
+
         # Changing field 'ApprovalProcessAction.action_taken'
         db.alter_column(u'DocApproval_approvalprocessaction', 'action_taken',
                         self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True))
 
     def backwards(self, orm):
+        # Deleting field 'ApprovalProcess.is_successful'
+        db.delete_column(u'DocApproval_approvalprocess', 'is_successful')
+
+
         # Changing field 'ApprovalProcessAction.action_taken'
         db.alter_column(u'DocApproval_approvalprocessaction', 'action_taken',
                         self.gf('django.db.models.fields.DateTimeField')())
@@ -21,6 +31,7 @@ class Migration(SchemaMigration):
             'current_step_number': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_current': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'is_successful': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'route': ('django.db.models.fields.related.ForeignKey', [],
                       {'related_name': "'processes'", 'to': "orm['DocApproval.ApprovalRoute']"})
         },
