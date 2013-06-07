@@ -6,6 +6,10 @@
   margin: @page-margin-top @page-margin-right @page-margin-bottom @page-margin-left;
 }
 
+.center {
+  text-align: center;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -28,62 +32,69 @@ body {
 
     table.main-table {
       border-collapse: collapse;
-      width: 100%;
+      width: @approval-list-cell1 + @approval-list-cell2 + @approval-list-cell3 + @approval-list-cell4 + @approval-list-cell5 + @approval-list-cell6;
       #fonts > #approval-list > .table-font;
       tr {
         &.row-height1 {
           height: 1*@approval-list-row-line-height;
+          td {
+            height: 1*@approval-list-row-line-height;
+          }
         }
-
         &.row-height2 {
           height: 2*@approval-list-row-line-height;
+          td {
+            height: 2*@approval-list-row-line-height;
+          }
         }
-
         &.row-height3 {
           height: 3*@approval-list-row-line-height;
+          td {
+            height: 3*@approval-list-row-line-height;
+          }
         }
 
         td {
-          border: 1px solid black;
-          padding: 0 2mm;
-          line-height: @title-font-size + 2;
-          vertical-align: bottom;
+          border: 0.5pt solid black;
+          padding: @approval-list-cell-vertical-padding @approval-list-cell-horizontal-padding;
 
           &.cell1 {
-            width: @approval-list-cell1;
+            width: @approval-list-cell1 - 2 * @approval-list-cell-horizontal-padding;
             #fonts > #approval-list > .table-label;
           }
           &.cell2 {
-            width: @approval-list-cell2;
+            width: @approval-list-cell2 - 2 * @approval-list-cell-horizontal-padding;
           }
           &.cell3 {
-            width: @approval-list-cell3;
+            width: @approval-list-cell3 - 2 * @approval-list-cell-horizontal-padding;
             text-align: center;
           }
           &.cell4 {
-            width: @approval-list-cell4;
+            width: @approval-list-cell4 - 2 * @approval-list-cell-horizontal-padding;
             #fonts > #approval-list > .table-label;
             text-align: right;
           }
           &.cell5 {
-            width: @approval-list-cell5;
+            width: @approval-list-cell5 - 2 * @approval-list-cell-horizontal-padding;
           }
           &.cell6 {
-            width: @approval-list-cell6;
+            width: @approval-list-cell6 - 2 * @approval-list-cell-horizontal-padding;
           }
 
           &.cell1-colspan2 {
-            width: @approval-list-cell1 + @approval-list-cell2;
-            #fonts > #approval-list > .table-label;
+            width: @approval-list-cell1 + @approval-list-cell2 - 2 * @approval-list-cell-horizontal-padding;
           }
 
           &.cell4-colspan2 {
-            width: @approval-list-cell4 + @approval-list-cell5;
-            #fonts > #approval-list > .table-label;
+            width: @approval-list-cell4 + @approval-list-cell5 - 2 * @approval-list-cell-horizontal-padding;
+            text-align: center;
           }
 
           &.cell1-colspan3 {
-            width: @approval-list-cell1 + @approval-list-cell2 + @approval-list-cell3;
+            width: @approval-list-cell1 + @approval-list-cell2 + @approval-list-cell3 - 2 * @approval-list-cell-horizontal-padding;
+            &.department {
+              #fonts > #approval-list > .table-department;
+            }
           }
         }
       }
@@ -91,11 +102,15 @@ body {
   }
 }
 
-body.screen {
-  div.page {
-    padding: @page-margin-top @page-margin-right @page-margin-bottom @page-margin-left;
-    width: 210mm;
-    height: 297mm;
-    box-sizing: border-box;
+@media screen {
+  body {
+    div.page {
+      padding: @page-margin-top @page-margin-right @page-margin-bottom @page-margin-left;
+      width: 210mm;
+      height: 297mm;
+      #fixes > .border-box-fix;
+      border: 1px solid black;
+      margin: 5px;
+    }
   }
 }

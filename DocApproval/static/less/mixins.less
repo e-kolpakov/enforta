@@ -55,11 +55,6 @@
       .define(@size, @color, @family, @weight);
     }
 
-    .table-font() {
-      @size: @table-font-size;
-      .define(@size, @color, @family, @weight);
-    }
-
     .heading() {
       .define(@size, @color, @family, @weight);
       font-style: italic;
@@ -70,12 +65,24 @@
       @size: @title-font-size;
       .define(@size, @color, @family, @weight);
       text-align: center;
-      -pdf-keep-with-next: false;
+    }
+
+    .table-font() {
+      @size: @table-font-size;
+      .define(@size, @color, @family, @weight);
     }
 
     .table-label() {
       @weight: bold;
+      @size: @table-font-size;
       .define(@size, @color, @family, @weight);
+    }
+
+    .table-department() {
+      @weight: bold;
+      @size: @table-font-size;
+      .define(@size, @color, @family, @weight);
+      text-transform: uppercase;
     }
   }
 }

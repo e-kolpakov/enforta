@@ -1,4 +1,5 @@
 #-*- coding: utf-8 -*-
+import os
 import StringIO
 import logging
 
@@ -9,7 +10,7 @@ from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.views.generic import View
 
-from weasyprint import HTML, CSS
+from weasyprint import HTML
 
 
 class PdfView(View):
@@ -25,23 +26,31 @@ class PdfView(View):
         payload.update({'media': self._media})
         return render_to_string(self.pdf_template, payload, context_instance=context)
 
-    def _get_pdf(self, markup, base_url):
+    def _get_pdf(self, markup):
         logger = logging.getLogger(__name__)
-
+        base_url = self.base_url if self.base_url else ''
         pdf_file = StringIO.StringIO()
         logger.critical("Creating weasy")
         weasy = HTML(
             file_obj=StringIO.StringIO(markup.encode("UTF-8")),
             encoding='UTF-8',
-            base_url=base_url
+            base_url=base_url,
+            url_fetcher=self._url_fetcher
         )
         logger.critical("Starting pdf generation")
-        document = weasy.render(
-            stylesheets=[CSS(file_obj=open("/home/john/GitRoot/Enforta/enforta/DocApproval/static/css/print.css"))])
-        logger.critical("PDF generated, writing results")
-        document.write_pdf(pdf_file)
-        logger.critical("Results stored, returning")
+        weasy.write_pdf(pdf_file)
+        logger.critical("PDF generated, returning")
         return pdf_file.getvalue()
+
+    def _url_fetcher(self, url):
+        if self.base_url and self.base_url in url:
+            url = url.replace(self.base_url, '/')
+        for network_path, disk_path in self._resource_replacements:
+            if network_path in url:
+                url = os.path.join(disk_path, url.replace(network_path, ''))
+                break
+        return {'file_obj': open(url, 'r')}
+
 
     def _get_payload(self, *args, **kwargs):
         raise NotImplementedError("Must be overridden in children")
@@ -54,7 +63,8 @@ class PdfView(View):
             return HttpResponse(markup)
         else:
             try:
-                pdf_file = self._get_pdf(markup, request.build_absolute_uri('/'))
+                self.base_url = request.build_absolute_uri('/')
+                pdf_file = self._get_pdf(markup)
                 response = HttpResponse(pdf_file, mimetype='application/pdf')
                 response['Content-Disposition'] = 'attachment; filename=list.pdf'
             except Exception as e:

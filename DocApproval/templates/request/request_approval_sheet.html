@@ -8,9 +8,9 @@
         {% block maintitle %}{% trans "Утверждение документов" %}{% endblock maintitle %}
         {% block subtitle %}{% endblock subtitle %}
     </title>
-
+    <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}css/print.css" media="{{ media }}"/>
 </head>
-<body class="{{ media }}">
+<body>
 <div class='page'>
     <p class='doc-heading'>
         Приложение №1<br/>
