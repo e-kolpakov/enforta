@@ -50,22 +50,30 @@ class CreateUpdateRequestView(TemplateView):
     def get_initial_contract(self, request, *args, **kwargs):
         return {}
 
-    def get(self, request, *args, **kwargs):
-        pk = kwargs.get('pk', 0)
-        request_instance, contract_instance = self.get_instances(pk)
-        request_initial = self.get_initial_request(request, *args, **kwargs)
-        contract_initial = self.get_initial_contract(request, *args, **kwargs)
-        request_form = self.request_form_class(instance=request_instance, initial=request_initial, prefix='request')
-        contract_form = self.contract_form_class(instance=contract_instance, initial=contract_initial,
-                                                 prefix='contract')
-        return render(request, self.template_name, {
+    def _build_render_context(self, pk, request_form, contract_form):
+        return {
             'request_form': request_form,
             'contract_form': contract_form,
             'form_heading': self.form_heading,
             'form_submit': self.form_submit,
             'return_url': self.get_return_url(pk)
+        }
 
-        })
+    def get(self, request, *args, **kwargs):
+        pk = kwargs.get('pk', 0)
+        request_instance, contract_instance = self.get_instances(pk)
+        request_form = self.request_form_class(
+            instance=request_instance,
+            initial=self.get_initial_request(request, *args, **kwargs),
+            prefix='request'
+        )
+        contract_form = self.contract_form_class(
+            instance=contract_instance,
+            initial=self.get_initial_contract(request, *args, **kwargs),
+            prefix='contract'
+        )
+        return render(request, self.template_name, self._build_render_context(pk, request_form, contract_form))
+
 
     def post(self, request, *args, **kwargs):
         pk = kwargs.get('pk', 0)
@@ -83,11 +91,7 @@ class CreateUpdateRequestView(TemplateView):
             messages.error(request, CommonMessages.FORM_VALIDATION_ERROR)
             errors = reprint_form_errors(request_form.errors) + reprint_form_errors(contract_form.errors)
             self._logger.error(u"Error saving the request:\n{0}".format(u"\n".join(errors)))
-            return render(request, self.template_name, {
-                'request_form': request_form,
-                'contract_form': contract_form,
-                'return_url': self.get_return_url(pk)
-            })
+            return render(request, self.template_name, self._build_render_context(pk, request_form, contract_form))
 
 
 # Permission protection is on the base class
