@@ -18,8 +18,7 @@ class PdfView(View):
 
     _resource_replacements = (
         (settings.MEDIA_URL, settings.MEDIA_ROOT),
-        (settings.STATIC_URL, settings.STATIC_ROOT),
-        ('../fonts/', settings.STATIC_ROOT + '/fonts/') # must be after STATIC_URL replacement
+        (settings.STATIC_URL, settings.STATIC_ROOT)
     )
 
     def _get_html(self, payload, context=None):
