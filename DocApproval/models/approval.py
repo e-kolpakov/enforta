@@ -189,6 +189,15 @@ class ApprovalProcess(models.Model):
     def get_approval_actions(self):
         return self.actions.all().select_related('step__approver__profile')
 
+    def get_approval_action(self, user):
+        try:
+            all_actions = self.actions.filter(step__approver=user) \
+                .order_by('-step__step_number').select_related('step__approver__profile')
+            last_action = all_actions[0]
+        except IndexError: # no actions taken
+            last_action = None
+        return last_action
+
 
 class ApprovalProcessAction(models.Model):
     ACTION_APPROVE = 'approve'
