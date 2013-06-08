@@ -99,35 +99,15 @@ class ApprovalListPrint(PdfView, SingleObjectMixin):
         u"Юридический отдел",
     )
 
-    _static_rows = (
-        ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
-        ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Документ"}),
-        ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW,
-                                cell_contents={3: u"(основной договор, доп. соглашение)"}),
-        ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
-        ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Закупочный заказ", 4: u"Дата"}),
-        ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
-        ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW,
-                                cell_contents={1: u"Инициатор заказа", 4: u"Дирекция"}),
-        ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={3: u"(Ф.И.О.)"}),
-        ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Контрагент"}),
-        ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
-        ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Предмет договора"}),
-        ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
-        ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
-        ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Сумма", 4: u"Валюта"}),
-        ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
-        ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Комментарии"}),
-        ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
-        ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
-    )
-
     # Self-encapsulation: one day departments will live in the database, so this method will fetch them there
     def _get_departments(self):
         return self.departments
 
     def _make_signature_img(self, url):
         return mark_safe("<img src='{0}' class='signature'/>".format(url))
+
+    def _format_date(self, date):
+        return _date(date, self.date_format)
 
     def _get_manager_approval(self, request):
         signature, action_date = None, None
@@ -146,6 +126,41 @@ class ApprovalListPrint(PdfView, SingleObjectMixin):
 
         return signature, action_date
 
+    def _get_general_info_rows(self, request):
+        return (
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
+            ApprovalListRow.get_row(
+                ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Документ", 3: request.name}
+            ),
+            ApprovalListRow.get_row(
+                ApprovalListRow.SIX_CELLS_ROW,
+                cell_contents={3: u"(основной договор, доп. соглашение)"}
+            ),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
+            ApprovalListRow.get_row(
+                ApprovalListRow.SIX_CELLS_ROW,
+                cell_contents={
+                    1: u"Закупочный заказ",
+                    4: u"Дата",
+                    6: self._format_date(request.created)}
+            ),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
+            ApprovalListRow.get_row(
+                ApprovalListRow.SIX_CELLS_ROW,
+                cell_contents={1: u"Инициатор заказа", 3: request.creator.full_name, 4: u"Дирекция"}),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={3: u"(Ф.И.О.)"}),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Контрагент"}),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Предмет договора"}),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Сумма", 4: u"Валюта"}),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Комментарии"}),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
+        )
+
     def _get_creator_and_manager_rows(self, request):
         creator_signature, creator_action_date = request.creator.sign.url, request.created
         manager_signature, manager_action_date = self._get_manager_approval(request)
@@ -158,9 +173,9 @@ class ApprovalListPrint(PdfView, SingleObjectMixin):
                 ApprovalListRow.FOUR_CELL_ROW,
                 cell_contents={
                     1: creator_sign_img,
-                    2: _date(creator_action_date, self.date_format) if creator_action_date else date_tpl,
+                    2: self._format_date(creator_action_date) if creator_action_date else date_tpl,
                     3: manager_sign_img,
-                    4: _date(manager_action_date, self.date_format) if manager_action_date else date_tpl,
+                    4: self._format_date(manager_action_date) if manager_action_date else date_tpl,
                 }),
             ApprovalListRow.get_row(ApprovalListRow.FOUR_CELL_ROW,
                                     cell_contents={1: u"Подпись инициатора", 3: u"Подпись руководителя дирекции"})
@@ -172,9 +187,9 @@ class ApprovalListPrint(PdfView, SingleObjectMixin):
             ApprovalListRow.get_row(
                 ApprovalListRow.THREE_CELL_ROW1,
                 cell_contents={
-                    1: u"Согласовано: {0}".format(user.get_full_name()),
+                    1: u"Согласовано: {0}".format(user.full_name),
                     2: self._make_signature_img(user.sign.url),
-                    3: _date(approval.action_taken, self.date_format)
+                    3: self._format_date(approval.action_taken)
                 }
             ),
             ApprovalListRow.get_row(ApprovalListRow.THREE_CELL_ROW2,
@@ -194,16 +209,8 @@ class ApprovalListPrint(PdfView, SingleObjectMixin):
             ApprovalListRow.get_row(ApprovalListRow.THREE_CELL_ROW2, cell_contents={2: self.signature}),
         )
 
-    def _get_static_signarutes(self, request):
-        creator_signature = request.creator.sign
-        try:
-            manager_signature = request.creator.manager.sign
-        except UserProfile.DoesNotExist:
-            manager_signature = None
-
-        return self._make_signature_img(creator_signature.url), self._make_signature_img(manager_signature.url)
-
     def _get_rows(self, request):
+        general_info_rows = self._get_general_info_rows(request)
         creator_and_manager_rows = self._get_creator_and_manager_rows(request)
         dep_rows = itertools.chain.from_iterable(self._get_department_rows(dep) for dep in self._get_departments())
 
@@ -211,7 +218,7 @@ class ApprovalListPrint(PdfView, SingleObjectMixin):
             [self._get_approver_rows(action) for action in request.successful_approval.get_approval_actions()]
         )
 
-        return itertools.chain(self._static_rows, creator_and_manager_rows, approval_rows, dep_rows)
+        return itertools.chain(general_info_rows, creator_and_manager_rows, approval_rows, dep_rows)
 
     def _get_payload(self, *args, **kwargs):
         req = self.get_object()

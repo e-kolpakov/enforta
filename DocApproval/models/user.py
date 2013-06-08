@@ -37,13 +37,16 @@ class UserProfile(models.Model):
     def get_absolute_url(self):
         return reverse(ProfileUrls.PROFILE, kwargs={'pk': self.pk})
 
-    def get_full_name(self):
-        return u"{0} {1} {2}".format(self.last_name, self.first_name, self.middle_name)
-
-    def get_short_name(self):
+    @property
+    def short_name(self):
         return u"{0} {1}".format(self.last_name, self.first_name)
 
-    def get_full_name_accusative(self):
+    @property
+    def full_name(self):
+        return u"{0} {1} {2}".format(self.last_name, self.first_name, self.middle_name)
+
+    @property
+    def full_name_accusative(self):
         #gets accusative full name, falls back to using subjective case if accusatives is empty
         eff_first_accusative = self.first_name_accusative if self.first_name_accusative else self.first_name
         eff_last_accusative = self.last_name_accusative if self.last_name_accusative else self.last_name
@@ -51,7 +54,7 @@ class UserProfile(models.Model):
         return "{0} {1} {2}".format(eff_last_accusative, eff_first_accusative, eff_middle_accusative)
 
     def __unicode__(self):
-        return u"{0} ({1})".format(self.get_full_name(), self.position)
+        return u"{0} ({1})".format(self.full_name, self.position)
 
     class Meta:
         app_label = "DocApproval"

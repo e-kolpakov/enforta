@@ -158,7 +158,7 @@ class ApproversListJson(View):
     def post(self, request, *args, **kwargs):
         data = {
             approver.pk: {
-                'name': approver.get_short_name()
+                'name': approver.short_name
             }
             for approver in self._get_all_approvers()}
         return HttpResponse(json.dumps(data), content_type="application/json")

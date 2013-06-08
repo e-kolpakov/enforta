@@ -282,13 +282,13 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
             'name': item.name,
             'city': item.city.city_name,
             'status': item.status.status_name,
-            'creator': item.creator.get_full_name(),
-            'send_on_approval': item.send_on_approval.get_full_name(),
+            'creator': item.creator.full_name,
+            'send_on_approval': item.send_on_approval.full_name,
             'created': item.created.strftime("%Y-%m-%d"),
             'accepted': accepted,
             'send_on_approval_pk': item.send_on_approval.pk,
             'creator_pk': item.creator.pk,
-            # 'current_approvers': [profile.get_short_name() for profile in item.get_current_approvers()]
+            # 'current_approvers': [profile.short_name for profile in item.get_current_approvers()]
         }
 
 
