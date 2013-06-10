@@ -29,16 +29,16 @@ class PdfView(View):
         logger = logging.getLogger(__name__)
         base_url = self.base_url if self.base_url else ''
         pdf_file = StringIO.StringIO()
-        logger.critical("Creating weasy")
+        logger.info("Creating weasy")
         weasy = HTML(
             file_obj=StringIO.StringIO(markup.encode("UTF-8")),
             encoding='UTF-8',
             base_url=base_url,
             url_fetcher=self._url_fetcher
         )
-        logger.critical("Starting pdf generation")
+        logger.info("Starting pdf generation")
         weasy.write_pdf(pdf_file)
-        logger.critical("PDF generated, returning")
+        logger.info("PDF generated, returning")
         return pdf_file.getvalue()
 
     def _url_fetcher(self, url):
@@ -55,17 +55,22 @@ class PdfView(View):
         raise NotImplementedError("Must be overridden in children")
 
     def get(self, request, *args, **kwargs):
-        as_html = kwargs.get('as_html', False)
-        self._media = 'screen' if as_html else 'print'
-        markup = self._get_html(self._get_payload(*args, **kwargs), RequestContext(request))
-        if as_html:
-            return HttpResponse(markup)
-        else:
-            try:
-                self.base_url = request.build_absolute_uri('/')
-                pdf_file = self._get_pdf(markup)
-                response = HttpResponse(pdf_file, mimetype='application/pdf')
-                response['Content-Disposition'] = 'attachment; filename=list.pdf'
-            except Exception as e:
-                response = HttpResponse(u"Error generating PDF: {0}<br/><br/>{1}".format(e, html.escape(markup)))
-            return response
+        try:
+            as_html = kwargs.get('as_html', False)
+            self._media = 'screen' if as_html else 'print'
+            markup = self._get_html(self._get_payload(*args, **kwargs), RequestContext(request))
+            if as_html:
+                return HttpResponse(markup)
+            else:
+                try:
+                    self.base_url = request.build_absolute_uri('/')
+                    pdf_file = self._get_pdf(markup)
+                    response = HttpResponse(pdf_file, mimetype='application/pdf')
+                    response['Content-Disposition'] = 'attachment; filename=list.pdf'
+                except Exception as e:
+                    response = HttpResponse(u"Error generating PDF: {0}<br/><br/>{1}".format(e, html.escape(markup)))
+                return response
+        except Exception as e:
+            logger = logging.getLogger(__name__)
+            logger.exception(e)
+            raise

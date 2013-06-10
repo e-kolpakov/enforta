@@ -1,7 +1,7 @@
 /*global define*/
 
 define(
-    ['jquery', 'app/global_settings'],
+    ['jquery', 'jquery-ui', 'app/global_settings'],
     function ($) {
         "use strict";
         $.fn.wrapped_datepicker = function (options) {

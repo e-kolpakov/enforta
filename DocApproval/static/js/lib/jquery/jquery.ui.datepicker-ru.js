@@ -2,7 +2,7 @@
 /* Written by Andrew Stromnov (stromnov@gmail.com). */
 /*global define*/
 define(
-    ['jquery'],
+    ['jquery', 'jquery-ui'],
     function ($) {
         $.datepicker.regional.ru = {
             closeText: 'Закрыть',

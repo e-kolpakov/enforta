@@ -49,7 +49,7 @@ define(
 
         extend(StatusActionHandler, BaseActionHandler);
         StatusActionHandler.prototype.process_action = function (callback) {
-            ui_manager.confirmation(Messages.confrimation_message, function (is_confirmed) {
+            ui_manager.confirmation(this.confrimation_message, function (is_confirmed) {
                 callback(this.action_code, this.request_id, {post_action: is_confirmed});
             }.bind(this));
         };

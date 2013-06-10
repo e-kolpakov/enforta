@@ -26,7 +26,7 @@ requirejs.config({
 
 // taken from
 // http://stackoverflow.com/questions/11674824/how-to-use-requirejs-build-profile-r-js-in-a-multi-page-project/11730147#11730147
-require(['jquery', 'bootstrap', 'app/startup'],
+require(['jquery', 'bootstrap', 'jquery-ui', 'app/startup'],
     function ($) {
         // the start module is defined on the same script tag of data-main.
         var startModuleName = $("script[data-main][data-start]").attr("data-start");
