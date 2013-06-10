@@ -1,7 +1,7 @@
 /*global define*/
 define(
-    ['extend', 'app/ui_interaction_manager'],
-    function (extend, UIManager) {
+    ['extend', 'app/ui_interaction_manager', 'app/logger.log', 'app/logger.log'],
+    function (extend, UIManager, Logger) {
         // Always keep in sync with codes in request_management/actions.py
         var ActionCodes = {
             TO_APPROVAL: 'to_approval',
@@ -19,13 +19,7 @@ define(
 
         var ui_manager = new UIManager();
 
-        // TODO: add real logging/notifying
-        // TODO: use injection instead of copy-pasting
-        var logger = function (msg) {
-            if (console && console.log) {
-                console.log(msg);
-            }
-        };
+        var logger = new Logger();
 
         function BaseActionHandler() {
         }
@@ -36,7 +30,7 @@ define(
             },
 
             process_action: function (callback) {
-                logger("Should be overridden in child classes");
+                logger.log("Should be overridden in child classes");
                 callback({post_action: false});
             },
 

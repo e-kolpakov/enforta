@@ -1,20 +1,14 @@
 /*global globals, define*/
 define(
-    ['jquery', 'app/ui_interaction_manager', 'app/ajax_communicator', 'app/ui_action_handlers'],
-    function ($, UIManager, Communicator, handlers) {
+    ['jquery', 'app/ui_interaction_manager', 'app/ajax_communicator', 'app/ui_action_handlers', 'app/logger.log'],
+    function ($, UIManager, Communicator, handlers, Logger) {
         "use strict";
 
         var Messages = {
             action_failed: "Не удалось совершить действие: "
         };
 
-        // TODO: add real logging/notifying
-        // TODO: use injection instead of copy-pasting
-        var logger = function (msg) {
-            if (console && console.log) {
-                console.log(msg);
-            }
-        };
+        var logger = new Logger();
 
         var ui_manager = new UIManager();
 
@@ -61,7 +55,6 @@ define(
                     action_promise.done(function (response_data, textStatus, jqXHR) {
                         if (response_data.success) {
                             var response = response_data.response;
-                            logger(response);
                             reload_if_needed(response.reload_require, response.reload_ask);
                         } else {
                             ui_manager.message(Messages.action_failed + response_data.errors.join("\n"));
@@ -75,7 +68,7 @@ define(
             }
 
             this.handle = function (action, request_id) {
-                logger("Handling action " + action + " on request " + request_id);
+                logger.log("Handling action " + action + " on request " + request_id);
                 if (ui_handlers[action]) {
                     var handler = new ui_handlers[action](request_id);
                     handler.handle(handle_callback);

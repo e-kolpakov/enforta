@@ -1,8 +1,8 @@
 /*global globals, define*/
 //TODO: code in this file does a bit too much - might be beneficial to separate it further
 define(
-    ['jquery', 'app/ui_interaction_manager', 'app/ajax_communicator', 'libjquery/jquery.cookie'],
-    function ($, UIManager, Communicator) {
+    ['jquery', 'app/ui_interaction_manager', 'app/ajax_communicator', 'app/logger', 'libjquery/jquery.cookie'],
+    function ($, UIManager, Communicator, Logger) {
         "use strict";
 
         var Messages = {
@@ -12,13 +12,8 @@ define(
             readonly_mode: "Модификация маршрута невозможна: "
         };
 
-        // TODO: add real logging/notifying
-        // TODO: use injection instead of copy-pasting
-        var logger = function (msg) {
-            if (console && console.log) {
-                console.log(msg);
-            }
-        };
+
+        var logger = new Logger();
 
         var ui_manager = new UIManager();
 
@@ -368,9 +363,9 @@ define(
 
             this.validate = function () {
                 var valid = true;
-                logger("Validating");
+                logger.log("Validating");
                 that.editor_wrapper.find(row_celector).each(function (idx, elem) {
-                    logger("Validating row " + idx);
+                    logger.log("Validating row " + idx);
                     var row_valid = true;
                     var all_approvers = get_approvers(elem, false);
                     var unique_approvers = get_approvers(elem, true);
@@ -390,7 +385,7 @@ define(
             this.get_data = function () {
                 var result = {};
                 that.editor_wrapper.find(row_celector).each(function (idx, elem) {
-                    logger("Row " + idx + " with id " + $(elem).attr('id'));
+                    logger.log("Row " + idx + " with id " + $(elem).attr('id'));
                     result[idx + 1] = get_approvers(elem, true);
                 });
                 return result;
