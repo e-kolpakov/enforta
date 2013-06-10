@@ -51,7 +51,7 @@
                 approvers_source_url: '{% url approver_list_url %}',
                 template_route_source_url: '{% url template_route_list_url %}',
                 approval_route_backend: '{% url approval_route_backend_url %}',
-                readonly: {% if route_data.is_readonly %}true{% else %}false{% endif %},
+                readonly:{{ route_data.is_readonly|yesno:"true,false,false" }},
                 readonly_reason: '{{ route_data.readonly_reason }}',
                 form: "#editor-form",
                 template_routes_pane: "#template-routes-pane",
