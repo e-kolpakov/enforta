@@ -1,6 +1,6 @@
 /*global globals, define*/
 define(
-    ['jquery', 'app/ui_interaction_manager', 'app/ajax_communicator', 'app/ui_action_handlers', 'app/logger.log'],
+    ['jquery', 'app/ui_interaction_manager', 'app/ajax_communicator', 'app/ui_action_handlers', 'app/logger'],
     function ($, UIManager, Communicator, handlers, Logger) {
         "use strict";
 
