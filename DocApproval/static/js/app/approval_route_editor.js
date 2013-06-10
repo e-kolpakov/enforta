@@ -1,14 +1,15 @@
 /*global globals, define*/
+//TODO: code in this file does a bit too much - might be beneficial to separate it further
 define(
     ['jquery', 'app/ui_interaction_manager', 'app/ajax_communicator', 'libjquery/jquery.cookie'],
     function ($, UIManager, Communicator) {
-        var Editor;
         "use strict";
 
         var Messages = {
             save_success: "Маршрут сохранен",
             save_error: "Произошли ошибки сохранения:\n",
-            no_templates_available: "Шаблонные маршруты не найдены"
+            no_templates_available: "Шаблонные маршруты не найдены",
+            readonly_mode: "Модификация маршрута невозможна: "
         };
 
         // TODO: add real logging/notifying
@@ -82,9 +83,9 @@ define(
             var desc_input = get_element(controls.desc_input_selector || "#route-description");
             var is_template_input = get_element(controls.is_template_input_selector || "#route-is-template");
 
-            function set_controls_availability(is_template) {
+            function set_controls_availability(is_readonly) {
                 var ctrls = name_input.add(desc_input);
-                if (!is_template) {
+                if (is_readonly) {
                     ctrls.attr('disabled', true);
                 } else {
                     ctrls.removeAttr('disabled');
@@ -100,15 +101,15 @@ define(
             var that = this;
             this.set_data = function (data, safe_set) {
                 var eff_safe = safe_set || false;
-                var is_template = data.is_template || false;
+                that.is_template = data.is_template || false;
 
                 set_ctrl_data(pk_input, data.pk || 0, true);
                 set_ctrl_data(is_template_input, data.is_template || 0, true);
-                set_ctrl_data(name_input, data.name || '', eff_safe || !is_template);
-                set_ctrl_data(desc_input, data.description || '', eff_safe || !is_template);
+                set_ctrl_data(name_input, data.name || '', eff_safe || !that.is_template);
+                set_ctrl_data(desc_input, data.description || '', eff_safe || !that.is_template);
 
                 if (!eff_safe) {
-                    set_controls_availability(is_template);
+                    set_controls_availability(!that.is_template);
                 }
             };
 
@@ -182,9 +183,10 @@ define(
             };
         };
 
-        Editor = function (target) {
+        var Editor = function (target, is_readonly) {
             var that = this;
             var row_count = 0;
+            this.is_readonly = is_readonly;
 
             var wrapper_element = "table";
             var row_element = "tr";
@@ -226,6 +228,7 @@ define(
                 var remove_btn = HtmlHelper.make_image(HtmlHelper.editor_button_config.remove_approver.image).appendTo(remove);
                 remove_btn.addClass(HtmlHelper.editor_button_config.remove_approver.cssClass);
                 remove.click(function () {
+                    if (that.is_readonly) return;
                     that.remove_approver($(this).parents('.span-approver'));
                 });
 
@@ -252,9 +255,11 @@ define(
             function make_buttons_cell(row) {
                 var cell = HtmlHelper.create_elem(cell_element).addClass("span2 buttons-cell");
                 HtmlHelper.make_button(HtmlHelper.editor_button_config.add,function () {
+                    if (that.is_readonly) return;
                     that.add_row([], row);
                 }).appendTo(cell);
                 HtmlHelper.make_button(HtmlHelper.editor_button_config.remove,function () {
+                    if (that.is_readonly) return;
                     that.delete_row(row);
                 }).appendTo(cell);
                 return cell;
@@ -263,6 +268,7 @@ define(
             function make_add_approver_button() {
                 var span = HtmlHelper.create_elem("span").addClass("span3 add-approver");
                 HtmlHelper.make_button(HtmlHelper.editor_button_config.add_approver,function () {
+                    if (that.is_readonly) return;
                     that.add_approver($(this).parents('span.add-approver'));
                 }).appendTo(span);
                 return span;
@@ -298,6 +304,15 @@ define(
                 row_count = 0;
             }
 
+            function toggle_readonly(is_readonly) {
+                var selector = "select, button, img.remove-approver-button";
+                if (is_readonly) {
+                    $(selector, that.target).attr('disabled', true);
+                }
+                else {
+                    $(selector, that.target).removeAttr('disabled');
+                }
+            }
 
             this.target = target;
             this.set_data = function (data, no_render) {
@@ -309,7 +324,8 @@ define(
             };
             this.set_approvers = function (approvers) {
                 that.approvers = approvers;
-            }
+            };
+
             this.render = function () {
                 var has_rows;
                 clean();
@@ -323,10 +339,12 @@ define(
                 if (!has_rows) {
                     that.add_row([]);
                 }
+                toggle_readonly(that.is_readonly);
             };
 
             this.add_row = function (data, prev_row) {
-                var new_row = make_row(data);
+                var eff_data = data || [];
+                var new_row = make_row(eff_data);
                 row_count += 1;
                 if (prev_row)
                     new_row.insertAfter(prev_row);
@@ -383,7 +401,7 @@ define(
             var target = $(this);
 
             var comm = new Comm(options.csrftoken, options.approvers_source_url, options.template_route_source_url, options.approval_route_backend);
-            var editor = new Editor(target);
+            var editor = new Editor(target, options.readonly);
             var header_editor = new HeaderEditor(options.form, options.controls);
             var template_manager = new TemplateManager(options.template_routes_pane, apply_template);
 
@@ -396,11 +414,20 @@ define(
             }
 
             function apply_template(template_data) {
+                if (options.readonly) {
+                    ui_manager.message(Messages.readonly_mode + options.readonly_reason);
+                    return;
+                }
                 editor.set_data(template_data.steps);
                 header_editor.set_data(template_data, true);
             }
 
             function save_click_handler(event) {
+                if (options.readonly) {
+                    ui_manager.message(Messages.readonly_mode + options.readonly_reason);
+                    return false;
+                }
+
                 event.preventDefault();
                 if (validate_editors()) {
                     var data = $.extend({}, header_editor.get_data(), { steps: editor.get_data() });
@@ -423,6 +450,11 @@ define(
             }
 
             function revert_click_handler(event) {
+                if (options.readonly) {
+                    ui_manager.message(Messages.readonly_mode + options.readonly_reason);
+                    return false;
+                }
+
                 event.preventDefault();
                 editor.set_data(initial_data.steps);
                 header_editor.set_data(initial_data.header_data);

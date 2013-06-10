@@ -24,19 +24,24 @@ from ..utilities.datatables import JsonConfigurableDatatablesBaseView
 _logger = logging.getLogger(__name__)
 
 
-class ApprovalRouteTemplateAdapter(object):
+class ApprovalRouteAdapter(object):
     def __init__(self, **kwargs):
         self.pk = kwargs.get('pk', 0)
         self.name = kwargs.get('name', '')
         self.description = kwargs.get('description', '')
         self.is_template = kwargs.get('is_template', False)
+        self.is_readonly = kwargs.get('is_readonly', False)
+        self.readonly_reason = kwargs.get('is_readonly', '')
         self.steps = kwargs.get('steps', defaultdict(list))
 
     @classmethod
     def create(cls, route):
-        route_data = ApprovalRouteTemplateAdapter(
+        route_data = ApprovalRouteAdapter(
             pk=route.pk, is_template=route.is_template,
             name=route.name, description=route.description)
+        if not route.is_template:
+            route_data.is_readonly = not route.request.route_editable
+            route_data.readonly_reason = ApprovalRouteMessages.NON_EDITABLE_ROUTE_MESSAGE
         route_data.set_steps(route.steps.all())
         return route_data
 
@@ -56,9 +61,9 @@ class ApprovalRouteEditHandlerView(TemplateView):
 
     def _get_template_data(self, route=None, is_template_default=False, new_route_name=None):
         if route:
-            route_data = ApprovalRouteTemplateAdapter.create(route)
+            route_data = ApprovalRouteAdapter.create(route)
         else:
-            route_data = ApprovalRouteTemplateAdapter(
+            route_data = ApprovalRouteAdapter(
                 pk=0, is_template=is_template_default,
                 name='', description='')
         return {
@@ -124,7 +129,6 @@ class TemplateApprovalRouteListJson(JsonConfigurableDatatablesBaseView):
     model_fields = ('name', 'description')
     calculated_fields = {'steps_count': ApprovalRouteMessages.STEPS_COUNT, }
 
-
     def get_links_config(self):
         return {
             'name': {
@@ -174,7 +178,7 @@ class TemplatesListJson(View):
 
     def post(self, request, *args, **kwargs):
         data = {
-            template.pk: ApprovalRouteTemplateAdapter.create(template).__dict__
+            template.pk: ApprovalRouteAdapter.create(template).__dict__
             for template in self._get_all_templates()}
         return HttpResponse(json.dumps(data), content_type="application/json")
 

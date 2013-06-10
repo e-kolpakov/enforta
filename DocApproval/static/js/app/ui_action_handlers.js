@@ -50,11 +50,12 @@ define(
         function StatusActionHandler(request_id) {
             this.action_code = "";
             this.request_id = request_id;
+            this.confrimation_message = "";
         }
 
         extend(StatusActionHandler, BaseActionHandler);
         StatusActionHandler.prototype.process_action = function (callback) {
-            ui_manager.confirmation(Messages.confirm_to_negotiation, function (is_confirmed) {
+            ui_manager.confirmation(Messages.confrimation_message, function (is_confirmed) {
                 callback(this.action_code, this.request_id, {post_action: is_confirmed});
             }.bind(this));
         };
@@ -62,10 +63,12 @@ define(
         var ToApprovalActionHandler = function (request_id) {
             this.action_code = ActionCodes.TO_APPROVAL;
             this.request_id = request_id;
+            this.confrimation_message = Messages.confirm_to_negotiation;
         };
         var ToProjectActionHandler = function (request_id) {
             this.action_code = ActionCodes.TO_PROJECT;
             this.request_id = request_id;
+            this.confrimation_message = Messages.confirm_to_project;
         };
 
         extend(ToApprovalActionHandler, StatusActionHandler);
