@@ -16,7 +16,10 @@ signals.post_syncdb.disconnect(
     dispatch_uid="django.contrib.auth.management.create_superuser")
 
 from common import Position, City, ModelConstants, Permissions
-from approval import ApprovalRoute, ApprovalRouteStep, ApprovalProcess, ApprovalProcessAction, NonTemplateApprovalRouteException
+from approval import (
+    ApprovalRoute, ApprovalRouteStep, ApprovalProcess, ApprovalProcessAction,
+    NonTemplateApprovalRouteException, ApprovalRouteExceptionBase
+    )
 from request import Request, RequestStatus, Contract
 from user import UserProfile
 

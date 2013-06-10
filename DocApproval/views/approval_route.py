@@ -14,7 +14,7 @@ from django.db.models import Q
 from django.http import HttpResponse
 
 from ..menu import MenuModifierViewMixin, RequestContextMenuManagerExtension
-from ..models import ApprovalRoute, Permissions
+from ..models import ApprovalRoute, Permissions, ApprovalRouteExceptionBase
 from ..messages import ApprovalRouteMessages
 from ..url_naming.names import ApprovalRoute as ApprovalRouteUrls
 from ..utilities.utility import get_url_base
@@ -214,10 +214,10 @@ class SaveApprovalRouteView(View):
             data = {
                 'success': True
             }
-        except Exception as e:
+        except ApprovalRouteExceptionBase as e:
             _logger.exception(e)
             data = {
                 'success': False,
-                'errors': [e.message]
+                'errors': [e.ui_message]
             }
         return HttpResponse(json.dumps(data), content_type="application/json")

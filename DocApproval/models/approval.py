@@ -11,6 +11,7 @@ from guardian.shortcuts import assign_perm, remove_perm
 
 from .user import UserProfile
 from .common import ModelConstants, Permissions
+from ..messages import ApprovalRouteMessages
 
 from DocApproval.url_naming.names import ApprovalRoute as ApprovalRouteUrls
 
@@ -22,8 +23,41 @@ class LoggerMessages(object):
     REQUEST_REJECTED = u"User {0} rejected request {1} on behalf of {2}"
 
 
-class NonTemplateApprovalRouteException(Exception):
-    pass
+class ApprovalRouteExceptionBase(Exception):
+    ui_message = ""
+
+    def __init__(self, *args, **kwargs):
+        super(ApprovalRouteExceptionBase, self).__init__(*args, **kwargs)
+
+    @property
+    def message(self):
+        return super(ApprovalRouteExceptionBase, self).message
+
+    @property
+    def ui_message(self):
+        return self.ui_message
+
+
+class NonTemplateApprovalRouteException(ApprovalRouteExceptionBase):
+    MESSAGE_TEMPLATE = "Can't make template route non-template and vice versa. Route was {0}, tried to make it {1}"
+
+    ui_message = ApprovalRouteMessages.NON_EDITABLE_ROUTE_MESSAGE
+
+    def __init__(self, old_val, new_val, *args, **kwargs):
+        self.old_val = old_val
+        self.new_val = new_val
+        super(NonTemplateApprovalRouteException, self).__init__(*args, **kwargs)
+
+    def _yes_no(self, value):
+        return "template" if value else "non-template"
+
+    @property
+    def message(self):
+        return self.MESSAGE_TEMPLATE.format(self._yes_no(self.old_val), self._yes_no(self.new_val))
+
+
+class ApprovalRouteModificationException(ApprovalRouteExceptionBase):
+    ui_message = ApprovalRouteMessages.ROUTE_TEMPLATE_SWITCH_NOT_ALLOWED
 
 
 class ApprovalRoute(models.Model):
@@ -63,9 +97,10 @@ class ApprovalRoute(models.Model):
             route.name = name
             route.description = description
             if route.is_template != is_template:
-                raise ValueError(
-                    "Can't make template route non-template and vice versa. Template was {0}, tried to make it {1}".format(
-                        route.is_template, is_template))
+                raise NonTemplateApprovalRouteException(route.is_template, is_template)
+
+        if not is_template and not route.request.route_editable:
+            raise ApprovalRouteModificationException("Route is not editable")
 
         route.save()
 

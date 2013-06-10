@@ -168,6 +168,10 @@ class Request(models.Model):
 
         return self.approval_route.get_successful_process()
 
+    @property
+    def route_editable(self):
+        return self.status.code == RequestStatus.PROJECT
+
 
 @receiver(final_approve_signal, sender=ApprovalProcess)
 def final_approve_handler(sender, **kwargs):

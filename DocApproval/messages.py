@@ -47,6 +47,12 @@ class ApprovalRouteMessages:
 
     DEFAULT_TEMPLATE_APPROVAL_ROUTE_NAME = _(u"Шаблонный маршрут №{0}")
 
+    GENERIC_ROUTE_ERROR_MESSAGE = _(u"Ошибка сохранения маршрута: ")
+    NON_EDITABLE_ROUTE_MESSAGE = _(
+        u"Редактирование маршрута утверждения возможно только для заявок, находящихся в статусе проекта")
+
+    ROUTE_TEMPLATE_SWITCH_NOT_ALLOWED = _(u"Изменение маршрута запрещено")
+
 
 class PeriodMessages:
     DAYS = _(u"дней")

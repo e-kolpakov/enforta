@@ -3,6 +3,10 @@ from dateutil.relativedelta import relativedelta
 from django.utils.translation import ugettext as _
 
 
+def yes_no(bool_var):
+    return _(u"Да") if bool_var else _(u"Нет")
+
+
 class EnumerableGrammarFrom:
     SINGULAR = 0 #val % 10 == 1 and not val in [11;19]
     PLURAL_ONE = 1 #val % 10 in [2;4] and not val in [11;19]
