@@ -2,6 +2,7 @@
 
 requirejs.config({
     baseUrl: globals.static_root + "js/lib",
+    urlArgs: "version=v0.8",
     paths: {
         'jquery': 'jquery/jquery',
         'jquery-ui': 'jquery/jquery-ui',
@@ -12,9 +13,12 @@ requirejs.config({
         'pages': '../pages' //page-specific scripts go here
     },
     shim: {
-        "bootstrap": {
+        'bootstrap': {
             deps: ["jquery"],
             exports: "$.fn.modal"
+        },
+        'jquery-ui': {
+            deps: ["jquery"]
         }
     }
 });

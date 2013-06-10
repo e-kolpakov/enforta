@@ -1,6 +1,6 @@
 /*global define*/
 define(
-    ['extend', 'app/ui_interaction_manager', 'app/logger.log', 'app/logger.log'],
+    ['extend', 'app/ui_interaction_manager', 'app/logger'],
     function (extend, UIManager, Logger) {
         // Always keep in sync with codes in request_management/actions.py
         var ActionCodes = {
