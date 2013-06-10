@@ -92,7 +92,7 @@ class ApprovalRoute(models.Model):
 
         self.process_request_permissions(to_add=approvers_to_add, to_remove=approvers_to_remove)
 
-        self.steps.filter(approver__user__in=approvers_to_remove).delete()
+        self.steps.filter(approver__user__in=approvers_to_remove, step_number=step_number).delete()
 
     def remove_steps(self, exclude=None):
         steps_to_remove = self.steps.exclude(step_number__in=exclude).select_related('approver')

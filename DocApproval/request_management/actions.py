@@ -96,7 +96,7 @@ class ApprovalProcessAction(StatusBasedAction):
 
     def is_available(self, user, request):
         return (
-            user.profile in request.approval_route.get_current_approvers() and
+            user.profile in request.get_current_approvers() and
             user.has_perm(Permissions._(Permissions.Request.CAN_APPROVE_REQUESTS)) and
             super(ApprovalProcessAction, self).is_available(user, request))
 
