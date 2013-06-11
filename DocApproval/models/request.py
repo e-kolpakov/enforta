@@ -7,12 +7,13 @@ from django.db import models
 from django.dispatch import receiver
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
+
 from guardian.shortcuts import get_objects_for_user
-from DocApproval.models.approval import ApprovalProcess
+from jsonfield import JSONField
 
 from .user import UserProfile
 from .common import City, ModelConstants, Permissions
-from .approval import ApprovalRoute, final_approve_signal, reject_signal
+from .approval import ApprovalRoute, ApprovalProcess, final_approve_signal, reject_signal
 from DocApproval.url_naming.names import Request as RequestUrls
 from DocApproval.utilities.humanization import Humanizer
 
@@ -173,6 +174,39 @@ class Request(models.Model):
         return self.status.code == RequestStatus.PROJECT
 
 
+class RequestHistory(models.Model):
+    STATUS_CHANGE = 'status_change'
+    APPROVAL = 'approval'
+    REJECTION = 'rejection'
+    FINAL_APPROVE = 'final_approve'
+    PAID_DATE_SET = 'paid_date'
+    EDITED = 'edited'
+    CREATED = 'created'
+
+    request = models.ForeignKey(Request, verbose_name=_(u"Заявка"), related_name='history')
+    action_type = models.CharField(
+        max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH,
+        verbose_name=_(u"Тип изменения"),
+        choices=(
+            (EDITED, _(u"Изменена")),
+            (CREATED, _(u"Создана")),
+            (STATUS_CHANGE, _(u"Изменение статуса")),
+            (APPROVAL, _(u"Утверждена")),
+            (REJECTION, _(u"Отклонена")),
+            (FINAL_APPROVE, _(u"Полностью утверждена")),
+            (PAID_DATE_SET, _(u"Оплачена"))
+        )
+    )
+    actor = models.ForeignKey(UserProfile, verbose_name=_(u"Пользователь"))
+    action_parameters = JSONField(verbose_name=_(u"Параметры"))
+    action_date = models.DateTimeField(verbose_name=_(u"Дата и время"))
+    comments = models.CharField(max_length=ModelConstants.MAX_VARCHAR_LENGTH,
+                                verbose_name=_(u"Дополнительная информация"))
+
+    class Meta:
+        app_label = "DocApproval"
+
+
 @receiver(final_approve_signal, sender=ApprovalProcess)
 def final_approve_handler(sender, **kwargs):
     request_id = kwargs.get('request_pk', 0)
@@ -196,6 +230,3 @@ def rejection_handler(sender, **kwargs):
         request.save()
     except Request.DoesNotExist:
         _logger.warning("Final approve signal emitted with non-existing request parameter")
-
-
-
