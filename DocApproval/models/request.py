@@ -189,6 +189,7 @@ class RequestHistory(models.Model):
         choices=(
             (EDITED, _(u"Изменена/создана")),
             (STATUS_CHANGE, _(u"Изменение статуса")),
+            (ROUTE_CHANGED, _(u"Изменен маршрут")),
             (APPROVAL, _(u"Утверждена")),
             (REJECTION, _(u"Отклонена")),
             (FINAL_APPROVE, _(u"Полностью утверждена")),
