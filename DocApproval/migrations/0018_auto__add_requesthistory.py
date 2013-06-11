@@ -12,9 +12,9 @@ class Migration(SchemaMigration):
                                                                               to=orm['DocApproval.Request'])),
             ('action_type', self.gf('django.db.models.fields.CharField')(max_length=50)),
             ('actor', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['DocApproval.UserProfile'])),
-            ('action_parameters', self.gf('jsonfield.fields.JSONField')(default={})),
-            ('action_date', self.gf('django.db.models.fields.DateTimeField')()),
-            ('comments', self.gf('django.db.models.fields.CharField')(max_length=4000)),
+            ('action_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+            ('action_parameters', self.gf('jsonfield.fields.JSONField')(null=True)),
+            ('comments', self.gf('django.db.models.fields.CharField')(max_length=4000, null=True)),
         ))
         db.send_create_signal('DocApproval', ['RequestHistory'])
 
@@ -114,11 +114,11 @@ class Migration(SchemaMigration):
         },
         'DocApproval.requesthistory': {
             'Meta': {'object_name': 'RequestHistory'},
-            'action_date': ('django.db.models.fields.DateTimeField', [], {}),
-            'action_parameters': ('jsonfield.fields.JSONField', [], {'default': '{}'}),
+            'action_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'action_parameters': ('jsonfield.fields.JSONField', [], {'null': 'True'}),
             'action_type': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'actor': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['DocApproval.UserProfile']"}),
-            'comments': ('django.db.models.fields.CharField', [], {'max_length': '4000'}),
+            'comments': ('django.db.models.fields.CharField', [], {'max_length': '4000', 'null': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'request': ('django.db.models.fields.related.ForeignKey', [],
                         {'related_name': "'history'", 'to': "orm['DocApproval.Request']"})

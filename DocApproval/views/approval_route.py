@@ -195,7 +195,7 @@ class SaveApprovalRouteView(View):
 
         return steps
 
-    def save_route(self, querydict):
+    def save_route(self, querydict, user):
         is_template = querydict.get('is_template', '0') != '0'
         default_name = ApprovalRouteMessages.DEFAULT_TEMPLATE_APPROVAL_ROUTE_NAME if is_template else ApprovalRouteMessages.NEW_APPROVAL_ROUTE
         steps = self._get_steps(querydict.lists())
@@ -207,14 +207,15 @@ class SaveApprovalRouteView(View):
             name=querydict.get('name', default_name),
             description=querydict.get('desc', ''),
             is_template=is_template,
-            steps=steps
+            steps=steps,
+            user=user
         )
 
         return route
 
     def post(self, request, *args, **kwargs):
         try:
-            self.save_route(request.POST)
+            self.save_route(request.POST, request.user.profile)
             data = {
                 'success': True
             }

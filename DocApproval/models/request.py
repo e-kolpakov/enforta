@@ -3,17 +3,18 @@ import os
 import logging
 import datetime
 
-from django.db import models
-from django.dispatch import receiver
+from django.db import models, transaction
+from django.dispatch.dispatcher import Signal
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 
 from guardian.shortcuts import get_objects_for_user
 from jsonfield import JSONField
+from DocApproval.models.approval import ApprovalProcessAction
 
 from .user import UserProfile
 from .common import City, ModelConstants, Permissions
-from .approval import ApprovalRoute, ApprovalProcess, final_approve_signal, reject_signal
+from .approval import ApprovalRoute
 from DocApproval.url_naming.names import Request as RequestUrls
 from DocApproval.utilities.humanization import Humanizer
 
@@ -129,18 +130,16 @@ class Request(models.Model):
             (Permissions.Request.CAN_EDIT_ROUTE, _(u"Может изменять маршрут утверждения"))
         )
 
+    @transaction.commit_on_success
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        # Avoiding circular import. Another solution would be to split models even further.
-        from DocApproval.request_management.status_management import RequestStatusManager
-
         try:
-            prev_status = Request.objects.get(pk=self.pk).status
+            old_status = Request.objects.get(pk=self.pk).status
         except Request.DoesNotExist:
-            prev_status = None
+            old_status = None
         super(Request, self).save(force_insert=force_insert, force_update=force_update, using=using,
                                   update_fields=update_fields)
-        if prev_status and prev_status != self.status:
-            RequestStatusManager(self).handle_status_update(prev_status, self.status)
+        if old_status and old_status != self.status:
+            request_status_change.send(Request, request=self, old_status=old_status, new_status=self.status)
 
     def get_absolute_url(self):
         return reverse(RequestUrls.DETAILS, kwargs={'pk': self.pk})
@@ -175,21 +174,20 @@ class Request(models.Model):
 
 
 class RequestHistory(models.Model):
-    STATUS_CHANGE = 'status_change'
-    APPROVAL = 'approval'
-    REJECTION = 'rejection'
-    FINAL_APPROVE = 'final_approve'
-    PAID_DATE_SET = 'paid_date'
     EDITED = 'edited'
-    CREATED = 'created'
+    STATUS_CHANGE = 'status_change'
+    PAID_DATE_SET = 'paid_date'
+    ROUTE_CHANGED = 'route_changed'
+    APPROVAL = ApprovalProcessAction.ACTION_APPROVE
+    REJECTION = ApprovalProcessAction.ACTION_REJECT
+    FINAL_APPROVE = ApprovalProcessAction.ACTION_FINAL_APPROVE
 
     request = models.ForeignKey(Request, verbose_name=_(u"Заявка"), related_name='history')
     action_type = models.CharField(
         max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH,
         verbose_name=_(u"Тип изменения"),
         choices=(
-            (EDITED, _(u"Изменена")),
-            (CREATED, _(u"Создана")),
+            (EDITED, _(u"Изменена/создана")),
             (STATUS_CHANGE, _(u"Изменение статуса")),
             (APPROVAL, _(u"Утверждена")),
             (REJECTION, _(u"Отклонена")),
@@ -198,35 +196,19 @@ class RequestHistory(models.Model):
         )
     )
     actor = models.ForeignKey(UserProfile, verbose_name=_(u"Пользователь"))
-    action_parameters = JSONField(verbose_name=_(u"Параметры"))
-    action_date = models.DateTimeField(verbose_name=_(u"Дата и время"))
+    action_date = models.DateTimeField(verbose_name=_(u"Дата и время"), auto_now_add=True)
+    action_parameters = JSONField(verbose_name=_(u"Параметры"), null=True)
     comments = models.CharField(max_length=ModelConstants.MAX_VARCHAR_LENGTH,
-                                verbose_name=_(u"Дополнительная информация"))
+                                verbose_name=_(u"Дополнительная информация"), null=True)
+
+    @classmethod
+    def create_record(cls, request, action_type, user, comment=None, params=None):
+        cls.objects.create(request=request, action_type=action_type, actor=user, action_parameters=params,
+                           comments=comment)
 
     class Meta:
         app_label = "DocApproval"
 
 
-@receiver(final_approve_signal, sender=ApprovalProcess)
-def final_approve_handler(sender, **kwargs):
-    request_id = kwargs.get('request_pk', 0)
-    try:
-        request = Request.objects.get(pk=request_id)
-        _logger.info("Handling final approve on request {0}", request)
-        request.status = RequestStatus.objects.get(code=RequestStatus.NEGOTIATED_NO_PAYMENT)
-        request.accepted = datetime.datetime.now()
-        request.save()
-    except Request.DoesNotExist:
-        _logger.warning("Final approve signal emitted with non-existing request parameter")
-
-
-@receiver(reject_signal, sender=ApprovalProcess)
-def rejection_handler(sender, **kwargs):
-    request_id = kwargs.get('request_pk', 0)
-    try:
-        request = Request.objects.get(pk=request_id)
-        _logger.info("Handling rejection on request {0}", request)
-        request.status = RequestStatus.objects.get(code=RequestStatus.PROJECT)
-        request.save()
-    except Request.DoesNotExist:
-        _logger.warning("Final approve signal emitted with non-existing request parameter")
+request_status_change = Signal(providing_args=(['request', 'old_status', 'new_status']))
+request_paid = Signal(providing_args=(['request']))
