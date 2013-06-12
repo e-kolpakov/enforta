@@ -103,8 +103,9 @@ class ApprovalListPrint(PdfView, SingleObjectMixin):
     def _get_departments(self):
         return self.departments
 
-    def _make_signature_img(self, url):
-        return mark_safe("<img src='{0}' class='signature'/>".format(url))
+    def _make_signature_img(self, image):
+        img_url = image.url if image else ''
+        return mark_safe("<img src='{0}' class='signature'/>".format(img_url))
 
     def _format_date(self, date):
         return _date(date, self.date_format)
@@ -119,7 +120,7 @@ class ApprovalListPrint(PdfView, SingleObjectMixin):
 
         action = request.successful_approval.get_approval_action(manager)
         if action:
-            signature = manager.sign.url
+            signature = manager.sign
             action_date = action.action_taken
         else:
             self._logger.warning("Manager have not taken action in approval process of request {0}".format(request.pk))
@@ -162,7 +163,7 @@ class ApprovalListPrint(PdfView, SingleObjectMixin):
         )
 
     def _get_creator_and_manager_rows(self, request):
-        creator_signature, creator_action_date = request.creator.sign.url, request.created
+        creator_signature, creator_action_date = request.creator.sign, request.created
         manager_signature, manager_action_date = self._get_manager_approval(request)
 
         creator_sign_img = self._make_signature_img(creator_signature)
@@ -171,6 +172,7 @@ class ApprovalListPrint(PdfView, SingleObjectMixin):
         return (
             ApprovalListRow.get_row(
                 ApprovalListRow.FOUR_CELL_ROW,
+                height=2,
                 cell_contents={
                     1: creator_sign_img,
                     2: self._format_date(creator_action_date) if creator_action_date else date_tpl,
@@ -186,9 +188,10 @@ class ApprovalListPrint(PdfView, SingleObjectMixin):
         return (
             ApprovalListRow.get_row(
                 ApprovalListRow.THREE_CELL_ROW1,
+                height=2,
                 cell_contents={
                     1: u"Согласовано: {0}".format(user.full_name),
-                    2: self._make_signature_img(user.sign.url),
+                    2: self._make_signature_img(user.sign),
                     3: self._format_date(approval.action_taken)
                 }
             ),
