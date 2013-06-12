@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+{% extends "base_login.html" %}
 {% load i18n %}
-{% block content %}
+{% block auth_content %}
     <p>{% trans "Вы вышли из системы" %}</p>
     <a href="{% url "authentication.login" %}">{% trans "Войти в систему" %}</a>
-{% endblock content %}
+{% endblock auth_content %}

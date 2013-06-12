@@ -1,0 +1,16 @@
+@import-once "../variables";
+@import-once "../mixins";
+
+div.login-wrapper {
+  margin: auto auto;
+  border: 1px solid @default-border-color;
+  padding: 10px 20px;
+  background-color: #fff;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: @login-content-size-width;
+  height: @login-content-size-height;
+  margin: -@login-content-size-height/2 -@login-content-size-width/2;
+  .rounded-borders-mixin;
+}
