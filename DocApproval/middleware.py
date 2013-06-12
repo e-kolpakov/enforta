@@ -73,8 +73,6 @@ class RequireLoginMiddleware(object):
 class MenuMiddleware(object):
     def process_view(self, request, view_func, view_args, view_kwargs):
         logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
-        if view_func.__module__.split('.')[0] != 'DocApproval':
-            return None
         logger.debug("Processing view '{0}.{1}' with args {2} and kwargs {3}".format(
             view_func.__module__, view_func.__name__, view_args, view_kwargs
         ))
