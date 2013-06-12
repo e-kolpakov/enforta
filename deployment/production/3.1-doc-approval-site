@@ -1,18 +1,28 @@
 <VirtualHost *:80>
+    LogLevel warn
+	ErrorLog ${APACHE_LOG_DIR}/docapproval.error.log
+	CustomLog ${APACHE_LOG_DIR}/docapproval.access.log combined
+	ServerSignature On
+
+    SetEnv  EnvironmentType production
+
+    Alias /robots.txt /home/enfortit/docapproval/portal/static/robots.txt
+    Alias /favicon.ico /home/enfortit/docapproval/portal/static/favicon.ico
+
+    AliasMatch ^/([^/]*\.css) /home/enfortit/docapproval/portal/static/styles/$1
+
+    Alias /static 		/home/enfortit/docapproval/portal/static
+
+    <Directory /home/enfortit/docapproval/portal/static>
+    Order deny,allow
+    Allow from all
+    </Directory>
+
 	WSGIScriptAlias / /home/enfortit/docapproval/portal/wsgi.py
 	WSGIDaemonProcess docApproval processes=10 maximum-requests=10 threads=1 \
 	python-path=/home/enfortit/docapproval:/home/enfortit/.virtualenvs/DocApproval/lib/python2.7/site-packages \
 	lang='en_US.UTF-8' locale='en_US.UTF-8'
     WSGIProcessGroup docApproval
-
-    SetEnv  EnvironmentType production
-
-	Alias /static 		/home/enfortit/docapproval/portal/static
-
-	LogLevel warn
-	ErrorLog ${APACHE_LOG_DIR}/docapproval.error.log
-	CustomLog ${APACHE_LOG_DIR}/docapproval.access.log combined
-	ServerSignature On
 
     DocumentRoot /var/www/docapproval
 	<Directory /var/www/docapproval>
@@ -21,10 +31,4 @@
 	Allow from all
 	</Files>
 	</Directory>
-
-
-	<Directory "/static">
-	    SetHandler None
-	</Directory>
-
 </VirtualHost>
