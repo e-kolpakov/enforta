@@ -33,6 +33,7 @@ class RequestMessages:
 
 class ProfileMessages:
     DOES_NOT_EXIST = _(u"Запрошен профиль неизвестного пользователя")
+    SIGNATURE_EMPTY = _(u"Не задана ваша подпись. Листы утверждения с вашим участием будут созданы без вашей подписи.")
 
 
 class ContractMessages:

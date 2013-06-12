@@ -40,6 +40,10 @@ class Permissions:
         CAN_MANAGE_TEMPLATES = "docapproval_can_create_templates"
 
 
+class Groups:
+    APPROVERS = "Утверждающие"
+
+
 #Some "dictionaries" first
 class Position(models.Model):
     position_name = models.CharField(_(u'Должность'), max_length=ModelConstants.MAX_VARCHAR_LENGTH)

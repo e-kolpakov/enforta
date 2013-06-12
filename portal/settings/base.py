@@ -100,7 +100,8 @@ MIDDLEWARE_CLASSES = (
     'reversion.middleware.RevisionMiddleware',
 
     'DocApproval.middleware.RequireLoginMiddleware',
-    'DocApproval.middleware.MenuMiddleware'
+    'DocApproval.middleware.MenuMiddleware',
+    'DocApproval.middleware.SignatureCheckMiddleware'
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )

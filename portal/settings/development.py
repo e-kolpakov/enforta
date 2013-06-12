@@ -57,6 +57,11 @@ LOGGING = {
         },
         'DocApproval.middleware': {
             'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+        'DocApproval.middleware.RequireLoginMiddleware': {
+            'handlers': ['file'],
             'level': 'WARNING',
             'propagate': False
         },
