@@ -16,6 +16,22 @@ framework.
 import os
 from django.core.handlers.wsgi import WSGIHandler
 
+PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
+#sys.path.insert(0, PROJECT_PATH)
+
+import portal.monitor as monitor
+
+
+def monitor_file(arg, dirname, names):
+    for filename in names:
+        filename, extension = os.path.splitext(filename)
+        monitor.track(os.path.join(dirname, filename))
+
+
+monitor.start(interval=1.0)
+os.path.walk(PROJECT_PATH, monitor_file, None)
+os.path.walk(os.path.join(PROJECT_PATH, '../DocApproval'), monitor_file, None)
+
 # This application object is used by any WSGI server configured to use this
 # file. This includes Django's development server, if the WSGI_APPLICATION
 # setting points here.
