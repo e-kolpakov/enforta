@@ -87,7 +87,7 @@ class ApprovalRoute(models.Model):
 
     @classmethod
     @transaction.commit_on_success
-    def create_or_update_with_steps(cls, pk=None, name=None, description=None, is_template=False, steps=None):
+    def create_or_update_with_steps(cls, user, pk=None, name=None, description=None, is_template=False, steps=None):
         primary_key = pk if pk and int(pk) else None
         route, created = ApprovalRoute.objects.get_or_create(
             pk=primary_key,
@@ -110,7 +110,8 @@ class ApprovalRoute(models.Model):
             steps_to_keep.append(int(step_number))
 
         route.remove_steps(exclude=steps_to_keep)
-
+        if not is_template:
+            approval_route_changed_signal.send(ApprovalRoute, request=route.request, user=user)
         return route
 
     def add_step(self, step_number, approvers):
@@ -198,7 +199,8 @@ class ApprovalProcess(models.Model):
     @transaction.commit_on_success
     def step_approved(self, user_profile, approver, comment=None):
         self._process_action(user_profile, ApprovalProcessAction.ACTION_APPROVE, comment, approver)
-        approve_signal.send(ApprovalProcess, request_pk=self.route.request.pk, user_pk=user_profile.pk)
+        approve_action_signal.send(ApprovalProcess, request=self.route.request, user=user_profile, comment=comment,
+                                   action_type=ApprovalProcessAction.ACTION_APPROVE)
         if self.current_step_number != self.route.get_steps_count():
             self.current_step_number += 1
             self.save()
@@ -206,13 +208,15 @@ class ApprovalProcess(models.Model):
             self.is_successful = True
             self.save()
             _logger.info(LoggerMessages.REQUEST_APPROVED.format(user_profile, self.route.request, approver))
-            final_approve_signal.send(ApprovalProcess, request_pk=self.route.request.pk, user_pk=user_profile.pk)
+            approve_action_signal.send(ApprovalProcess, request=self.route.request, user=user_profile, comment=comment,
+                                       action_type=ApprovalProcessAction.ACTION_FINAL_APPROVE)
 
     @transaction.commit_on_success
     def step_rejected(self, user_profile, approver, comment=None):
         _logger.info(LoggerMessages.REQUEST_REJECTED.format(user_profile, self.route.request, approver))
         self._process_action(user_profile, ApprovalProcessAction.ACTION_REJECT, comment, approver)
-        reject_signal.send(ApprovalProcess, request_pk=self.route.request.pk, user_pk=user_profile.pk)
+        approve_action_signal.send(ApprovalProcess, request=self.route.request, user=user_profile, comment=comment,
+                                   action_type=ApprovalProcessAction.ACTION_REJECT)
 
     def _process_action(self, user_profile, action_code, comment, approver):
         current_step = self.current_step_number
@@ -237,6 +241,7 @@ class ApprovalProcess(models.Model):
 class ApprovalProcessAction(models.Model):
     ACTION_APPROVE = 'approve'
     ACTION_REJECT = 'reject'
+    ACTION_FINAL_APPROVE = 'final_approve'
     process = models.ForeignKey(ApprovalProcess, verbose_name=_(u"Попытка утверждения"), related_name='actions')
     step = models.ForeignKey(ApprovalRouteStep, verbose_name=_(u"Шаг утверждения"))
     action = models.CharField(
@@ -252,13 +257,6 @@ class ApprovalProcessAction(models.Model):
     class Meta:
         app_label = "DocApproval"
 
-    def get_action_display_past_form(self):
-        return {
-            self.ACTION_APPROVE: _(u"Утверждена"),
-            self.ACTION_REJECT: _(u"Отклонена")
-        }.get(self.action, _(u"Действие неизвестно"))
 
-
-approve_signal = Signal(providing_args=(['request_pk', 'user_pk']))
-final_approve_signal = Signal(providing_args=(['request_pk', 'user_pk']))
-reject_signal = Signal(providing_args=(['request_pk', 'user_pk']))
+approve_action_signal = Signal(providing_args=(['request', 'user', 'comment', 'action_type']))
+approval_route_changed_signal = Signal(providing_args=(['request', 'user']))

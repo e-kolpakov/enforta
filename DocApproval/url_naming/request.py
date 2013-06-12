@@ -17,7 +17,7 @@ urlpatterns = patterns(
     url(r"^create", request.CreateRequestView.as_view(), name=request_names.CREATE),
     url(r"^edit/(?P<pk>\d+)", request.UpdateRequestView.as_view(), name=request_names.UPDATE),
     url(r"^details/(?P<pk>\d+)", request.DetailRequestView.as_view(), name=request_names.DETAILS),
-    url(r"^approval_history/(?P<pk>\d+)", request.RequestApprovalHistoryView.as_view(),
+    url(r"^approval_history/(?P<pk>\d+)", request.RequestHistoryView.as_view(),
         name=request_names.APPROVAL_HISTORY),
 
     url(r"^approval_sheet/(?P<pk>\d+)", approval_list.ApprovalListPrint.as_view(), {'as_html': False},

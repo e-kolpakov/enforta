@@ -236,7 +236,7 @@ class RequestContextMenuManagerExtension(MenuManagerExtensionBase):
                 NavigableMenuItem(caption=_(u"Профиль"), image='icons/profile.png',
                                   url=reverse(url_names.Request.DETAILS, kwargs={'pk': req.pk})), order=0)
             self._accumulate_child(
-                NavigableMenuItem(caption=_(u"История утверждения"), image='icons/history.png',
+                NavigableMenuItem(caption=_(u"История заявки"), image='icons/history.png',
                                   url=reverse(url_names.Request.APPROVAL_HISTORY, kwargs={'pk': req.pk})), order=30)
             if req.is_approved():
                 self._accumulate_child(

@@ -11,12 +11,13 @@ from django.views.generic.detail import SingleObjectMixin
 from django.contrib import messages
 
 from guardian.decorators import permission_required
+from DocApproval.models.request import RequestHistory
 from DocApproval.request_management.actions import RequestActionRepository
 from DocApproval.request_management.request_factory import RequestFactory
 
 from ..menu import RequestContextMenuManagerExtension, MenuModifierViewMixin
 from ..messages import CommonMessages, RequestMessages
-from ..models import Request, RequestStatus, Permissions, ApprovalProcessAction
+from ..models import Request, RequestStatus, Permissions
 from ..url_naming.names import Request as RequestUrl, Profile as ProfileUrl
 from ..forms import EditRequestForm, EditContractForm
 
@@ -218,7 +219,7 @@ class DetailRequestView(DetailView, MenuModifierViewMixin):
         })
 
 
-class RequestApprovalHistoryView(SingleObjectMixin, ListView, MenuModifierViewMixin):
+class RequestHistoryView(SingleObjectMixin, ListView, MenuModifierViewMixin):
     paginate_by = 50
     template_name = "request/request_approval_history.html"
     _logger = logging.getLogger(__name__)
@@ -226,21 +227,15 @@ class RequestApprovalHistoryView(SingleObjectMixin, ListView, MenuModifierViewMi
 
     def get_context_data(self, **kwargs):
         kwargs['request'] = self.object
-        return super(RequestApprovalHistoryView, self).get_context_data(**kwargs)
+        return super(RequestHistoryView, self).get_context_data(**kwargs)
 
     def get_queryset(self):
-        return ApprovalProcessAction.objects.filter(process__route__request=self.object) \
-            .select_related('process').order_by('action_taken')
+        return RequestHistory.objects.filter(request=self.object).order_by('action_date')
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object(Request.objects.all())
         self._apply_extender(request, self.object)
-        return super(RequestApprovalHistoryView, self).get(request, *args, **kwargs)
-
-
-class RequestApprovalSheetView(DetailView):
-    template_name = "request/request_approval_sheet.html"
-    model = Request
+        return super(RequestHistoryView, self).get(request, *args, **kwargs)
 
 
 class RequestListJson(JsonConfigurableDatatablesBaseView):

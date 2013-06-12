@@ -49,12 +49,18 @@ class NegotiationToProjectTransition(RequestStatusTransitionBase):
             pass
 
 
+class NegotiationToNegotiatedNoPaymentTransition(RequestStatusTransitionBase):
+    def apply(self):
+        pass
+
+
 class RequestStatusManager(object):
     _logger = logging.getLogger(__name__ + ".RequestStatusManager")
 
     _valid_transitions = {
         (RequestStatus.PROJECT, RequestStatus.NEGOTIATION): ProjectToNegotiationTransition,
-        (RequestStatus.NEGOTIATION, RequestStatus.PROJECT): NegotiationToProjectTransition
+        (RequestStatus.NEGOTIATION, RequestStatus.PROJECT): NegotiationToProjectTransition,
+        (RequestStatus.NEGOTIATION, RequestStatus.NEGOTIATED_NO_PAYMENT): NegotiationToNegotiatedNoPaymentTransition
     }
 
     def __init__(self, request_instance):
