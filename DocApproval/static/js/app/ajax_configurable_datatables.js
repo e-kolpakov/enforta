@@ -1,10 +1,10 @@
 /*globals define*/
 define(
     [
-        'jquery', 'app/ajax_communicator',
+        'jquery', 'app/ajax_communicator', 'app/request_search_form',
         'datatables/jquery.dataTables', 'datatables/dt_bootstrap', 'datatables/datatables-ru'
     ],
-    function ($, Communicator) {
+    function ($, Communicator, SearchForm) {
 
         var html_helper = {
             _create_header: function (target) {
@@ -32,7 +32,7 @@ define(
             },
 
             create_table: function (target, table_options) {
-                target.dataTable(table_options);
+                return target.dataTable(table_options);
             }
         };
 
@@ -55,7 +55,7 @@ define(
                 return result;
             }
 
-            function transform_extra_params(extra_params) {
+            function transform_params(extra_params) {
                 var result = [];
                 for (var key in extra_params) {
                     if (!extra_params.hasOwnProperty(key))
@@ -72,21 +72,25 @@ define(
             };
 
             return {
-                parse_config: function (datables_config, datatables_options) {
+                parse_config: function (datables_config, datatables_options, search_form) {
                     var new_options = {
                         sAjaxSource: options.data_url,
                         aoColumns: get_column_config(datables_config),
                         aLengthMenu: [5, 10, 25, 50, 100]
                     };
-                    if (options.extra_server_params) {
-                        var extra_params = transform_extra_params(options.extra_server_params);
-                        new_options['fnServerData'] = function (sSource, aoData, fnCallback) {
-                            aoData.push.apply(aoData, extra_params);
-                            $.getJSON(sSource, aoData, function (json) {
-                                fnCallback(json)
-                            });
+
+                    new_options['fnServerData'] = function (sSource, aoData, fnCallback) {
+                        if (options.extra_server_params) {
+                            aoData.push.apply(aoData, transform_params(options.extra_server_params));
                         }
+                        if (search_form) {
+                            aoData.push.apply(aoData, transform_params(search_form.get_data()));
+                        }
+                        $.getJSON(sSource, aoData, function (json) {
+                            fnCallback(json)
+                        });
                     }
+
                     return {
                         options: $.extend({}, default_options, new_options, datatables_options),
                         columns: datables_config.columns,
@@ -113,14 +117,21 @@ define(
             var parser = config_parser(options);
             var comm = new Communicator(options.csrftoken);
             var promise = comm.make_request({url: options.config_url, type: 'GET'});
+            var search_form = options.search_form ? new SearchForm(options.search_form, options.search_form_prefix) : null;
 
             promise.done(function (datatables_config, textStatus, jqXHR) {
-                var config = parser.parse_config(datatables_config, datatables_options);
+                var config = parser.parse_config(datatables_config, datatables_options, search_form);
                 html_helper.make_header(self, config.columns);
                 if (options.caption) {
                     html_helper.add_caption(self, options.caption);
                 }
-                html_helper.create_table(self, config.options);
+                var oTable = html_helper.create_table(self, config.options);
+
+                if (search_form) {
+                    search_form.add_listener(function (data) {
+                        oTable.fnDraw(false);
+                    });
+                }
             });
         };
     }

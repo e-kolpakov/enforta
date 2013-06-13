@@ -1,0 +1,49 @@
+{% load i18n %}
+<form class='form-horizontal search-form' id='{{ form_id }}'>
+    <div class='row'>
+        <div class='span5'>
+            <div class="control-group">
+                <label class='control-label' for='{{ form_prefix }}request-name'>{% trans "Заявка" %}</label>
+
+                <div class='controls'>
+                    <input type='text' id='{{ form_prefix }}request-name' placeholder='{% trans "Наименование" %}'
+                           class='input-xlarge' name='name'/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class='control-label' for='{{ form_prefix }}request-name'>{% trans "Заявка" %}</label>
+
+                <div class='controls'>
+                    <input type='text' id='{{ form_prefix }}request-name' placeholder='{% trans "Наименование" %}'
+                           class='input-xlarge' name='name2'/>
+                </div>
+            </div>
+        </div>
+        <div class='span5'>
+            <div class="control-group">
+                <label class='control-label' for='{{ form_prefix }}request-name'>{% trans "Заявка" %}</label>
+
+                <div class='controls'>
+                    <input type='text' id='{{ form_prefix }}request-name' placeholder='{% trans "Наименование" %}'
+                           class='input-xlarge' name='name3'/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class='control-label' for='{{ form_prefix }}request-name'>{% trans "Заявка" %}</label>
+
+                <div class='controls'>
+                    <input type='text' id='{{ form_prefix }}request-name' placeholder='{% trans "Наименование" %}'
+                           class='input-xlarge' name='name4'/>
+                </div>
+            </div>
+        </div>
+        <div class='span2'>
+            <div class="control-group">
+                <button class='btn btn-primary search-btn'>Поиск</button>
+            </div>
+            <div class="control-group">
+                <button class='btn btn-secondary reset-btn'>Сброс</button>
+            </div>
+        </div>
+    </div>
+</form>

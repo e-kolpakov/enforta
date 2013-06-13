@@ -12,6 +12,10 @@ define(['jquery', 'app/ajax_configurable_datatables'], function ($) {
     if (config.extra_server_params) {
         options.extra_server_params = config.extra_server_params;
     }
+    if (config.search_form) {
+        options.search_form = config.search_form;
+        options.search_form_prefix = config.search_form_prefix;
+    }
 
     return function () {
         $(function () {

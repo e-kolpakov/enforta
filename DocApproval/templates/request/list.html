@@ -1,6 +1,7 @@
 {% extends "base_datatables_layout.html" %}
 
 {% block maincontent %}
+    {% include "request/_search_form.html" with show_only=show_only form_id='search_form' form_prefix='' %}
     <table id="grid" class="table"></table>
 {% endblock %}
 
@@ -11,6 +12,8 @@
             target: '#grid',
             data_url: '{% url datatables_data %}',
             config_url: '{% url datatables_config %}',
+            search_form: '#search_form',
+            search_form_prefix: ''
             {% if show_only %}
                 extra_server_params: {'show_only': '{{ show_only }}'}
             {% endif %}
