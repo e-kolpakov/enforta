@@ -13,13 +13,13 @@
             <th>Пользователь</th>
             <th>Комментарий</th>
         </tr>
-        {% for action in page_obj %}
+        {% for record in page_obj %}
             <tr>
-                <td></td>
-                <td>{{ action.get_action_type_display }}</td>
-                <td>{{ action.action_date }}</td>
-                <td>{{ action.actor }}</td>
-                <td>{{ action.comments|default:""|linebreaksbr }}</td>
+                <td><img class='icon' src="{{ STATIC_URL }}img/icons/{{ record.icon }}"/></td>
+                <td>{{ record.get_action_type_display }}</td>
+                <td>{{ record.action_date }}</td>
+                <td>{{ record.actor }}</td>
+                <td>{{ record.comments|default:""|linebreaksbr }}</td>
             </tr>
         {% empty %}
             <tr class='no-data'>

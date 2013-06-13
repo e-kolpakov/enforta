@@ -133,13 +133,13 @@ class Request(models.Model):
     @transaction.commit_on_success
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         try:
-            old_status = Request.objects.get(pk=self.pk).status
+            old_request = Request.objects.get(pk=self.pk)
         except Request.DoesNotExist:
-            old_status = None
+            old_request = None
         super(Request, self).save(force_insert=force_insert, force_update=force_update, using=using,
                                   update_fields=update_fields)
-        if old_status and old_status != self.status:
-            request_status_change.send(Request, request=self, old_status=old_status, new_status=self.status)
+        if old_request and old_request.status != self.status:
+            request_status_change.send(Request, request=self, old_status=old_request.status, new_status=self.status)
 
     def get_absolute_url(self):
         return reverse(RequestUrls.DETAILS, kwargs={'pk': self.pk})
@@ -182,6 +182,27 @@ class RequestHistory(models.Model):
     REJECTION = ApprovalProcessAction.ACTION_REJECT
     FINAL_APPROVE = ApprovalProcessAction.ACTION_FINAL_APPROVE
 
+    _default_action = "action_types/unknown.png"
+
+    _status_icons = {
+        RequestStatus.PROJECT: "request_status/project.png",
+        RequestStatus.NEGOTIATION: "request_status/negotiation.png",
+        RequestStatus.NEGOTIATED_NO_PAYMENT: "request_status/negotiated_no_payment.png",
+        RequestStatus.BILL_REQUIRED: "request_status/bill_required.png",
+        RequestStatus.ACTIVE: "request_status/active.png",
+        RequestStatus.OUTDATED: "request_status/outdated.png",
+    }
+
+    _action_type_icons = {
+        EDITED: "action_types/edited.png",
+        STATUS_CHANGE: "", # handled differently
+        PAID_DATE_SET: "action_types/edited.png",
+        ROUTE_CHANGED: "action_types/route_changed.png",
+        APPROVAL: "action_types/approve.png",
+        REJECTION: "action_types/reject.png",
+        FINAL_APPROVE: "action_types/final_approve.png",
+    }
+
     request = models.ForeignKey(Request, verbose_name=_(u"Заявка"), related_name='history')
     action_type = models.CharField(
         max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH,
@@ -209,6 +230,23 @@ class RequestHistory(models.Model):
 
     class Meta:
         app_label = "DocApproval"
+
+    @property
+    def icon(self):
+        if self.action_type == self.STATUS_CHANGE:
+            new_status = self.action_parameters['new_status']
+            return self._status_icons.get(new_status, "")
+        else:
+            return self._action_type_icons.get(self.action_type, "")
+
+    def _get_FIELD_display(self, field):
+
+        if field.name == 'action_type' and self.action_type == self.STATUS_CHANGE:
+            status = self.action_parameters.get('new_status')
+            result = u"{0}: {1}".format(_(u"Переведена в статус"), RequestStatus.objects.get(pk=status).status_name)
+        else:
+            result = super(RequestHistory, self)._get_FIELD_display(field)
+        return result
 
 
 request_status_change = Signal(providing_args=(['request', 'old_status', 'new_status']))

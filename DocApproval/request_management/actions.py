@@ -142,10 +142,10 @@ class RequestActionRepository(Mapping):
     REJECT = RejectAction.code
 
     _actions = {
-        TO_APPROVAL: SendToApprovalAction(_(u"Отправить на утверждение"), icon="icons/to_approval.png"),
-        TO_PROJECT: SendToProjectAction(_(u"Вернуть в статус проекта"), icon="icons/to_project.png"),
-        APPROVE: ApproveAction(_(u"Утвердить"), icon="icons/approve.png"),
-        REJECT: RejectAction(_(u"Отклонить"), icon="icons/reject.png")
+        TO_APPROVAL: SendToApprovalAction(_(u"Отправить на утверждение"), icon="icons/request_status/approval.png"),
+        TO_PROJECT: SendToProjectAction(_(u"Вернуть в статус проекта"), icon="icons/request_status/project.png"),
+        APPROVE: ApproveAction(_(u"Утвердить"), icon="icons/action_types/approve.png"),
+        REJECT: RejectAction(_(u"Отклонить"), icon="icons/action_types/reject.png")
     }
 
     __getitem__ = _actions.__getitem__
