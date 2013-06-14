@@ -2,15 +2,25 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 import django.contrib.auth.models as auth_models
-from models import *
 import reversion
 from django.utils.translation import ugettext as _
 
+from models import *
 from forms import AdminCustomizedUserForm
 
 
-# "dictionaries"
-class CustomizedUserAdmin(UserAdmin):
+class NonDeleteableEntityAdmin(admin.ModelAdmin):
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def get_actions(self, request):
+        actions = super(NonDeleteableEntityAdmin, self).get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
+
+
+class CustomizedUserAdmin(NonDeleteableEntityAdmin, UserAdmin):
     form = AdminCustomizedUserForm
     fieldsets = (
         ( None, {'fields': ('username', 'password', 'is_active')}),
@@ -18,7 +28,7 @@ class CustomizedUserAdmin(UserAdmin):
     )
 
 
-class UserProfileAdmin(admin.ModelAdmin):
+class UserProfileAdmin(NonDeleteableEntityAdmin):
     pass
 
 
@@ -30,15 +40,11 @@ class CityAdmin(admin.ModelAdmin):
     pass
 
 
-class RequestStatusAdmin(admin.ModelAdmin):
+class RequestStatusAdmin(NonDeleteableEntityAdmin):
     fields = ("status_name",)
     readonly_fields = ("code",) #code is not editable anyway, it's included for the sake of completeness
-    actions = None
 
-    def has_add_permission(self, request):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
+    def has_add_permission(self, request, obj=None):
         return False
 
 
