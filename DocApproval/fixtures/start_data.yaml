@@ -46,32 +46,32 @@
 - model: DocApproval.City
   pk: 1
   fields:
-    city_name: "Ростов-на-Дону"
+    name: "Ростов-на-Дону"
 
 - model: DocApproval.RequestStatus
   pk: "project"
   fields:
-    status_name: "Проект"
+    name: "Проект"
 - model: DocApproval.RequestStatus
   pk: "negotiation"
   fields:
-    status_name: "В согласовании"
+    name: "В согласовании"
 - model: DocApproval.RequestStatus
   pk: "negotiated_no_payment"
   fields:
-    status_name: "Согласован, но не оплачен"
+    name: "Согласован, но не оплачен"
 - model: DocApproval.RequestStatus
   pk: "active"
   fields:
-    status_name: "В работе"
+    name: "В работе"
 - model: DocApproval.RequestStatus
   pk: "outdated"
   fields:
-    status_name: "Истек срок действия"
+    name: "Истек срок действия"
 - model: DocApproval.RequestStatus
   pk: "bill_required"
   fields:
-    status_name: "Требуется счет"
+    name: "Требуется счет"
 
 #refer to global_constants for field_type values meaning
 - model: DocApproval.DynamicSettings

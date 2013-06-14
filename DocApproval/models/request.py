@@ -32,7 +32,7 @@ class RequestStatus(models.Model):
 
     code = models.CharField(_(u'Код'), max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH, primary_key=True,
                             editable=False)
-    status_name = models.CharField(_(u'Статус'), max_length=ModelConstants.DEFAULT_VARCHAR_LENGTH)
+    name = models.CharField(_(u'Статус'), max_length=ModelConstants.DEFAULT_VARCHAR_LENGTH)
 
     class Meta:
         app_label = "DocApproval"
@@ -40,7 +40,7 @@ class RequestStatus(models.Model):
         verbose_name_plural = _(u'Статусы заявок')
 
     def __unicode__(self):
-        return self.status_name
+        return self.name
 
 
 class Contract(models.Model):
@@ -244,7 +244,7 @@ class RequestHistory(models.Model):
     def _get_FIELD_display(self, field):
         if field.name == 'action_type' and self.action_type == self.STATUS_CHANGE:
             status = self.action_parameters.get('new_status')
-            result = u"{0}: {1}".format(_(u"Переведена в статус"), RequestStatus.objects.get(pk=status).status_name)
+            result = u"{0}: {1}".format(_(u"Переведена в статус"), RequestStatus.objects.get(pk=status).name)
         else:
             result = super(RequestHistory, self)._get_FIELD_display(field)
         return result

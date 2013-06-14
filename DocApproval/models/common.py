@@ -41,7 +41,10 @@ class Permissions:
 
 
 class Groups:
-    APPROVERS = "Утверждающие"
+    APPROVERS = 'Утверждающие'
+    ADMINISTRATORS = 'Администраторы'
+    USERS = 'Пользователи'
+    ACCOUNTANTS = 'Бухгалтера'
 
 
 #Some "dictionaries" first
@@ -58,7 +61,7 @@ class Position(models.Model):
 
 
 class City(models.Model):
-    city_name = models.CharField(_(u'Название города'), max_length=ModelConstants.MAX_VARCHAR_LENGTH)
+    name = models.CharField(_(u'Название города'), max_length=ModelConstants.MAX_VARCHAR_LENGTH)
 
     class Meta:
         app_label = "DocApproval"
@@ -66,4 +69,4 @@ class City(models.Model):
         verbose_name_plural = _(u'Города')
 
     def __unicode__(self):
-        return self.city_name
+        return self.name
