@@ -28,7 +28,12 @@ form.search-form {
   .input-xlarge {
     width: 287px;
   }
-  select.input-xlarge {
-    width: 287px + 14px; //compensating for horz padding
+  select {
+    &.input-xlarge {
+      width: 287px + 14px; //compensating for horz padding
+    }
+    &.uneditable-input {
+      height: 30px;
+    }
   }
 }
