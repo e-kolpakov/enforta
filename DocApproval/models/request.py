@@ -230,6 +230,8 @@ class RequestHistory(models.Model):
 
     class Meta:
         app_label = "DocApproval"
+        verbose_name = _(u'Запись об истории заявки')
+        verbose_name_plural = _(u'Записи об истории заявки')
 
     @property
     def icon(self):
@@ -240,13 +242,15 @@ class RequestHistory(models.Model):
             return self._action_type_icons.get(self.action_type, "")
 
     def _get_FIELD_display(self, field):
-
         if field.name == 'action_type' and self.action_type == self.STATUS_CHANGE:
             status = self.action_parameters.get('new_status')
             result = u"{0}: {1}".format(_(u"Переведена в статус"), RequestStatus.objects.get(pk=status).status_name)
         else:
             result = super(RequestHistory, self)._get_FIELD_display(field)
         return result
+
+    def __unicode__(self):
+        return _(u"[{0}] Заявка {1}: {2}").format(self.action_date, self.request, self.get_action_type_display())
 
 
 request_status_change = Signal(providing_args=(['request', 'old_status', 'new_status']))
