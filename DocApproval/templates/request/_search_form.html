@@ -1,49 +1,107 @@
 {% load i18n %}
-<form class='form-horizontal search-form' id='{{ form_id }}'>
-    <div class='row'>
-        <div class='span5'>
-            <div class="control-group">
-                <label class='control-label' for='{{ form_prefix }}request-name'>{% trans "Заявка" %}</label>
-
-                <div class='controls'>
-                    <input type='text' id='{{ form_prefix }}request-name' placeholder='{% trans "Наименование" %}'
-                           class='input-xlarge' name='name'/>
-                </div>
-            </div>
-            <div class="control-group">
-                <label class='control-label' for='{{ form_prefix }}request-name'>{% trans "Заявка" %}</label>
-
-                <div class='controls'>
-                    <input type='text' id='{{ form_prefix }}request-name' placeholder='{% trans "Наименование" %}'
-                           class='input-xlarge' name='name2'/>
-                </div>
-            </div>
-        </div>
-        <div class='span5'>
-            <div class="control-group">
-                <label class='control-label' for='{{ form_prefix }}request-name'>{% trans "Заявка" %}</label>
-
-                <div class='controls'>
-                    <input type='text' id='{{ form_prefix }}request-name' placeholder='{% trans "Наименование" %}'
-                           class='input-xlarge' name='name3'/>
-                </div>
-            </div>
-            <div class="control-group">
-                <label class='control-label' for='{{ form_prefix }}request-name'>{% trans "Заявка" %}</label>
-
-                <div class='controls'>
-                    <input type='text' id='{{ form_prefix }}request-name' placeholder='{% trans "Наименование" %}'
-                           class='input-xlarge' name='name4'/>
-                </div>
-            </div>
-        </div>
-        <div class='span2'>
-            <div class="control-group">
-                <button class='btn btn-primary search-btn'>Поиск</button>
-            </div>
-            <div class="control-group">
-                <button class='btn btn-secondary reset-btn'>Сброс</button>
-            </div>
-        </div>
+<div class="collapsible-panel">
+    <div class="collapsible-heading">
+        <a class="collapsible-toggle" data-toggle="collapse" data-target=".collsapsible-target">
+            {% trans "Фильтр" %}
+            <span class="ui-icon ui-icon-triangle-1-s"></span>
+        </a>
     </div>
-</form>
+    <div class="collsapsible-target collapse in">
+        <form class='form-horizontal search-form' id='{{ form_id }}'>
+            <input type='hidden' name='show_only' value='{{ show_only|default:'' }}'/>
+
+            <div class='row'>
+                <div class='span5'>
+                    <div class="control-group">
+                        <label class='control-label'
+                               for='{{ form_prefix }}request-name'>{% trans "Заявка" %}</label>
+
+                        <div class='controls'>
+                            <input type='text' id='{{ form_prefix }}request-name'
+                                   placeholder='{% trans "Наименование" %}'
+                                   class='input-xlarge' name='name'/>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class='control-label' for='{{ form_prefix }}status'>{% trans "Статус" %}</label>
+
+                        <div class='controls'>
+                            <select id='{{ form_prefix }}status' class='input-xlarge' name='status'>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class='control-label'
+                               for='{{ form_prefix }}date-created-from'>{% trans "Создана" %}</label>
+
+                        <div class='controls'>
+                            <div class='date-range-item'>
+                                <span class='date-range-start-label'>{% trans "с" %}</span>
+                                <input type='text' id='{{ form_prefix }}date-created-from' placeholder=''
+                                       class='datepicker input-small' name='date_created_from'/>
+                            </div>
+                            <div class='date-range-item'>
+                                <span class='date-range-end-label'>{% trans "по" %}</span>
+                                <input type='text' id='{{ form_prefix }}date-created-to' placeholder=''
+                                       class='datepicker input-small' name='date_created_to'/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class='control-label'
+                               for='{{ form_prefix }}date-negotiated-from'>{% trans "Согласована" %}</label>
+
+                        <div class='controls'>
+                            <div class='date-range-item'>
+                                <span class='date-range-start-label'>{% trans "с" %}</span>
+                                <input type='text' id='{{ form_prefix }}date-negotiated-from' placeholder=''
+                                       class='datepicker input-small' name='date_negotiated_from'/>
+                            </div>
+                            <div class='date-range-item'>
+                                <span class='date-range-end-label'>{% trans "по" %}</span>
+                                <input type='text' id='{{ form_prefix }}date-negotiated-to' placeholder=''
+                                       class='datepicker input-small' name='date_negotiated_to'/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='span5'>
+                    <div class="control-group">
+                        <label class='control-label' for='{{ form_prefix }}creator'>{% trans "Инициатор" %}</label>
+
+                        <div class='controls'>
+                            <select id='{{ form_prefix }}creator' class='input-xlarge' name='creator'>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class='control-label'
+                               for='{{ form_prefix }}current-approver'>{% trans "Утверждеающий" %}</label>
+
+                        <div class='controls'>
+                            <select id='{{ form_prefix }}current-approver' class='input-xlarge'
+                                    name='current_approver'>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class='control-label' for='{{ form_prefix }}city'>{% trans "Город" %}</label>
+
+                        <div class='controls'>
+                            <select id='{{ form_prefix }}city' class='input-xlarge' name='city'>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class='span2'>
+                    <div class="control-group">
+                        <button class='btn btn-primary search-btn'>Поиск</button>
+                    </div>
+                    <div class="control-group">
+                        <button class='btn btn-secondary reset-btn'>Сброс</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

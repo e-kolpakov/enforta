@@ -1,11 +1,34 @@
 @import-once "../variables";
 @import-once "../mixins";
 
+.collapsible-heading {
+  border-bottom: 1px solid @collapsible-heading-border;
+  margin-bottom: 4px;
+
+  .collapsible-toggle {
+    cursor: pointer;
+
+    span.ui-icon {
+      float: left;
+      margin-left: 10px;
+    }
+  }
+}
+
 form.search-form {
+  label.control-label {
+    width: 115px;
+  }
   div.control-group {
     margin-bottom: 5px;
     div.controls {
-      //      margin-left:
+      margin-left: 125px;
     }
+  }
+  .input-xlarge {
+    width: 287px;
+  }
+  select.input-xlarge {
+    width: 287px + 14px; //compensating for horz padding
   }
 }

@@ -157,9 +157,9 @@
 }
 
 #fixes() {
-  .border-box-fix() {
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box
+  .border-box-fix(@model: border-box) {
+    box-sizing: @model;
+    -moz-box-sizing: @model;
+    -webkit-box-sizing: @model;
   }
 }

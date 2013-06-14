@@ -14,9 +14,6 @@
             config_url: '{% url datatables_config %}',
             search_form: '#search_form',
             search_form_prefix: ''
-            {% if show_only %}
-                extra_server_params: {'show_only': '{{ show_only }}'}
-            {% endif %}
         }
     </script>
 {% endblock scripts %}
