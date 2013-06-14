@@ -68,3 +68,7 @@ class UserProfile(models.Model):
             (Permissions.UserProfile.CAN_CHANGE_ANY_MANAGER, _(u"Может изменять руководителя других пользователей")),
         )
 
+    @classmethod
+    def get_users_in_group(cls, group_name):
+        return cls.objects.filter(user__groups__name=group_name)
+

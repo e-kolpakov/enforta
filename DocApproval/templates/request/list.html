@@ -1,7 +1,7 @@
 {% extends "base_datatables_layout.html" %}
 
 {% block maincontent %}
-    {% include "request/_search_form.html" with show_only=show_only form_id='search_form' form_prefix='' %}
+    {% include "request/_search_form.html" with show_only=show_only form_id='search_form' form_prefix='' filter_data=filter_data %}
     <table id="grid" class="table"></table>
 {% endblock %}
 

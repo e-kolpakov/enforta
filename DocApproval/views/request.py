@@ -11,13 +11,12 @@ from django.views.generic.detail import SingleObjectMixin
 from django.contrib import messages
 
 from guardian.decorators import permission_required
-from DocApproval.models.request import RequestHistory
 from DocApproval.request_management.actions import RequestActionRepository
 from DocApproval.request_management.request_factory import RequestFactory
 
 from ..menu import RequestContextMenuManagerExtension, MenuModifierViewMixin
 from ..messages import CommonMessages, RequestMessages
-from ..models import Request, RequestStatus, Permissions
+from ..models import Request, RequestStatus, Permissions, City, UserProfile, Groups, RequestHistory
 from ..url_naming.names import Request as RequestUrl, Profile as ProfileUrl
 from ..forms import EditRequestForm, EditContractForm
 
@@ -169,12 +168,21 @@ class ListRequestView(TemplateView):
 
     template_name = 'request/list.html'
 
+    def _get_filter_data(self):
+        return {
+            'cities': City.objects.all(),
+            'statuses': RequestStatus.objects.all(),
+            'users': UserProfile.get_users_in_group(Groups.USERS),
+            'approvers': UserProfile.get_users_in_group(Groups.APPROVERS)
+        }
+
     def get(self, request, *args, **kwargs):
         show_only = kwargs.get(self.SHOW_ONLY_PARAM, None)
         return render(request, self.template_name, {
             'datatables_data': RequestUrl.LIST_JSON,
             'datatables_config': RequestUrl.LIST_JSON_CONF,
-            'show_only': show_only
+            'show_only': show_only,
+            'filter_data': self._get_filter_data()
         })
 
 
@@ -279,8 +287,8 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
         return {
             'pk': item.pk,
             'name': item.name,
-            'city': item.city.city_name,
-            'status': item.status.status_name,
+            'city': item.city.name,
+            'status': item.status.name,
             'creator': item.creator.full_name,
             'send_on_approval': item.send_on_approval.full_name,
             'created': item.created.strftime("%Y-%m-%d"),
