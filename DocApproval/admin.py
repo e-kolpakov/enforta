@@ -41,7 +41,7 @@ class CityAdmin(admin.ModelAdmin):
 
 
 class RequestStatusAdmin(NonDeleteableEntityAdmin):
-    fields = ("status_name",)
+    fields = ("name",)
     readonly_fields = ("code",) #code is not editable anyway, it's included for the sake of completeness
 
     def has_add_permission(self, request, obj=None):
