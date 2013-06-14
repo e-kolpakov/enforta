@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 import json
 import logging
+import dateutil.parser
 
 from django.core.urlresolvers import reverse
 from django.http.response import HttpResponse
@@ -252,6 +253,21 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
     model_fields = ('name', 'city', 'status', 'creator', 'send_on_approval', 'created', 'accepted')
     # calculated_fields = {'current_approvers': RequestMessages.CURRENT_REVIEVERS, }
 
+    as_is = lambda x: x
+    to_date = lambda x: dateutil.parser.parse(x, dayfirst=True)
+
+    _search_criteria = {
+        'name': {'lookup': 'name__istartswith', 'converter': as_is},
+        'status': {'lookup': 'status__code', 'converter': as_is},
+        'date_created_from': {'lookup': 'created__gte', 'converter': to_date},
+        'date_created_to': {'lookup': 'created__lte', 'converter': to_date},
+        'date_accepted_from': {'lookup': 'accepted__gte', 'converter': to_date},
+        'date_accepted_to': {'lookup': 'accepted__lte', 'converter': to_date},
+        'creator': {'lookup': 'creator__pk', 'converter': int},
+        'current_approver': {'lookup': 'approval_route__steps__approver', 'converter': int},
+        'city': {'lookup': 'city', 'converter': int},
+    }
+
     def get_links_config(self):
         return {
             'name': {
@@ -277,9 +293,14 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
         return qs
 
     def filter_queryset(self, qs):
-        sSearch = self.request.GET.get('sSearch', None)
-        if sSearch:
-            qs = qs.filter(name__istartswith=sSearch)
+        filters = {}
+        for parameter, parameter_mapping in self._search_criteria.items():
+            val = self.request.GET.get(parameter, None)
+            if val is not None:
+                filters[parameter_mapping['lookup']] = parameter_mapping['converter'](val)
+
+        if filters:
+            qs = qs.filter(**filters)
         return qs
 
     def prepare_single_item(self, item):
