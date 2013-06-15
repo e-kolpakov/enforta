@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load static from staticfiles %}
 <!DOCTYPE html>
-<html>
+<html id='doc'>
 <head>
     <title>
         {% block maintitle %}{% trans "Утверждение документов" %}{% endblock maintitle %}
@@ -16,6 +16,7 @@
 
     {% block scripts %}
         <script type="text/javascript" language="JavaScript">
+            document.getElementById('doc').className = 'JS';
             window.globals = {
                 static_root: "{{ STATIC_URL }}" //need a way to pass the static_root to JS.
             };

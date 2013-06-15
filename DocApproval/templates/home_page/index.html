@@ -1,5 +1,13 @@
 {% extends "base_layout.html" %}
+{% load i18n %}
+
+{% block page_title %}
+    {% trans "Главная страница" %}
+{% endblock page_title %}
 
 {% block maincontent %}
-    Главная страница
+    {% for part_template, part_data in parts %}
+        qweqweqwe
+        {% include part_template with data=part_data %}
+    {% endfor %}
 {% endblock maincontent %}

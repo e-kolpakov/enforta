@@ -41,10 +41,10 @@ class Permissions:
 
 
 class Groups:
-    APPROVERS = 'Утверждающие'
-    ADMINISTRATORS = 'Администраторы'
-    USERS = 'Пользователи'
-    ACCOUNTANTS = 'Бухгалтера'
+    APPROVERS = u'Утверждающие'
+    ADMINISTRATORS = u'Администраторы'
+    USERS = u'Пользователи'
+    ACCOUNTANTS = u'Бухгалтера'
 
 
 #Some "dictionaries" first
