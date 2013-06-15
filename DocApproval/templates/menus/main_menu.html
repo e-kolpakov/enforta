@@ -2,12 +2,16 @@
 
 <div class="navbar" id='main-menu'>
     <div class="navbar-inner">
+        <span class='logo'>
+            <img src='{{ STATIC_URL }}img/hdr_logo.png'/>
+        </span>
         <ul class='nav'>
             {% for item in menu %}
                 {% defrecurse item %}
                     <li id='{{ item.html_id|default:'' }}'
-                        class='{{ item.css_class|default:'' }}{% if item.has_children %} {{ item.get_dropdown_class }}{% endif %}'
-                    >
+                        class='
+                                {{ item.css_class|default:'' }}{% if item.has_children %} {{ item.get_dropdown_class }}{% endif %}'
+                            >
                         <a href="{{ item.url|default:"" }}">
                             {% with caption=item.get_caption image=item.get_image %}
                                 {% if image.url %}<img src="{{ STATIC_URL }}img/{{ image.url }}"/>{% endif %}
