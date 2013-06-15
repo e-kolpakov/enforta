@@ -1,4 +1,5 @@
-@import-once "../variables.less";
+@import-once "../variables";
+@import-once "../mixins";
 
 html.JS {
   ul.menu {
@@ -19,23 +20,8 @@ body.main-body {
     padding: 0px @content-padding-horizontal;
   }
 
-  div.main-header {
-    margin: 0px @content-margin-horizontal;
-    .logo-container {
-      float: left;
-      img#logo {
-        width: 175px;
-        height: 80px;
-      }
-    }
-
-    .user-actions {
-      float: right;
-    }
-  }
-
   div.main-content {
-    margin: @content-margin-vertical @content-margin-horizontal;
+    margin: @content-margin-top+@menu-height @content-margin-left @content-margin-bottom @content-margin-right;
     padding: @content-padding-vertical @content-padding-horizontal;
     border: 1px solid @content-border-color;
     min-height: @content-min-height;

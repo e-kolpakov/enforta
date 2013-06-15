@@ -11,7 +11,12 @@
 }
 
 #main-menu {
-  margin: @content-margin-vertical @content-margin-horizontal;
+  margin: @content-margin-top @content-margin-left+1px @content-margin-bottom @content-margin-right+1px;
+
+  .navbar-inner {
+    .rounded-borders-mixin(5px);
+  }
+
   img {
     #menus > .menu-item-icon();
   }

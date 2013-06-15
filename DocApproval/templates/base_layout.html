@@ -1,11 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="main-header">
-        {% include header_template|default:"headers/main_header.html" %}
-    </div>
-    <div class="main-menu">
-        {% include menu_template|default:"menus/main_menu.html" %}
+    <div class="main-menu navbar-fixed-top">
+        <div class='container'>
+            {% include menu_template|default:"menus/main_menu.html" %}
+        </div>
     </div>
     <div class="main-content">
         {% if messages %}
