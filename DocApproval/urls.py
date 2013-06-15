@@ -12,7 +12,7 @@ urlpatterns = patterns(
     url(r'^admin/?', include(admin.site.urls)),
     #url(r'^admin/doc/?', include('django.contrib.admindocs.urls')),
 
-    url(r'^/?$', common.index, name=common_urls.HOME),
+    url(r'^/?$', common.HomePage.as_view(), name=common_urls.HOME),
 
     url(r'^accounts/', include(authentication)),
     url(r'^requests/', include(request)),
