@@ -1,6 +1,11 @@
-<div class='home-page-part'>
-    <div class='home-page-part-title'>{% block part_title %}{% endblock part_title %}</div>
-    <div class='home-page-part-body'>
+<div class='home-page-part collapsible-panel'>
+    <div class='home-page-part-title collapsible-heading'>
+        <a class="collapsible-toggle" data-toggle="collapse" data-target="#{{ collapsible_id }}">
+            {% block part_title %}{% endblock part_title %}
+            <span class="ui-icon ui-icon-triangle-1-s"></span>
+        </a>
+    </div>
+    <div class='home-page-part-body collsapsible-target collapse in' id='{{ collapsible_id }}'>
         {% block part_body %}{% endblock part_body %}
     </div>
 </div>

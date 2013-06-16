@@ -6,8 +6,7 @@
 {% endblock page_title %}
 
 {% block maincontent %}
-    {% for part_template, part_data in parts %}
-        qweqweqwe
-        {% include part_template with data=part_data %}
+    {% for part_template, part_data, part_id in parts %}
+        {% include part_template with data=part_data collapsible_id=part_id %}
     {% endfor %}
 {% endblock maincontent %}
