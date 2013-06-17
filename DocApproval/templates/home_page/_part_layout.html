@@ -1,11 +1,11 @@
 <div class='home-page-part collapsible-panel'>
     <div class='home-page-part-title collapsible-heading'>
-        <a class="collapsible-toggle" data-toggle="collapse" data-target="#{{ collapsible_id }}">
-            {% block part_title %}{% endblock part_title %}
+        <a class="collapsible-toggle" data-toggle="collapse" data-target="#{{ part.code }}">
+            {{ part.label }}
             <span class="ui-icon ui-icon-triangle-1-s"></span>
         </a>
     </div>
-    <div class='home-page-part-body collsapsible-target collapse in' id='{{ collapsible_id }}'>
+    <div class='home-page-part-body collsapsible-target collapse in' id='{{ part.code }}'>
         {% block part_body %}{% endblock part_body %}
     </div>
 </div>

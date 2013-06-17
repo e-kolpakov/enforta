@@ -6,7 +6,23 @@
 {% endblock page_title %}
 
 {% block maincontent %}
-    {% for part_template, part_data, part_id in parts %}
-        {% include part_template with data=part_data collapsible_id=part_id %}
-    {% endfor %}
+    <div class='row'>
+        {#        <div class='span3 home-page-quick-nav sidebar'>#}
+        {#            <ul class='nav nav-list'>#}
+        {#                {% for part in parts %}#}
+        {#                    <li>#}
+        {#                        <i class='icon-chevron-right'></i>#}
+        {#                        <a href="#{{ part.code }}">{{ part.label }}</a>#}
+        {#                    </li>#}
+        {#                {% endfor %}#}
+        {#            </ul>#}
+        {#        </div>#}
+        <div class='span12'>
+            {% for part in parts %}
+                <a href='#{{ part.code }}' data-spy="affix">
+                    {% include part.template with part=part %}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock maincontent %}

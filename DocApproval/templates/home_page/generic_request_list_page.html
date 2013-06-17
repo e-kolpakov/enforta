@@ -1,10 +1,6 @@
 {% extends "home_page/_part_layout.html" %}
 {% load i18n %}
 
-{% block part_title %}
-    {% trans "Мои заявки" %}
-{% endblock part_title %}
-
 {% block part_body %}
     <table class='table table-striped'>
         <tr>
@@ -14,8 +10,9 @@
             <th>{% trans "Инициатор" %}</th>
             <th>{% trans "Отправить на подпись" %}</th>
             <th>{% trans "Дата создания" %}</th>
+            <th>{% trans "Дата согласования" %}</th>
         </tr>
-        {% for request in data %}
+        {% for request in part.data %}
             <tr>
                 <td><a href='{{ request.get_absolute_url }}'>{{ request.name }}</a></td>
                 <td>{{ request.city.name }}</td>
@@ -25,10 +22,11 @@
                     <a href='{{ request.send_on_approval.get_absolute_url }}'>{{ request.send_on_approval.full_name }}</a>
                 </td>
                 <td>{{ request.created }}</td>
+                <td>{{ request.accepted }}</td>
             </tr>
         {% empty %}
             <tr class='no-data'>
-                <td>{% trans "Нет заявок требующих утверждения" %}</td>
+                <td colspan="7">{{ part.no_rows }}</td>
             </tr>
         {% endfor %}
     </table>
