@@ -31,6 +31,7 @@ define(
             ui_handlers[handlers.ActionCodes.TO_PROJECT] = handlers.ToProjectActionHandler;
             ui_handlers[handlers.ActionCodes.APPROVE] = handlers.ApproveActionHandler;
             ui_handlers[handlers.ActionCodes.REJECT] = handlers.RejectActionHandler;
+            ui_handlers[handlers.ActionCodes.SET_PAID] = handlers.SetPaidActionHandler;
 
             function reload_if_needed(force, ask) {
                 if (force) {
