@@ -1,7 +1,6 @@
 #-*- coding: utf-8 -*-
 import json
 import logging
-import dateutil.parser
 
 from django.core.urlresolvers import reverse
 from django.http.response import HttpResponse
@@ -14,6 +13,7 @@ from django.contrib import messages
 from guardian.decorators import permission_required
 from DocApproval.request_management.actions import RequestActionRepository
 from DocApproval.request_management.request_factory import RequestFactory
+from DocApproval.utilities.utility import parse_string_to_datetime
 
 from ..menu import RequestContextMenuManagerExtension, MenuModifierViewMixin
 from ..messages import CommonMessages, RequestMessages
@@ -257,7 +257,7 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
     # calculated_fields = {'current_approvers': RequestMessages.CURRENT_REVIEVERS, }
 
     as_is = lambda x: x
-    to_date = lambda x: dateutil.parser.parse(x, dayfirst=True)
+    to_date = parse_string_to_datetime
 
     _search_criteria = {
         'name': {'lookup': 'name__istartswith', 'converter': as_is},
@@ -355,7 +355,7 @@ class RequestActionsJson(View):
                 'response': response
             }
         except Exception as e:
-            self._logger.exception(e.message)
+            self._logger.exception(e)
             data = {
                 'success': False,
                 'response': None,

@@ -18,6 +18,32 @@ define(
             make_elem("button").addClass(btn_config.cssClass).text(btn_config.text).appendTo(anchor).click(callback);
         }
 
+        function make_bootstrap_form() {
+            return make_elem('form').addClass('form-horizontal');
+        }
+
+        function make_bootstrap_form_rows(form, controls) {
+            for (var i = 0; i < controls.length; i++) {
+                var row = make_elem('div').addClass('control-group');
+                var control = controls[i];
+                if (control.label) {
+                    make_elem("label").text(control.label).addClass('control-label')
+                        .attr('for', control.id).appendTo(row);
+                }
+                var ctrls = make_elem("div").addClass("controls").appendTo(row);
+                var all_attributes = $.extend({id: control.id}, control.attributes);
+                var input_ctrl = make_elem(control.type).attr(all_attributes);
+                if (control.cssClass) {
+                    input_ctrl.addClass(control.cssClass);
+                }
+                if (control.initial) {
+                    input_ctrl.val(control.initial);
+                }
+                input_ctrl.appendTo(ctrls);
+                row.appendTo(form);
+            }
+        }
+
         function ModalPopup() {
             this.fragments = this.create_fragments();
         }
@@ -84,38 +110,18 @@ define(
 
         extend(ApproveActionPopup, ModalPopup);
         (function () {
-            function make_form() {
-                return make_elem('form').addClass('form-horizontal');
-            }
-
-            function make_form_rows(form, controls) {
-                for (var i = 0; i < controls.length; i++) {
-                    var row = make_elem('div').addClass('control-group');
-                    var control = controls[i];
-                    if (control.label) {
-                        make_elem("label").text(control.label).addClass('control-label')
-                            .attr('for', control.id).appendTo(row);
-                    }
-                    var ctrls = make_elem("div").addClass("controls").appendTo(row);
-                    var input_ctrl = make_elem(control.type).attr({id: control.id, rows: 10}).addClass('input-xlarge');
-                    if (control.initial) {
-                        input_ctrl.val(control.initial);
-                    }
-                    input_ctrl.appendTo(ctrls);
-                    row.appendTo(form);
-                }
-            }
-
             ApproveActionPopup.prototype.create_controls = function (with_on_behalf, on_behalf_list) {
-                var form = make_form();
+                var form = make_bootstrap_form();
                 var controls = [
                     {
                         type: 'textarea',
+                        label: this.comment_label || "Комментарий",
                         id: 'action-reason',
-                        label: this.comment_label || "Комментарий"
+                        attributes: {rows: 10},
+                        cssClass: 'input-xlarge'
                     }
                 ];
-                make_form_rows(form, controls);
+                make_bootstrap_form_rows(form, controls);
                 form.appendTo(this.fragments.body);
             };
 
@@ -130,9 +136,45 @@ define(
             };
         }());
 
+        function DateInputModalPopup() {
+            this.fragments = this.create_fragments();
+        }
+
+        extend(DateInputModalPopup, ModalPopup);
+        (function () {
+            DateInputModalPopup.prototype.create_controls = function (with_on_behalf, on_behalf_list) {
+                var form = make_bootstrap_form();
+                var controls = [
+                    {
+                        type: 'input',
+                        label: this.date_paid_label || "Дата оплаты",
+                        id: 'paid-date',
+                        attributes: {type: 'text'},
+                        cssClass: 'datepicker'
+                    }
+                ];
+                make_bootstrap_form_rows(form, controls);
+                form.appendTo(this.fragments.body);
+                $(".datepicker", this.fragments.body).wrapped_datepicker({
+                    showButtonPanel: true
+                });
+            };
+
+            DateInputModalPopup.prototype.set_label = function (label) {
+                this.date_paid_label = label;
+            };
+
+            DateInputModalPopup.prototype.get_data = function () {
+                return {
+                    paid_date: $('#paid-date', this.fragments.body).val()
+                };
+            };
+        }());
+
         return {
             basic_popup_class: ModalPopup,
             approve_action_popup_class: ApproveActionPopup,
+            date_input_modal_popup_class: DateInputModalPopup,
             buttons_config: button_types
         };
     }

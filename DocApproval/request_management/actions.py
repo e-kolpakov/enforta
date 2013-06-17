@@ -1,12 +1,12 @@
 #-*- coding: utf-8 -*-
 import logging
-
 from collections import Mapping
 
 from django.utils.translation import gettext as _
+from django.db import transaction
 
-from DocApproval.models.common import Permissions
-from DocApproval.models.request import RequestStatus
+from DocApproval.models import Permissions, RequestStatus
+from DocApproval.utilities.utility import parse_string_to_datetime
 
 _logger = logging.getLogger(__name__)
 
@@ -32,6 +32,7 @@ class RequestActionBase(object):
     def is_available(self, user, request):
         return self._check_condition(user, request)
 
+    @transaction.commit_on_success
     def execute(self, user, request, **kwargs):
         result = self._execute(user, request, **kwargs)
         base_result = {
@@ -98,10 +99,17 @@ class SetPaidAction(StatusBasedAction):
         return user.has_perm(Permissions.Request.CAN_SET_PAID_DATE)
 
     def _execute(self, user, request, **kwargs):
-        paid_date = kwargs.get(self.DATE_TOKEN, None)
-        _logger.info(u"User {0} set paid date {1} on request {2}", user, paid_date, request)
-        request.paid_date = paid_date
-        request.save()
+        paid_date_raw = kwargs.get(self.DATE_TOKEN, None)
+        try:
+            paid_date = parse_string_to_datetime(paid_date_raw)
+            _logger.info(u"User {0} set paid date {1} on request {2}", user, paid_date, request)
+            request.contract.paid_date = paid_date
+            request.contract.save()
+            request.status = RequestStatus.objects.get(code=RequestStatus.ACTIVE)
+            request.save()
+        except AttributeError as e:
+            _logger.exception(e)
+            raise AttributeError(u"Некорректная дата оплаты")
 
 
 class ApprovalProcessAction(StatusBasedAction):
@@ -160,7 +168,7 @@ class RequestActionRepository(Mapping):
     SET_PAID = SetPaidAction.code
 
     _actions = {
-        TO_APPROVAL: SendToApprovalAction(_(u"Отправить на утверждение"), icon="icons/request_status/approval.png"),
+        TO_APPROVAL: SendToApprovalAction(_(u"Отправить на утверждение"), icon="icons/request_status/negotiation.png"),
         TO_PROJECT: SendToProjectAction(_(u"Вернуть в статус проекта"), icon="icons/request_status/project.png"),
         APPROVE: ApproveAction(_(u"Утвердить"), icon="icons/action_types/approve.png"),
         REJECT: RejectAction(_(u"Отклонить"), icon="icons/action_types/reject.png"),

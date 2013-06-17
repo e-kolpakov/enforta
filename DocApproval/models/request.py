@@ -169,7 +169,7 @@ class Request(models.Model):
 
     @property
     def route_editable(self):
-        return self.is_editable
+        return self.editable
 
     @property
     def editable(self):

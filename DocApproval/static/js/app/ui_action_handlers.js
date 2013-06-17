@@ -7,14 +7,16 @@ define(
             TO_APPROVAL: 'to_approval',
             TO_PROJECT: 'to_project',
             APPROVE: 'approve',
-            REJECT: 'reject'
+            REJECT: 'reject',
+            SET_PAID: 'set_paid'
         };
 
         var Messages = {
             confirm_to_negotiation: 'Перевод заявки в состояние "В согласовании" начнет процесс утверждения. Продолжить?',
             confirm_to_project: 'Перевод заявки в состояние "Проект" приведет к остановке текущего процесса утверждения. Продолжить?',
             confirm_approve: "Утвердить заявку?",
-            confirm_rejection: "Отклонить заявку?"
+            confirm_rejection: "Отклонить заявку?",
+            prompt_for_paid_date: "Введите дату оплаты"
         };
 
         var ui_manager = new UIManager();
@@ -59,14 +61,30 @@ define(
             this.request_id = request_id;
             this.confrimation_message = Messages.confirm_to_negotiation;
         };
+        extend(ToApprovalActionHandler, StatusActionHandler);
+
         var ToProjectActionHandler = function (request_id) {
             this.action_code = ActionCodes.TO_PROJECT;
             this.request_id = request_id;
             this.confrimation_message = Messages.confirm_to_project;
         };
-
-        extend(ToApprovalActionHandler, StatusActionHandler);
         extend(ToProjectActionHandler, StatusActionHandler);
+
+        var SetPaidActionHandler = function (request_id) {
+            this.action_code = ActionCodes.SET_PAID;
+            this.request_id = request_id;
+        };
+        extend(SetPaidActionHandler, StatusActionHandler);
+        SetPaidActionHandler.prototype.process_action = function (callback) {
+            ui_manager.date_input(Messages.prompt_for_paid_date, function (ui_result) {
+                callback(this.action_code, this.request_id, {
+                    post_action: ui_result.success,
+                    data: {
+                        paid_date: ui_result.paid_date
+                    }
+                });
+            }.bind(this));
+        };
 
         function ApprovalActionHandler(request_id) {
             this.action_code = "";
@@ -83,7 +101,6 @@ define(
                     }
                 });
             }.bind(this));
-
         };
 
         var ApproveActionHandler = function (request_id) {
@@ -105,7 +122,8 @@ define(
             ToApprovalActionHandler: ToApprovalActionHandler,
             ToProjectActionHandler: ToProjectActionHandler,
             ApproveActionHandler: ApproveActionHandler,
-            RejectActionHandler: RejectActionHandler
+            RejectActionHandler: RejectActionHandler,
+            SetPaidActionHandler: SetPaidActionHandler
         };
     }
 );

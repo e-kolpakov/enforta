@@ -4,6 +4,7 @@ define(
     function ($, modal_popup_module_exports) {
         var BasicPopupClass = modal_popup_module_exports.basic_popup_class;
         var ApproveActionPopupClass = modal_popup_module_exports.approve_action_popup_class;
+        var DateInputModalPopup = modal_popup_module_exports.date_input_modal_popup_class;
         var modal_buttons_config = modal_popup_module_exports.buttons_config;
 
         function UIManager() {
@@ -26,6 +27,9 @@ define(
                     popup.dispose();
                 }});
                 popup.show();
+            };
+            this.error = function (message) {
+                that.message(message, "Ошибка");
             };
             this.confirmation = function (question, callback, caption) {
                 var eff_caption = caption || "Подтверждение";
@@ -62,8 +66,26 @@ define(
                 });
                 popup.show();
             };
-            this.error = function (message) {
-                that.message(message, "Ошибка");
+
+            this.date_input = function (caption, callback) {
+                var popup = instantiate_modal(caption, "Дата оплаты", DateInputModalPopup);
+
+                function handle(success) {
+                    var data = popup.get_data();
+                    popup.dispose();
+                    callback($.extend({}, data, {success: success}));
+                }
+
+                popup.create_controls();
+                popup.set_buttons({
+                    ok: function () {
+                        handle(true);
+                    },
+                    cancel: function () {
+                        handle(false);
+                    }
+                });
+                popup.show();
             };
         }
 
