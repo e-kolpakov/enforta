@@ -245,7 +245,7 @@ class RequestContextMenuManagerExtension(MenuManagerExtensionBase):
 
         if self.check_user_permissions(
                 instance_permissions=(Permissions.Request.CAN_EDIT_REQUEST,),
-                instance=req):
+                instance=req) and req.editable:
             self._accumulate_child(
                 NavigableMenuItem(caption=_(u"Редактировать"), image='icons/edit.png',
                                   url=reverse(url_names.Request.UPDATE, kwargs={'pk': req.pk})), order=10

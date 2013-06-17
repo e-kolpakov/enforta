@@ -25,6 +25,7 @@ class RequestMessages:
     DOES_NOT_EXIST = _(u"Запрошенной заявки не существует")
     ACCESS_DENIED = _(u"Доступ запрещен")
     CANT_CHANGE_CITY = _(u"Невозможно изменить город существующей заявки")
+    ONLY_PROJECT_REQUESTS_EDITABLE = _(u'Заявки могут быть отредактированы только в статусе "Проект"')
 
     CURRENT_REVIEVERS = _(u"Ожидает утверждения")
 

@@ -127,7 +127,9 @@ class Request(models.Model):
 
             (Permissions.Request.CAN_VIEW_REQUEST, _(u"Имеет доступ к данной заявке")),
             (Permissions.Request.CAN_EDIT_REQUEST, _(u"Может редактировать заявку")),
-            (Permissions.Request.CAN_EDIT_ROUTE, _(u"Может изменять маршрут утверждения"))
+            (Permissions.Request.CAN_EDIT_ROUTE, _(u"Может изменять маршрут утверждения")),
+
+            (Permissions.Request.CAN_SET_PAID_DATE, _(u"Может устанавливать дату оплаты"))
         )
 
     @transaction.commit_on_success
@@ -146,9 +148,6 @@ class Request(models.Model):
 
     def __unicode__(self):
         return u"{0} {2} {1} {3}".format(_(u"Заявка"), _(u"от"), self.name, self.created)
-
-    def get_initiator(self):
-        return self.creator
 
     def get_current_approvers(self):
         if self.status.code == RequestStatus.NEGOTIATION:
@@ -170,6 +169,10 @@ class Request(models.Model):
 
     @property
     def route_editable(self):
+        return self.is_editable
+
+    @property
+    def editable(self):
         return self.status.code == RequestStatus.PROJECT
 
 

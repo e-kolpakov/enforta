@@ -29,6 +29,8 @@ class Permissions:
         CAN_EDIT_REQUEST = "guardian_can_edit_request"
         CAN_EDIT_ROUTE = "guardian_can_edit_route"
 
+        CAN_SET_PAID_DATE = "docapproval_can_set_edit_date"
+
     class UserProfile:
         CAN_CHANGE_POSITION = "docapproval_can_change_position"
         CAN_CHANGE_MANAGER = "docapproval_can_change_manager"

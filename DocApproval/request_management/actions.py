@@ -87,6 +87,23 @@ class SendToProjectAction(StatusBasedAction):
         request.save()
 
 
+class SetPaidAction(StatusBasedAction):
+    code = 'set_paid'
+    reload_ask = False
+    reload_require = True
+    status_code = RequestStatus.NEGOTIATED_NO_PAYMENT
+    DATE_TOKEN = 'paid_date'
+
+    def _check_condition(self, user, request):
+        return user.has_perm(Permissions.Request.CAN_SET_PAID_DATE)
+
+    def _execute(self, user, request, **kwargs):
+        paid_date = kwargs.get(self.DATE_TOKEN, None)
+        _logger.info(u"User {0} set paid date {1} on request {2}", user, paid_date, request)
+        request.paid_date = paid_date
+        request.save()
+
+
 class ApprovalProcessAction(StatusBasedAction):
     status_code = RequestStatus.NEGOTIATION
     reload_ask = True
@@ -140,12 +157,14 @@ class RequestActionRepository(Mapping):
     TO_PROJECT = SendToProjectAction.code
     APPROVE = ApproveAction.code
     REJECT = RejectAction.code
+    SET_PAID = SetPaidAction.code
 
     _actions = {
         TO_APPROVAL: SendToApprovalAction(_(u"Отправить на утверждение"), icon="icons/request_status/approval.png"),
         TO_PROJECT: SendToProjectAction(_(u"Вернуть в статус проекта"), icon="icons/request_status/project.png"),
         APPROVE: ApproveAction(_(u"Утвердить"), icon="icons/action_types/approve.png"),
-        REJECT: RejectAction(_(u"Отклонить"), icon="icons/action_types/reject.png")
+        REJECT: RejectAction(_(u"Отклонить"), icon="icons/action_types/reject.png"),
+        SET_PAID: SetPaidAction(_(u"Оплачена"), icon="icons/action_types/paid.png")
     }
 
     __getitem__ = _actions.__getitem__

@@ -63,6 +63,9 @@ class CreateUpdateRequestView(TemplateView):
     def get(self, request, *args, **kwargs):
         pk = kwargs.get('pk', 0)
         request_instance, contract_instance = self.get_instances(pk)
+        if request_instance and not request_instance.editable:
+            messages.warning(request, RequestMessages.ONLY_PROJECT_REQUESTS_EDITABLE)
+            return HttpResponseRedirect(reverse(RequestUrl.DETAILS, kwargs={'pk': request_instance.pk}))
         request_form = self.request_form_class(
             instance=request_instance,
             initial=self.get_initial_request(request, *args, **kwargs),
