@@ -72,7 +72,8 @@ def history_approve_route_changed_handler(sender, **kwargs):
 @receiver(model_signals.post_save, sender=Request)
 def history_request_save_handler(sender, **kwargs):
     request = kwargs['instance']
-    RequestHistory.create_record(request=request, action_type=RequestHistory.EDITED, user=request.last_updater)
+    if request.editable:
+        RequestHistory.create_record(request=request, action_type=RequestHistory.EDITED, user=request.last_updater)
 
 
 @receiver(request_status_change, sender=Request)
@@ -88,3 +89,10 @@ def status_update_handler(sender, **kwargs):
             'new_status': new_status.code
         },
     )
+
+
+@receiver(request_paid, sender=Contract)
+def request_paid_handler(sender, **kwargs):
+    request = kwargs['request']
+    user = kwargs['user']
+    RequestHistory.create_record(request=request, action_type=RequestHistory.PAID_DATE_SET, user=user)

@@ -5,7 +5,7 @@ from collections import Mapping
 from django.utils.translation import gettext as _
 from django.db import transaction
 
-from DocApproval.models import Permissions, RequestStatus
+from DocApproval.models import Permissions, RequestStatus, Contract, request_paid
 from DocApproval.utilities.utility import parse_string_to_datetime
 
 _logger = logging.getLogger(__name__)
@@ -107,6 +107,7 @@ class SetPaidAction(StatusBasedAction):
             request.contract.save()
             request.status = RequestStatus.objects.get(code=RequestStatus.ACTIVE)
             request.save()
+            request_paid.send(Contract, request=request, user=user.profile)
         except AttributeError as e:
             _logger.exception(e)
             raise AttributeError(u"Некорректная дата оплаты")
