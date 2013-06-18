@@ -179,7 +179,7 @@ class Request(models.Model):
 class RequestHistory(models.Model):
     EDITED = 'edited'
     STATUS_CHANGE = 'status_change'
-    PAID_DATE_SET = 'paid_date'
+    PAID_DATE_SET = 'set_paid'
     ROUTE_CHANGED = 'route_changed'
     APPROVAL = ApprovalProcessAction.ACTION_APPROVE
     REJECTION = ApprovalProcessAction.ACTION_REJECT
@@ -199,7 +199,7 @@ class RequestHistory(models.Model):
     _action_type_icons = {
         EDITED: "action_types/edited.png",
         STATUS_CHANGE: "", # handled differently
-        PAID_DATE_SET: "action_types/edited.png",
+        PAID_DATE_SET: "action_types/paid.png",
         ROUTE_CHANGED: "action_types/route_changed.png",
         APPROVAL: "action_types/approve.png",
         REJECTION: "action_types/reject.png",
