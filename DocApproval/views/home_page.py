@@ -9,7 +9,8 @@ from DocApproval.models import Groups, Request, RequestStatus
 class HomePagePartBase(object):
     show_to_groups = ()
     template = None
-    id = None
+    code = None
+    rows_limit = 20
 
     def __init__(self, request):
         self.request = request
@@ -31,7 +32,7 @@ class MyApprovalsHomePagePart(HomePagePartBase):
 
     @property
     def data(self):
-        return Request.objects.get_awaiting_approval(self.request.user)
+        return Request.objects.get_awaiting_approval(self.request.user).order_by('created')[0:self.rows_limit]
 
 
 class MyRequestsHomePagePart(HomePagePartBase):
@@ -43,7 +44,9 @@ class MyRequestsHomePagePart(HomePagePartBase):
 
     @property
     def data(self):
-        return Request.objects.get_accessible_requests(self.request.user)
+        return Request.objects.get_accessible_requests(self.request.user) \
+                   .filter(status__code__in=(RequestStatus.PROJECT, RequestStatus.NEGOTIATION)) \
+                   .order_by('created')[0:self.rows_limit]
 
 
 class AwaitingPaymentHomePagePart(HomePagePartBase):
@@ -55,7 +58,8 @@ class AwaitingPaymentHomePagePart(HomePagePartBase):
 
     @property
     def data(self):
-        return Request.objects.filter(status__code=RequestStatus.NEGOTIATED_NO_PAYMENT)
+        return Request.objects.filter(status__code=RequestStatus.NEGOTIATED_NO_PAYMENT) \
+                   .order_by('accepted')[0:self.rows_limit]
 
 
 class HomePage(TemplateView):
