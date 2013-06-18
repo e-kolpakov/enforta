@@ -52,7 +52,7 @@ LOGGING = {
     'loggers': {
         '': {
             'handlers': ['file'],
-            'level': 'WARNING',
+            'level': 'DEBUG',
             'propagate': False
         },
         'DocApproval.middleware': {

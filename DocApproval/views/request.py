@@ -3,6 +3,8 @@ import json
 import logging
 
 from django.core.urlresolvers import reverse
+from django.db.models.expressions import F
+from django.db.models.query_utils import Q
 from django.http.response import HttpResponse
 from django.shortcuts import render, HttpResponseRedirect, get_object_or_404
 from django.utils.decorators import method_decorator
@@ -254,7 +256,7 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
     model = Request
     link_field = 'name'
     model_fields = ('name', 'city', 'status', 'creator', 'send_on_approval', 'created', 'accepted')
-    # calculated_fields = {'current_approvers': RequestMessages.CURRENT_REVIEVERS, }
+    calculated_fields = {'current_approvers': RequestMessages.CURRENT_REVIEVERS, }
 
     as_is = lambda x: x
     to_date = parse_string_to_datetime
@@ -267,8 +269,16 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
         'date_accepted_from': {'lookup': 'accepted__gte', 'converter': to_date},
         'date_accepted_to': {'lookup': 'accepted__lte', 'converter': to_date},
         'creator': {'lookup': 'creator__pk', 'converter': int},
-        'current_approver': {'lookup': 'approval_route__steps__approver', 'converter': int},
         'city': {'lookup': 'city', 'converter': int},
+        'current_approver': {
+            'Q_gen': lambda approver: (
+                Q(approval_route__processes__is_current=True) &
+                Q(approval_route__processes__is_successful=False) &
+                Q(approval_route__steps__step_number=F('approval_route__processes__current_step_number')) &
+                Q(approval_route__steps__approver=approver)
+            ),
+            'converter': int
+        },
     }
 
     def get_links_config(self):
@@ -297,14 +307,18 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
 
     def filter_queryset(self, qs):
         filters = {}
+        q_lookups = []
         for parameter, parameter_mapping in self._search_criteria.items():
             val = self.request.GET.get(parameter, None)
             if val is not None:
-                filters[parameter_mapping['lookup']] = parameter_mapping['converter'](val)
+                if 'lookup' in parameter_mapping:
+                    filters[parameter_mapping['lookup']] = parameter_mapping['converter'](val)
+                elif 'Q_gen' in parameter_mapping:
+                    q_lookups.append(parameter_mapping['Q_gen'](val))
 
-        if filters:
-            qs = qs.filter(**filters)
-        return qs
+        if filters or q_lookups:
+            qs = qs.filter(*q_lookups, **filters)
+        return qs.select_related('city', 'creator', 'status', 'send_on_approval')
 
     def prepare_single_item(self, item):
         accepted = item.accepted.strftime("%Y-%m-%d") if item.accepted is not None else "---"
@@ -319,7 +333,7 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
             'accepted': accepted,
             'send_on_approval_pk': item.send_on_approval.pk,
             'creator_pk': item.creator.pk,
-            # 'current_approvers': [profile.short_name for profile in item.get_current_approvers()]
+            'current_approvers': [profile.short_name for profile in item.get_current_approvers()]
         }
 
 
