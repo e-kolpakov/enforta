@@ -250,16 +250,17 @@ class RequestContextMenuManagerExtension(MenuManagerExtensionBase):
                 NavigableMenuItem(caption=_(u"Редактировать"), image='icons/edit.png',
                                   url=reverse(url_names.Request.UPDATE, kwargs={'pk': req.pk})), order=10
             )
+
         if self.check_user_permissions(
                 instance_permissions=(Permissions.Request.CAN_EDIT_ROUTE,),
-                instance=req):
+                instance=req) and req.route_editable:
             self._accumulate_child(
                 NavigableMenuItem(caption=_(u"Маршрут утверждения"), image='icons/approval_route.png',
                                   url=reverse(url_names.ApprovalRoute.UPDATE,
                                               kwargs={'pk': req.approval_route.pk})), order=20)
-            if len(self._children_to_add) > 0:
-                self._root_item = HtmlMenuItem(caption=_(u"Заявка"))
-                self._add_children_to_root()
+        if len(self._children_to_add) > 0:
+            self._root_item = HtmlMenuItem(caption=_(u"Заявка"))
+            self._add_children_to_root()
         return self._root_item
 
 

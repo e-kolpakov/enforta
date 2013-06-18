@@ -11,12 +11,13 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import View, TemplateView
 from django.contrib.auth.models import User, Permission
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib import messages
 
 from ..menu import MenuModifierViewMixin, RequestContextMenuManagerExtension
 from ..models import ApprovalRoute, Permissions, ApprovalRouteExceptionBase, UserProfile
 from ..messages import ApprovalRouteMessages
-from ..url_naming.names import ApprovalRoute as ApprovalRouteUrls
+from ..url_naming.names import ApprovalRoute as ApprovalRouteUrls, Request as RequestUrls
 from ..utilities.utility import get_url_base
 from ..utilities.datatables import JsonConfigurableDatatablesBaseView
 
@@ -94,6 +95,9 @@ class EditApprovalRouteView(ApprovalRouteEditHandlerView, MenuModifierViewMixin)
     def get(self, request, *args, **kwargs):
         pk = int(kwargs.get('pk', 0))
         route = get_object_or_404(ApprovalRoute, pk=pk)
+        if route.request and not route.request.route_editable:
+            messages.warning(request, ApprovalRouteMessages.NON_EDITABLE_ROUTE_MESSAGE)
+            return HttpResponseRedirect(reverse(RequestUrls.DETAILS, kwargs={'pk': route.request.pk}))
         self._apply_extender(request, route.request)
 
         return render(request, self.template_name, self._get_template_data(
