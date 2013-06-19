@@ -1,5 +1,5 @@
 <VirtualHost *:80>
-    LogLevel warn
+   LogLevel warn
 	ErrorLog ${APACHE_LOG_DIR}/docapproval.error.log
 	CustomLog ${APACHE_LOG_DIR}/docapproval.access.log combined
 	ServerSignature On
@@ -19,8 +19,8 @@
     </Directory>
 
 	WSGIScriptAlias / /home/enfortit/docapproval/portal/wsgi.py
-	WSGIDaemonProcess docApproval processes=10 maximum-requests=10 threads=1 \
-	python-path=/home/enfortit/docapproval:/home/enfortit/.virtualenvs/DocApproval/lib/python2.7/site-packages \
+	WSGIDaemonProcess docApproval processes=2 maximum-requests=0 threads=25 \
+	python-path=/home/john/GitRoot/Enforta/enforta:/home/john/.virtualenvs/DocApproval/lib/python2.7/site-packages \
 	lang='en_US.UTF-8' locale='en_US.UTF-8'
     WSGIProcessGroup docApproval
 
