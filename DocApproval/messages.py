@@ -55,6 +55,7 @@ class ApprovalRouteMessages:
     EMPTY_ROUTE_STEPS = _(u"Не заданы этапы утверждения")
     ROUTE_TEMPLATE_SWITCH_NOT_ALLOWED = _(u"Изменение маршрута запрещено")
     NON_AVAILABLE_FOR_TEMPLATE = _(u"{0} не имеет смысла для шаблонного маршрута")
+    NO_MANAGER = _(u"Для текущего пользователя не задан непосредственный начальник")
 
 
 class PeriodMessages:

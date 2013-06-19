@@ -63,6 +63,10 @@ class EmptyStepsValueError(ValueError, ApprovalRouteExceptionBase):
     ui_msg = ApprovalRouteMessages.EMPTY_ROUTE_STEPS
 
 
+class NoManager(ApprovalRouteExceptionBase):
+    ui_msg = ApprovalRouteMessages.NO_MANAGER
+
+
 class UnavailableInTemplate(ApprovalRouteExceptionBase):
     def __init__(self, method_name, *args, **kwargs):
         self.ui_msg = ApprovalRouteMessages.NON_AVAILABLE_FOR_TEMPLATE.format(method_name)
@@ -105,7 +109,7 @@ class ApprovalRoute(models.Model):
 
         steps_to_keep = []
         for step_number, approvers in steps.iteritems():
-            self.add_step(step_number, set(approvers))
+            self.add_step(step_number, set(approvers), user)
             steps_to_keep.append(int(step_number))
 
         self.remove_steps(exclude=steps_to_keep)
@@ -123,11 +127,24 @@ class ApprovalRoute(models.Model):
         approvers_to_remove_pks = existing_approvers_in_step - incoming_approvers
         return approvers_to_add_pks, approvers_to_remove_pks
 
-    def add_step(self, step_number, approvers):
+    def _fetch_template_approver(self, template_approver, user):
+        # TODO: if the template list grows bigger than two - refactor into strategy pattern
+        if template_approver == ApprovalRouteStep.DIRECT_MANAGER:
+            if user.manager:
+                return user.manager.pk
+            else:
+                raise NoManager()
+
+    def add_step(self, step_number, approvers, user):
         if not isinstance(approvers, set) or not approvers:
             raise ValueError("Approvers parameter must be a non-empty set")
 
         approvers_to_add_pks, approvers_to_remove_pks = self._get_processing_lists(step_number, approvers)
+        rolled_template_approvers = set([
+            self._fetch_template_approver(approver, user)
+            for approver in approvers_to_add_pks if approver < 0
+        ])
+        approvers_to_add_pks = approvers_to_add_pks | rolled_template_approvers
         approvers_to_add = UserProfile.objects.filter(pk__in=approvers_to_add_pks).select_related('user')
         approvers_to_remove = UserProfile.objects.filter(pk__in=approvers_to_remove_pks).select_related('user')
 
@@ -206,7 +223,7 @@ class TemplateApprovalRoute(ApprovalRoute):
         for template in template_approvers_to_add:
             self.steps.create(calc_step=template, step_number=step_number)
 
-    def add_step(self, step_number, approvers):
+    def add_step(self, step_number, approvers, user):
         if not isinstance(approvers, set) or not approvers:
             raise ValueError("Approvers parameter must be a non-empty set")
 
