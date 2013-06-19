@@ -170,15 +170,14 @@ class ApprovalRoute(models.Model):
 
 
 class ApprovalRouteStep(models.Model):
-    DIRECT_MANAGER_PLACEHOLDER = '{manager}'
+    DIRECT_MANAGER = -1
 
     route = models.ForeignKey(ApprovalRoute, verbose_name=_(u"Маршрут утверждения"), related_name='steps')
     approver = models.ForeignKey(UserProfile, verbose_name=_(u"Утверждающий"), null=True, related_name='approval_steps')
     step_number = models.IntegerField(verbose_name=_(u"Номер шага"))
-    calc_step = models.CharField(
+    calc_step = models.IntegerField(
         verbose_name=_(u"Вычисляемый утверждающий"), null=True, blank=True, default=None,
-        max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH,
-        choices=((DIRECT_MANAGER_PLACEHOLDER, _(u"Непосредственный руководитель")),)
+        choices=((DIRECT_MANAGER, _(u"Непосредственный руководитель")),)
     )
 
     class Meta:
