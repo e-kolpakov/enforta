@@ -181,6 +181,7 @@ define(
         var Editor = function (target, is_readonly) {
             var that = this;
             var row_count = 0;
+            var empty_approver = "";
             this.is_readonly = is_readonly;
 
             var wrapper_element = "table";
@@ -232,7 +233,7 @@ define(
 
             function make_dropdown(approvers, selected_approver) {
                 var select = HtmlHelper.create_elem("select").addClass("input-medium");
-                HtmlHelper.create_elem("option").text("-----").attr("value", -1).appendTo(select);
+                HtmlHelper.create_elem("option").text("-----").attr("value", empty_approver).appendTo(select);
                 for (var k in approvers) {
                     if (!approvers.hasOwnProperty(k))
                         continue;
@@ -243,7 +244,7 @@ define(
                 if (selected_approver)
                     select.val(selected_approver);
                 else
-                    select.val(-1);
+                    select.val(empty_approver);
                 return select;
             }
 
@@ -371,7 +372,7 @@ define(
                     var unique_approvers = get_approvers(elem, true);
                     row_valid &= all_approvers.length > 0;
                     row_valid &= all_approvers.length == unique_approvers.length;
-                    row_valid &= all_approvers.indexOf("-1") == -1;
+                    row_valid &= all_approvers.indexOf(empty_approver) == -1;
 
                     var row_class = row_valid ? "success" : "error";
                     $(elem).removeClass("success error");

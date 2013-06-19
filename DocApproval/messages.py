@@ -54,6 +54,7 @@ class ApprovalRouteMessages:
         u"Редактирование маршрута утверждения возможно только для заявок, находящихся в статусе проекта")
 
     ROUTE_TEMPLATE_SWITCH_NOT_ALLOWED = _(u"Изменение маршрута запрещено")
+    EMPTY_ROUTE_STEPS = _(u"Не заданы этапы утверждения")
 
 
 class PeriodMessages:

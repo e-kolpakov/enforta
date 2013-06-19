@@ -60,6 +60,10 @@ class ApprovalRouteModificationException(ApprovalRouteExceptionBase):
     ui_message = ApprovalRouteMessages.ROUTE_TEMPLATE_SWITCH_NOT_ALLOWED
 
 
+class EmptyStepsValueError(ValueError, ApprovalRouteExceptionBase):
+    ui_message = ApprovalRouteMessages.EMPTY_ROUTE_STEPS
+
+
 class ApprovalRoute(models.Model):
     REQUEST_ROUTE_NAMING_TEMPLATE = _(u"Маршрут утверждения заявки {0}")
 
@@ -85,34 +89,23 @@ class ApprovalRoute(models.Model):
     def __unicode__(self):
         return self.name
 
-    @classmethod
-    @transaction.commit_on_success
-    def create_or_update_with_steps(cls, user, pk=None, name=None, description=None, is_template=False, steps=None):
-        primary_key = pk if pk and int(pk) else None
-        route, created = ApprovalRoute.objects.get_or_create(
-            pk=primary_key,
-            defaults={'name': name, 'description': description, 'is_template': is_template}
-        )
-        if not created:
-            route.name = name
-            route.description = description
-            if route.is_template != is_template:
-                raise NonTemplateApprovalRouteException(route.is_template, is_template)
+    def update_parameters(self, name, description):
+        self.name = name
+        self.description = description
+        self.save()
 
-        if not is_template and not route.request.route_editable:
-            raise ApprovalRouteModificationException("Route is not editable")
-
-        route.save()
+    def set_steps(self, user, steps=None):
+        if not steps:
+            raise EmptyStepsValueError("Incorrect steps list")
 
         steps_to_keep = []
         for step_number, approvers in steps.iteritems():
-            route.add_step(step_number, set(approvers))
+            self.add_step(step_number, set(approvers))
             steps_to_keep.append(int(step_number))
 
-        route.remove_steps(exclude=steps_to_keep)
-        if not is_template:
-            approval_route_changed_signal.send(ApprovalRoute, request=route.request, user=user)
-        return route
+        self.remove_steps(exclude=steps_to_keep)
+        if not self.is_template:
+            approval_route_changed_signal.send(ApprovalRoute, request=self.request, user=user)
 
     def add_step(self, step_number, approvers):
         if not isinstance(approvers, set) or not approvers:
@@ -131,7 +124,7 @@ class ApprovalRoute(models.Model):
         self.steps.filter(approver__user__in=approvers_to_remove, step_number=step_number).delete()
 
     def remove_steps(self, exclude=None):
-        steps_to_remove = self.steps.exclude(step_number__in=exclude).select_related('approver')
+        steps_to_remove = self.steps.exclude(step_number__in=exclude).select_related('approver__user')
         users_to_remove_permissions = [step.approver.user for step in steps_to_remove]
         self.process_request_permissions(to_remove=users_to_remove_permissions)
 
@@ -171,13 +164,14 @@ class ApprovalRoute(models.Model):
 
 class ApprovalRouteStep(models.Model):
     DIRECT_MANAGER = -1
+    DIRECT_MANAGER_CAPTION = _(u"Непосредственный руководитель")
 
     route = models.ForeignKey(ApprovalRoute, verbose_name=_(u"Маршрут утверждения"), related_name='steps')
     approver = models.ForeignKey(UserProfile, verbose_name=_(u"Утверждающий"), null=True, related_name='approval_steps')
     step_number = models.IntegerField(verbose_name=_(u"Номер шага"))
     calc_step = models.IntegerField(
         verbose_name=_(u"Вычисляемый утверждающий"), null=True, blank=True, default=None,
-        choices=((DIRECT_MANAGER, _(u"Непосредственный руководитель")),)
+        choices=((DIRECT_MANAGER, DIRECT_MANAGER_CAPTION),)
     )
 
     class Meta:

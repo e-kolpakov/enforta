@@ -5,6 +5,7 @@ from collections import defaultdict
 
 from django.contrib.auth.decorators import permission_required
 from django.core.urlresolvers import reverse
+from django.db import transaction
 from django.shortcuts import render, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -15,7 +16,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 
 from ..menu import MenuModifierViewMixin, RequestContextMenuManagerExtension
-from ..models import ApprovalRoute, Permissions, ApprovalRouteExceptionBase, UserProfile
+from ..models import ApprovalRoute, ApprovalRouteStep, Permissions, ApprovalRouteExceptionBase, UserProfile
 from ..messages import ApprovalRouteMessages
 from ..url_naming.names import ApprovalRoute as ApprovalRouteUrls, Request as RequestUrls
 from ..utilities.utility import get_url_base
@@ -161,14 +162,17 @@ class ApproversListJson(View):
         perm = Permission.objects.get(codename=Permissions.Request.CAN_APPROVE_REQUESTS)
         users = User.objects.filter(Q(groups__permissions=perm) | Q(user_permissions=perm)).distinct()
         profiles = UserProfile.objects.filter(user__in=users)
-        return profiles
+        result = {approver.pk: {'name': approver.short_name} for approver in profiles}
+        return result
+
+    def _get_template_approvers(self):
+        return {
+            ApprovalRouteStep.DIRECT_MANAGER: {'name': ApprovalRouteStep.DIRECT_MANAGER_CAPTION}
+        }
 
     def post(self, request, *args, **kwargs):
-        data = {
-            approver.pk: {
-                'name': approver.short_name
-            }
-            for approver in self._get_all_approvers()}
+        data = self._get_all_approvers()
+        data.update(self._get_template_approvers())
         return HttpResponse(json.dumps(data), content_type="application/json")
 
 
@@ -201,19 +205,23 @@ class SaveApprovalRouteView(View):
 
     def save_route(self, querydict, user):
         is_template = querydict.get('is_template', '0') != '0'
-        default_name = ApprovalRouteMessages.DEFAULT_TEMPLATE_APPROVAL_ROUTE_NAME if is_template else ApprovalRouteMessages.NEW_APPROVAL_ROUTE
+        if is_template:
+            default_name = ApprovalRouteMessages.DEFAULT_TEMPLATE_APPROVAL_ROUTE_NAME
+        else:
+            default_name = ApprovalRouteMessages.NEW_APPROVAL_ROUTE
         steps = self._get_steps(querydict.lists())
-        if not steps:
-            raise ValueError("Incorrect steps list")
 
-        route = ApprovalRoute.create_or_update_with_steps(
-            pk=querydict.get('pk', None),
-            name=querydict.get('name', default_name),
-            description=querydict.get('desc', ''),
-            is_template=is_template,
-            steps=steps,
-            user=user
-        )
+        route_pk = querydict.get('pk', None)
+        name = querydict.get('name', default_name)
+        description = querydict.get('desc', '')
+        try:
+            route = ApprovalRoute.objects.get(pk=route_pk)
+        except ApprovalRoute.DoesNotExist:
+            route = ApprovalRoute(is_template=is_template)
+
+        with transaction.commit_on_success():
+            route.update_parameters(name=name, description=description)
+            route.set_steps(steps=steps, user=user)
 
         return route
 
