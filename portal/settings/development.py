@@ -48,10 +48,24 @@ LOGGING = {
             'formatter': 'generic',
             'encoding': 'UTF-8'
         },
+        'sql': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOGGING_DIRECTORY, 'doc-approval/sql.log'),
+            'maxBytes': 102400,
+            'backupCount': 0,
+            'formatter': 'generic',
+            'encoding': 'UTF-8'
+        },
     },
     'loggers': {
         '': {
             'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+        'django.db.backends': {
+            'handlers': ['sql'],
             'level': 'DEBUG',
             'propagate': False
         },
