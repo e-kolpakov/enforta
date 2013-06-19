@@ -23,7 +23,7 @@ class LoggerMessages(object):
 
 
 class ApprovalRouteExceptionBase(Exception):
-    ui_message = ""
+    ui_msg = ""
 
     def __init__(self, *args, **kwargs):
         super(ApprovalRouteExceptionBase, self).__init__(*args, **kwargs)
@@ -34,13 +34,13 @@ class ApprovalRouteExceptionBase(Exception):
 
     @property
     def ui_message(self):
-        return self.ui_message
+        return self.ui_msg
 
 
 class NonTemplateApprovalRouteException(ApprovalRouteExceptionBase):
     MESSAGE_TEMPLATE = "Can't make template route non-template and vice versa. Route was {0}, tried to make it {1}"
 
-    ui_message = ApprovalRouteMessages.NON_EDITABLE_ROUTE_MESSAGE
+    ui_msg = ApprovalRouteMessages.NON_EDITABLE_ROUTE_MESSAGE
 
     def __init__(self, old_val, new_val, *args, **kwargs):
         self.old_val = old_val
@@ -56,11 +56,17 @@ class NonTemplateApprovalRouteException(ApprovalRouteExceptionBase):
 
 
 class ApprovalRouteModificationException(ApprovalRouteExceptionBase):
-    ui_message = ApprovalRouteMessages.ROUTE_TEMPLATE_SWITCH_NOT_ALLOWED
+    ui_msg = ApprovalRouteMessages.ROUTE_TEMPLATE_SWITCH_NOT_ALLOWED
 
 
 class EmptyStepsValueError(ValueError, ApprovalRouteExceptionBase):
-    ui_message = ApprovalRouteMessages.EMPTY_ROUTE_STEPS
+    ui_msg = ApprovalRouteMessages.EMPTY_ROUTE_STEPS
+
+
+class UnavailableInTemplate(ApprovalRouteExceptionBase):
+    def __init__(self, method_name, *args, **kwargs):
+        self.ui_msg = ApprovalRouteMessages.NON_AVAILABLE_FOR_TEMPLATE.format(method_name)
+        super(UnavailableInTemplate, self).__init__(*args, **kwargs)
 
 
 class ApprovalRoute(models.Model):
@@ -107,28 +113,23 @@ class ApprovalRoute(models.Model):
             approval_route_changed_signal.send(ApprovalRoute, request=self.request, user=user)
 
     def _get_existing_approver_pks(self, step_number):
-        base_qs = self.steps.filter(step_number=step_number)
-        approvers = set(
+        return set(
             step.approver.pk
-            for step in base_qs.filter(approver__isnull=False).select_related('approver'))
-        if self.is_template:
-            template_approvers = set(
-                step.calc_step
-                for step in base_qs.filter(step_number=step_number, approver__isnull=True))
-            approvers = approvers | template_approvers
-        return approvers
+            for step in self.steps.filter(step_number=step_number, approver__isnull=False).select_related('approver'))
+
+    def _get_processing_lists(self, step_number, incoming_approvers):
+        existing_approvers_in_step = self._get_existing_approver_pks(step_number=step_number)
+        approvers_to_add_pks = incoming_approvers - existing_approvers_in_step
+        approvers_to_remove_pks = existing_approvers_in_step - incoming_approvers
+        return approvers_to_add_pks, approvers_to_remove_pks
 
     def add_step(self, step_number, approvers):
         if not isinstance(approvers, set) or not approvers:
             raise ValueError("Approvers parameter must be a non-empty set")
 
-        incoming_approvers = set(approvers)
-        existing_approvers_in_step = self._get_existing_approver_pks(step_number=step_number)
-        approvers_to_add_pks = incoming_approvers - existing_approvers_in_step
-        approvers_to_remove_pks = existing_approvers_in_step - incoming_approvers
-
-        approvers_to_add = UserProfile.objects.filter(pk__in=approvers_to_add_pks)
-        approvers_to_remove = UserProfile.objects.filter(pk__in=approvers_to_remove_pks)
+        approvers_to_add_pks, approvers_to_remove_pks = self._get_processing_lists(step_number, approvers)
+        approvers_to_add = UserProfile.objects.filter(pk__in=approvers_to_add_pks).select_related('user')
+        approvers_to_remove = UserProfile.objects.filter(pk__in=approvers_to_remove_pks).select_related('user')
 
         for approver in approvers_to_add:
             self.steps.create(approver=approver, step_number=step_number)
@@ -136,23 +137,9 @@ class ApprovalRoute(models.Model):
         self.steps.filter(approver__user__in=approvers_to_remove, step_number=step_number).delete()
         self.process_request_permissions(to_add=approvers_to_add, to_remove=approvers_to_remove)
 
-        # TODO: might make sense to subclass route and move template-related logic into subclass
-        if self.is_template:
-            template_approvers_to_add = [
-                approver for approver in approvers_to_add_pks
-                if approver < 0 and approver in ApprovalRouteStep.allowed_templates
-            ]
-            template_approvers_to_remove = [approver for approver in approvers_to_remove_pks if approver < 0]
-
-            self.steps.filter(calc_step__in=template_approvers_to_remove, step_number=step_number).delete()
-
-            for template in template_approvers_to_add:
-                self.steps.create(calc_step=template, step_number=step_number)
-
-
     def remove_steps(self, exclude=None):
         steps_to_remove = self.steps.exclude(step_number__in=exclude).select_related('approver__user')
-        users_to_remove_permissions = [step.approver.user for step in steps_to_remove]
+        users_to_remove_permissions = [step.approver for step in steps_to_remove]
         self.process_request_permissions(to_remove=users_to_remove_permissions)
 
         steps_to_remove.delete()
@@ -162,10 +149,10 @@ class ApprovalRoute(models.Model):
             return
 
         for approver in (to_remove or []):
-            remove_perm(Permissions._(Permissions.Request.CAN_VIEW_REQUEST), approver, self.request)
+            remove_perm(Permissions._(Permissions.Request.CAN_VIEW_REQUEST), approver.user, self.request)
 
         for approver in (to_add or []):
-            assign_perm(Permissions._(Permissions.Request.CAN_VIEW_REQUEST), approver, self.request)
+            assign_perm(Permissions._(Permissions.Request.CAN_VIEW_REQUEST), approver.user, self.request)
 
     def get_steps_count(self):
         return self.steps.all().aggregate(models.Max('step_number')).get('step_number__max')
@@ -187,6 +174,66 @@ class ApprovalRoute(models.Model):
 
     def get_successful_process(self):
         return self.processes.get(is_successful=True)
+
+
+class TemplateApprovalRoute(ApprovalRoute):
+    class Meta:
+        app_label = "DocApproval"
+        proxy = True
+
+    def _get_existing_approver_pks(self, step_number):
+        approvers = super(TemplateApprovalRoute, self)._get_existing_approver_pks(step_number)
+        template_approvers = set(
+            step.calc_step
+            for step in self.steps.filter(step_number=step_number, approver__isnull=True))
+        return approvers | template_approvers
+
+    def _get_processing_lists(self, step_number, incoming_approvers):
+        existing_approvers_in_step = self._get_existing_approver_pks(step_number=step_number)
+        approvers_to_add_pks = incoming_approvers - existing_approvers_in_step
+        approvers_to_remove_pks = existing_approvers_in_step - incoming_approvers
+        return approvers_to_add_pks, approvers_to_remove_pks
+
+    def _process_template_approvers(self, step_number, to_add, to_remove):
+        template_approvers_to_add = [
+            approver for approver in to_add
+            if approver < 0 and approver in ApprovalRouteStep.allowed_templates
+        ]
+        template_approvers_to_remove = [approver for approver in to_remove if approver < 0]
+
+        self.steps.filter(calc_step__in=template_approvers_to_remove, step_number=step_number).delete()
+
+        for template in template_approvers_to_add:
+            self.steps.create(calc_step=template, step_number=step_number)
+
+    def add_step(self, step_number, approvers):
+        if not isinstance(approvers, set) or not approvers:
+            raise ValueError("Approvers parameter must be a non-empty set")
+
+        approvers_to_add_pks, approvers_to_remove_pks = self._get_processing_lists(step_number, set(approvers))
+        approvers_to_add = UserProfile.objects.filter(pk__in=approvers_to_add_pks)
+        approvers_to_remove = UserProfile.objects.filter(pk__in=approvers_to_remove_pks)
+
+        for approver in approvers_to_add:
+            self.steps.create(approver=approver, step_number=step_number)
+
+        self.steps.filter(approver__user__in=approvers_to_remove, step_number=step_number).delete()
+        self._process_template_approvers(step_number, approvers_to_add_pks, approvers_to_remove_pks)
+
+    def remove_steps(self, exclude=None):
+        self.steps.exclude(step_number__in=exclude).delete()
+
+    def process_request_permissions(self, to_remove=None, to_add=None):
+        raise UnavailableInTemplate(_(u"Установка прав доступа к заявке"))
+
+    def get_current_approvers(self):
+        raise UnavailableInTemplate(_(u"Текущие утверждающие"))
+
+    def get_current_process(self):
+        raise UnavailableInTemplate(_(u"Текущий процесс утверждения"))
+
+    def get_successful_process(self):
+        raise UnavailableInTemplate(_(u"Успешный процесс утверждения"))
 
 
 class ApprovalRouteStep(models.Model):

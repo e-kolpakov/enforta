@@ -25,7 +25,7 @@ model_signals.post_syncdb.disconnect(
 
 from common import Position, City, ModelConstants, Permissions, Groups
 from approval import (
-    ApprovalRoute, ApprovalRouteStep, ApprovalProcess, ApprovalProcessAction,
+    ApprovalRoute, TemplateApprovalRoute, ApprovalRouteStep, ApprovalProcess, ApprovalProcessAction,
     NonTemplateApprovalRouteException, ApprovalRouteExceptionBase,
     approve_action_signal, approval_route_changed_signal
     )

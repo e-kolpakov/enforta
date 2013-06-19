@@ -16,7 +16,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 
 from ..menu import MenuModifierViewMixin, RequestContextMenuManagerExtension
-from ..models import ApprovalRoute, ApprovalRouteStep, Permissions, ApprovalRouteExceptionBase, UserProfile
+from ..models import ApprovalRoute, TemplateApprovalRoute, ApprovalRouteStep, Permissions, ApprovalRouteExceptionBase, UserProfile
 from ..messages import ApprovalRouteMessages
 from ..url_naming.names import ApprovalRoute as ApprovalRouteUrls, Request as RequestUrls
 from ..utilities.utility import get_url_base
@@ -205,19 +205,20 @@ class SaveApprovalRouteView(View):
 
     def save_route(self, querydict, user):
         is_template = querydict.get('is_template', '0') != '0'
+        template_class = TemplateApprovalRoute if is_template else ApprovalRoute
         if is_template:
             default_name = ApprovalRouteMessages.DEFAULT_TEMPLATE_APPROVAL_ROUTE_NAME
         else:
             default_name = ApprovalRouteMessages.NEW_APPROVAL_ROUTE
         steps = self._get_steps(querydict.lists())
 
-        route_pk = querydict.get('pk', None)
+        route_pk = int(querydict.get('pk', 0))
         name = querydict.get('name', default_name)
         description = querydict.get('desc', '')
         try:
-            route = ApprovalRoute.objects.get(pk=route_pk)
+            route = template_class.objects.get(pk=route_pk)
         except ApprovalRoute.DoesNotExist:
-            route = ApprovalRoute(is_template=is_template)
+            route = template_class(is_template=is_template)
 
         with transaction.commit_on_success():
             route.update_parameters(name=name, description=description)
@@ -241,6 +242,6 @@ class SaveApprovalRouteView(View):
             _logger.exception(e)
             data = {
                 'success': False,
-                'errors': [e]
+                'errors': [unicode(e)]
             }
         return HttpResponse(json.dumps(data), content_type="application/json")

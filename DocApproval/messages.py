@@ -46,15 +46,15 @@ class ApprovalRouteMessages:
     NEW_TEMPLATE_APPROVAL_ROUTE = _(u"Новый шаблонный маршрут утверждения")
 
     STEPS_COUNT = _(u"Количество этапов")
-
     DEFAULT_TEMPLATE_APPROVAL_ROUTE_NAME = _(u"Шаблонный маршрут №{0}")
 
     GENERIC_ROUTE_ERROR_MESSAGE = _(u"Ошибка сохранения маршрута: ")
     NON_EDITABLE_ROUTE_MESSAGE = _(
         u"Редактирование маршрута утверждения возможно только для заявок, находящихся в статусе проекта")
 
-    ROUTE_TEMPLATE_SWITCH_NOT_ALLOWED = _(u"Изменение маршрута запрещено")
     EMPTY_ROUTE_STEPS = _(u"Не заданы этапы утверждения")
+    ROUTE_TEMPLATE_SWITCH_NOT_ALLOWED = _(u"Изменение маршрута запрещено")
+    NON_AVAILABLE_FOR_TEMPLATE = _(u"{0} не имеет смысла для шаблонного маршрута")
 
 
 class PeriodMessages:

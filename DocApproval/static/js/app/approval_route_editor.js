@@ -89,7 +89,7 @@ define(
             }
 
             function set_ctrl_data($ctrl, data, safe) {
-                if (safe && ((!that.is_template) || ($ctrl.val() !== ''))) {
+                if (!safe && ((!that.is_template) || ($ctrl.val() !== ''))) {
                     return;
                 }
                 $ctrl.val(data);
@@ -102,8 +102,8 @@ define(
                     that.is_template = data.is_template || false;
                 }
 
-                set_ctrl_data(pk_input, data.pk || 0, true);
-                set_ctrl_data(is_template_input, data.is_template || 0, true);
+                set_ctrl_data(pk_input, data.pk || 0, eff_safe);
+                set_ctrl_data(is_template_input, data.is_template || 0, eff_safe);
                 set_ctrl_data(name_input, data.name || '', eff_safe);
                 set_ctrl_data(desc_input, data.description || '', eff_safe);
 
@@ -419,7 +419,7 @@ define(
                     return;
                 }
                 editor.set_data(template_data.steps);
-                header_editor.set_data(template_data, true);
+                header_editor.set_data(template_data, false);
             }
 
             function save_click_handler(event) {
@@ -457,11 +457,11 @@ define(
 
                 event.preventDefault();
                 editor.set_data(initial_data.steps);
-                header_editor.set_data(initial_data.header_data);
+                header_editor.set_data(initial_data.header_data, true);
                 return false;
             }
 
-            header_editor.set_data(initial_data.header_data);
+            header_editor.set_data(initial_data.header_data, true);
 
             var approver_list_promise = comm.download_approver_list();
             var template_list_promise = comm.download_template_list();
