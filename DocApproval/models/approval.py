@@ -75,6 +75,7 @@ class UnavailableInTemplate(ApprovalRouteExceptionBase):
 
 class ApprovalRoute(models.Model):
     REQUEST_ROUTE_NAMING_TEMPLATE = _(u"Маршрут утверждения заявки {0}")
+    emit_changed_signal = True
 
     name = models.CharField(_(u"Название"), max_length=ModelConstants.MAX_NAME_LENGTH)
     description = models.CharField(_(u"Описание"), max_length=ModelConstants.MAX_VARCHAR_LENGTH, default='')
@@ -91,6 +92,10 @@ class ApprovalRoute(models.Model):
         permissions = (
             (Permissions.ApprovalRoute.CAN_MANAGE_TEMPLATES, _(u"Может создавать шаблонные маршруты")),
         )
+
+    def __init__(self, *args, **kwargs):
+        self.is_template = False
+        super(ApprovalRoute, self).__init__(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse(ApprovalRouteUrls.UPDATE, kwargs={'pk': self.pk})
@@ -113,7 +118,7 @@ class ApprovalRoute(models.Model):
             steps_to_keep.append(int(step_number))
 
         self.remove_steps(exclude=steps_to_keep)
-        if not self.is_template:
+        if self.emit_changed_signal:
             approval_route_changed_signal.send(ApprovalRoute, request=self.request, user=user)
 
     def _get_existing_approver_pks(self, step_number):
@@ -194,9 +199,15 @@ class ApprovalRoute(models.Model):
 
 
 class TemplateApprovalRoute(ApprovalRoute):
+    emit_changed_signal = False
+
     class Meta:
         app_label = "DocApproval"
         proxy = True
+
+    def __init__(self, *args, **kwargs):
+        super(ApprovalRoute, self).__init__(*args, **kwargs)
+        self.is_template = True
 
     def _get_existing_approver_pks(self, step_number):
         approvers = super(TemplateApprovalRoute, self)._get_existing_approver_pks(step_number)
@@ -204,12 +215,6 @@ class TemplateApprovalRoute(ApprovalRoute):
             step.calc_step
             for step in self.steps.filter(step_number=step_number, approver__isnull=True))
         return approvers | template_approvers
-
-    def _get_processing_lists(self, step_number, incoming_approvers):
-        existing_approvers_in_step = self._get_existing_approver_pks(step_number=step_number)
-        approvers_to_add_pks = incoming_approvers - existing_approvers_in_step
-        approvers_to_remove_pks = existing_approvers_in_step - incoming_approvers
-        return approvers_to_add_pks, approvers_to_remove_pks
 
     def _process_template_approvers(self, step_number, to_add, to_remove):
         template_approvers_to_add = [

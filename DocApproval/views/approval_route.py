@@ -203,9 +203,11 @@ class SaveApprovalRouteView(View):
 
         return steps
 
-    def save_route(self, querydict, user):
-        is_template = querydict.get('is_template', '0') != '0'
-        template_class = TemplateApprovalRoute if is_template else ApprovalRoute
+    def _get_is_tempalte(self, querydict):
+        return querydict.get('is_template', '0') != '0'
+
+    def save_route(self, querydict, user, is_template):
+        route_class = TemplateApprovalRoute if is_template else ApprovalRoute
         if is_template:
             default_name = ApprovalRouteMessages.DEFAULT_TEMPLATE_APPROVAL_ROUTE_NAME
         else:
@@ -216,22 +218,27 @@ class SaveApprovalRouteView(View):
         name = querydict.get('name', default_name)
         description = querydict.get('desc', '')
         try:
-            route = template_class.objects.get(pk=route_pk)
+            route = route_class.objects.get(pk=route_pk)
+            needs_redirect = False
         except ApprovalRoute.DoesNotExist:
-            route = template_class(is_template=is_template)
+            route = route_class()
+            needs_redirect = True
 
         with transaction.commit_on_success():
             route.update_parameters(name=name, description=description)
             route.set_steps(steps=steps, user=user)
 
-        return route
+        return route, needs_redirect
 
     def post(self, request, *args, **kwargs):
         try:
-            self.save_route(request.POST, request.user.profile)
+            is_template = self._get_is_tempalte(request.POST)
+            route, needs_redirect = self.save_route(request.POST, request.user.profile, is_template)
             data = {
                 'success': True
             }
+            if is_template and needs_redirect:
+                data['redirect'] = reverse(ApprovalRouteUrls.TEMPLATE_EDIT, kwargs={'pk': route.pk})
         except ApprovalRouteExceptionBase as e:
             _logger.exception(e)
             data = {
