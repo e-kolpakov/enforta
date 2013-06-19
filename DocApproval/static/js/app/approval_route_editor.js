@@ -67,11 +67,12 @@ define(
         };
 
         var HeaderEditor = function (form, controls) {
+            var that = this;
+            var error_class = 'error';
+
             function get_element(selector) {
                 return $(selector, $(form));
             }
-
-            var error_class = 'error';
 
             var pk_input = get_element(controls.pk_input_selector || "#route-pk");
             var name_input = get_element(controls.name_input_selector || "#route-name");
@@ -88,20 +89,23 @@ define(
             }
 
             function set_ctrl_data($ctrl, data, safe) {
-                if (!safe || $ctrl.val() === '') {
-                    $ctrl.val(data);
+                if (safe && ((!that.is_template) || ($ctrl.val() !== ''))) {
+                    return;
                 }
+                $ctrl.val(data);
             }
 
-            var that = this;
+
             this.set_data = function (data, safe_set) {
                 var eff_safe = safe_set || false;
-                that.is_template = data.is_template || false;
+                if (!safe_set) {
+                    that.is_template = data.is_template || false;
+                }
 
                 set_ctrl_data(pk_input, data.pk || 0, true);
                 set_ctrl_data(is_template_input, data.is_template || 0, true);
-                set_ctrl_data(name_input, data.name || '', eff_safe || !that.is_template);
-                set_ctrl_data(desc_input, data.description || '', eff_safe || !that.is_template);
+                set_ctrl_data(name_input, data.name || '', eff_safe);
+                set_ctrl_data(desc_input, data.description || '', eff_safe);
 
                 if (!eff_safe) {
                     set_controls_availability(!that.is_template);
