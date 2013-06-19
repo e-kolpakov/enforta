@@ -238,6 +238,7 @@ class SaveApprovalRouteView(View):
                 'success': True
             }
             if is_template and needs_redirect:
+                messages.success(request, ApprovalRouteMessages.TEMPLATE_CREATED)
                 data['redirect'] = reverse(ApprovalRouteUrls.TEMPLATE_EDIT, kwargs={'pk': route.pk})
         except ApprovalRouteExceptionBase as e:
             _logger.exception(e)

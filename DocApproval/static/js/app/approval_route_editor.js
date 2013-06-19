@@ -9,7 +9,8 @@ define(
             save_success: "Маршрут сохранен",
             save_error: "Произошли ошибки сохранения:\n",
             no_templates_available: "Шаблонные маршруты не найдены",
-            readonly_mode: "Модификация маршрута невозможна: "
+            readonly_mode: "Модификация маршрута невозможна: ",
+            validation_error: "Произошли ошибки валидации."
         };
 
 
@@ -410,6 +411,9 @@ define(
                 //  header_editor.validate() && editor.validate() because of short-circuit evaluation of &&
                 var header_valid = header_editor.validate();
                 var editor_valid = editor.validate();
+                if (!header_valid || !editor_valid) {
+                    ui_manager.message(Messages.validation_error);
+                }
                 return header_valid && editor_valid;
             }
 
@@ -435,7 +439,12 @@ define(
 
                     save_promise.done(function (response_data, textStatus, jqXHR) {
                         if (response_data.success) {
-                            ui_manager.message(Messages.save_success);
+                            if (response_data.redirect) {
+                                location.replace(response_data.redirect);
+                            }
+                            else {
+                                ui_manager.message(Messages.save_success);
+                            }
                         }
                         else {
                             ui_manager.message(Messages.save_error + response_data.errors.join("\n"));
