@@ -10,7 +10,7 @@
 	SetEnv  EnvironmentType development
 
 	WSGIScriptAlias / /home/john/GitRoot/Enforta/enforta/portal/wsgi_dev.py
-	WSGIDaemonProcess docApproval processes=1 maximum-requests=10 threads=1 \
+	WSGIDaemonProcess docApproval processes=1 maximum-requests=50 threads=10 \
 	python-path=/home/john/GitRoot/Enforta/enforta:/home/john/.virtualenvs/DocApproval/lib/python2.7/site-packages \
 	lang='en_US.UTF-8' locale='en_US.UTF-8'
     WSGIProcessGroup docApproval
