@@ -2,7 +2,6 @@
 import logging
 
 from django.db import models, transaction
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.dispatch.dispatcher import Signal
 from django.utils.translation import ugettext as _
@@ -107,21 +106,49 @@ class ApprovalRoute(models.Model):
         if not self.is_template:
             approval_route_changed_signal.send(ApprovalRoute, request=self.request, user=user)
 
+    def _get_existing_approver_pks(self, step_number):
+        base_qs = self.steps.filter(step_number=step_number)
+        approvers = set(
+            step.approver.pk
+            for step in base_qs.filter(approver__isnull=False).select_related('approver'))
+        if self.is_template:
+            template_approvers = set(
+                step.calc_step
+                for step in base_qs.filter(step_number=step_number, approver__isnull=True))
+            approvers = approvers | template_approvers
+        return approvers
+
     def add_step(self, step_number, approvers):
         if not isinstance(approvers, set) or not approvers:
             raise ValueError("Approvers parameter must be a non-empty set")
 
-        incoming_approvers = set(User.objects.filter(pk__in=approvers))
-        existing_approvers_in_step = set(step.approver.user for step in self.steps.filter(step_number=step_number))
-        approvers_to_add = incoming_approvers - existing_approvers_in_step
-        approvers_to_remove = existing_approvers_in_step - incoming_approvers
+        incoming_approvers = set(approvers)
+        existing_approvers_in_step = self._get_existing_approver_pks(step_number=step_number)
+        approvers_to_add_pks = incoming_approvers - existing_approvers_in_step
+        approvers_to_remove_pks = existing_approvers_in_step - incoming_approvers
+
+        approvers_to_add = UserProfile.objects.filter(pk__in=approvers_to_add_pks)
+        approvers_to_remove = UserProfile.objects.filter(pk__in=approvers_to_remove_pks)
 
         for approver in approvers_to_add:
-            self.steps.create(approver=approver.profile, step_number=step_number)
-
-        self.process_request_permissions(to_add=approvers_to_add, to_remove=approvers_to_remove)
+            self.steps.create(approver=approver, step_number=step_number)
 
         self.steps.filter(approver__user__in=approvers_to_remove, step_number=step_number).delete()
+        self.process_request_permissions(to_add=approvers_to_add, to_remove=approvers_to_remove)
+
+        # TODO: might make sense to subclass route and move template-related logic into subclass
+        if self.is_template:
+            template_approvers_to_add = [
+                approver for approver in approvers_to_add_pks
+                if approver < 0 and approver in ApprovalRouteStep.allowed_templates
+            ]
+            template_approvers_to_remove = [approver for approver in approvers_to_remove_pks if approver < 0]
+
+            self.steps.filter(calc_step__in=template_approvers_to_remove, step_number=step_number).delete()
+
+            for template in template_approvers_to_add:
+                self.steps.create(calc_step=template, step_number=step_number)
+
 
     def remove_steps(self, exclude=None):
         steps_to_remove = self.steps.exclude(step_number__in=exclude).select_related('approver__user')
@@ -166,6 +193,8 @@ class ApprovalRouteStep(models.Model):
     DIRECT_MANAGER = -1
     DIRECT_MANAGER_CAPTION = _(u"Непосредственный руководитель")
 
+    allowed_templates = (DIRECT_MANAGER, )
+
     route = models.ForeignKey(ApprovalRoute, verbose_name=_(u"Маршрут утверждения"), related_name='steps')
     approver = models.ForeignKey(UserProfile, verbose_name=_(u"Утверждающий"), null=True, related_name='approval_steps')
     step_number = models.IntegerField(verbose_name=_(u"Номер шага"))
@@ -176,6 +205,10 @@ class ApprovalRouteStep(models.Model):
 
     class Meta:
         app_label = "DocApproval"
+
+    @property
+    def key(self):
+        return self.calc_step if self.calc_step else self.approver.pk
 
 
 class ApprovalProcess(models.Model):

@@ -50,7 +50,7 @@ class ApprovalRouteAdapter(object):
     def set_steps(self, route_steps):
         self.steps = defaultdict(list)
         for step in route_steps:
-            self.steps[step.step_number].append(step.approver.pk)
+            self.steps[step.step_number].append(step.key)
 
     def steps_as_json(self):
         return json.dumps(self.steps)
@@ -236,5 +236,11 @@ class SaveApprovalRouteView(View):
             data = {
                 'success': False,
                 'errors': [e.ui_message]
+            }
+        except Exception as e:
+            _logger.exception(e)
+            data = {
+                'success': False,
+                'errors': [e]
             }
         return HttpResponse(json.dumps(data), content_type="application/json")
