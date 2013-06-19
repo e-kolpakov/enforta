@@ -61,3 +61,6 @@ class ApprovalRouteMessages:
 
 class PeriodMessages:
     DAYS = _(u"дней")
+    WEEKS = _(u"недель")
+    MONTHS = _(u"месяцев")
+    YEARS = _(u"лет")
