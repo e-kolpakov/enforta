@@ -93,6 +93,24 @@ class UserProfile(models.Model):
             self._replacements = [replacement for replacement in qs.select_related('replaced_user__user')]
         return self._replacements
 
+    @property
+    def effective_profiles(self):
+        """
+        Returns set of effective profiles for current profile.
+        This profile is always active.
+        Other users' profiles are added if there is an active temporary replacement other=>this
+        """
+        return {self} | set(repl.replaced_user for repl in self.active_replacements)
+
+    @property
+    def effective_accounts(self):
+        """
+        Returns set of effective accounts for current profile.
+        This user account is always active.
+        Other users' accounts are added if there is an active temporary replacement other=>this
+        """
+        return {self.user} | set(repl.replaced_user.user for repl in self.active_replacements)
+
 
 class TemporaryUserReplacement(models.Model):
     replaced_user = models.ForeignKey(UserProfile, verbose_name=_(u"Замещаемый"), related_name='replaced_by')

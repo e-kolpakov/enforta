@@ -275,7 +275,7 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
                 Q(approval_route__processes__is_current=True) &
                 Q(approval_route__processes__is_successful=False) &
                 Q(approval_route__steps__step_number=F('approval_route__processes__current_step_number')) &
-                Q(approval_route__steps__approver=approver)
+                Q(approval_route__steps__approver__in=UserProfile.objects.get(pk=approver).effective_profiles)
             ),
             'converter': int
         },
@@ -298,11 +298,13 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
 
     def get_initial_queryset(self):
         show_only = self.request.GET.get('show_only', None)
-        qs = self.model.objects.get_accessible_requests(self.request.user)
+
         if show_only == ListRequestView.MY_APPROVALS:
             qs = self.model.objects.get_awaiting_approval(self.request.user)
         elif show_only == ListRequestView.MY_REQUESTS:
-            pass
+            qs = self.model.objects.get_accessible_requests(self.request.user)
+        else:
+            qs = self.model.objects.get_accessible_requests(self.request.user)
         return qs
 
     def filter_queryset(self, qs):

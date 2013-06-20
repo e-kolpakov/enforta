@@ -8,9 +8,9 @@ from django.dispatch.dispatcher import Signal
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 
-from guardian.shortcuts import get_objects_for_user
 from jsonfield import JSONField
 from DocApproval.models.approval import ApprovalProcessAction
+from DocApproval.utilities.guardian_extensions import get_objects_for_users
 
 from .user import UserProfile
 from .common import City, ModelConstants, Permissions
@@ -86,11 +86,13 @@ class RequestManager(models.Manager):
     )
 
     def get_accessible_requests(self, user):
-        return get_objects_for_user(user, self.target_permissions, klass=Request, any_perm=True)
+        return get_objects_for_users(user.profile.effective_accounts, self.target_permissions, klass=Request,
+                                     any_perm=True)
 
     def get_awaiting_approval(self, user):
-        return self.get_accessible_requests(user).filter(approval_route__steps__approver=user,
-                                                         status__code=RequestStatus.NEGOTIATION).distinct()
+        return self.get_accessible_requests(user).filter(
+            approval_route__steps__approver__in=user.profile.effective_profiles,
+            status__code=RequestStatus.NEGOTIATION).distinct()
 
 
 class Request(models.Model):
