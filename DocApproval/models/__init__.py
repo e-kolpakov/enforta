@@ -33,7 +33,7 @@ from request import (
     Request, RequestStatus, Contract, RequestHistory,
     request_status_change, request_paid
     )
-from user import UserProfile
+from user import UserProfile, TemporaryUserReplacement
 
 reversion.register(Request, follow=["contract"])
 reversion.register(Contract)

@@ -72,3 +72,27 @@ class UserProfile(models.Model):
     def get_users_in_group(cls, group_name):
         return cls.objects.filter(user__groups__name=group_name)
 
+
+class TemporaryUserReplacement(models.Model):
+    replaced_user = models.ForeignKey(UserProfile, verbose_name=_(u"Замещаемый"), related_name='replaced_by')
+    new_user = models.ForeignKey(UserProfile, verbose_name=_(u"Замещающий"), related_name='replacing')
+    replacement_start = models.DateField(verbose_name=_(u"Начало периода"))
+    replacement_end = models.DateField(verbose_name=_(u"Конец периода"), null=True, blank=True)
+
+    class Meta:
+        app_label = 'DocApproval'
+        verbose_name = _(u'Временное замещение')
+        verbose_name_plural = _(u'Временные замещения')
+        permissions = (
+            (Permissions.TemplateUserReplacements.CAN_MANAGE_REPLACEMENTS,
+             _(u"Может управлять временным замещением пользователей")),
+        )
+
+    def __unicode__(self):
+        return _(u"{0} замещен {1} {2}").format(self.replaced_user, self.new_user, self.date_period())
+
+    def date_period(self):
+        eff_end_date = self.replacement_end if self.replacement_end else _(u"неопределённый срок")
+        return _(u"с {0} по {1}").format(self.replacement_start, eff_end_date)
+
+    date_period.short_description = _(u"Период")
