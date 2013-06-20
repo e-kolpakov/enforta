@@ -1,9 +1,11 @@
 #-*- coding: utf-8 -*-
 import os
+import datetime
 
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.query_utils import Q
 from django.utils.translation import ugettext as _
 
 from .common import City, Position, ModelConstants, Permissions
@@ -71,6 +73,25 @@ class UserProfile(models.Model):
     @classmethod
     def get_users_in_group(cls, group_name):
         return cls.objects.filter(user__groups__name=group_name)
+
+    def can_approve(self, request):
+        current_approvers = request.get_current_approvers()
+        replacements = [replacement.replaced_user for replacement in self.active_replacements]
+        check_against = {self} | set(replacements)
+        return any(user in current_approvers for user in check_against)
+
+    _replacements = None
+
+    @property
+    def active_replacements(self):
+        if not self._replacements:
+            now = datetime.datetime.now()
+            qs = self.replacing.filter(
+                Q(replacement_end__isnull=True) | Q(replacement_end__gte=now),
+                replacement_start__lte=now
+            )
+            self._replacements = [replacement for replacement in qs.select_related('replaced_user__user')]
+        return self._replacements
 
 
 class TemporaryUserReplacement(models.Model):

@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _
 from django.db import transaction
 
 from DocApproval.models import Permissions, RequestStatus, Contract, request_paid
+from DocApproval.utilities.permission_checker import PermissionChecker
 from DocApproval.utilities.utility import parse_string_to_datetime
 
 _logger = logging.getLogger(__name__)
@@ -27,7 +28,7 @@ class RequestActionBase(object):
         raise NotImplementedError("Should be overridden in child classes")
 
     def _editable_by_user(self, user, request):
-        return user.has_perm(Permissions._(Permissions.Request.CAN_EDIT_REQUEST), request)
+        return PermissionChecker(user).check_permission(Permissions.Request.CAN_EDIT_REQUEST, request)
 
     def is_available(self, user, request):
         return self._check_condition(user, request)
@@ -96,7 +97,7 @@ class SetPaidAction(StatusBasedAction):
     DATE_TOKEN = 'paid_date'
 
     def _check_condition(self, user, request):
-        return user.has_perm(Permissions.Request.CAN_SET_PAID_DATE)
+        return PermissionChecker(user).check_permission(Permissions.Request.CAN_SET_PAID_DATE)
 
     def _execute(self, user, request, **kwargs):
         paid_date_raw = kwargs.get(self.DATE_TOKEN, None)
@@ -122,8 +123,7 @@ class ApprovalProcessAction(StatusBasedAction):
 
     def is_available(self, user, request):
         return (
-            user.profile in request.get_current_approvers() and
-            user.has_perm(Permissions._(Permissions.Request.CAN_APPROVE_REQUESTS)) and
+            user.profile.can_approve(request) and
             super(ApprovalProcessAction, self).is_available(user, request))
 
     def _get_approver_profile(self, user):
