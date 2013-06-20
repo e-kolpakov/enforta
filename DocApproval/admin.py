@@ -40,6 +40,15 @@ class CityAdmin(admin.ModelAdmin):
     pass
 
 
+class TemporaryUserReplacementAdmin(admin.ModelAdmin):
+    list_display = ('replaced_user', 'new_user', 'date_period')
+    search_fields = (
+        '^replaced_user__first_name', '^replaced_user__middle_name', '^replaced_user__last_name',
+        '^new_user__first_name', '^new_user__middle_name', '^new_user__last_name',
+        'replacement_start', 'replacement_end'
+    )
+
+
 class RequestStatusAdmin(NonDeleteableEntityAdmin):
     fields = ("name",)
     readonly_fields = ("code",) #code is not editable anyway, it's included for the sake of completeness
@@ -65,6 +74,7 @@ admin.site.register(auth_models.User, CustomizedUserAdmin)
 admin.site.register(City, CityAdmin)
 admin.site.register(Position, PositionAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
+admin.site.register(TemporaryUserReplacement, TemporaryUserReplacementAdmin)
 admin.site.register(RequestStatus, RequestStatusAdmin)
 
 admin.site.register(Request, RequestAdmin)
