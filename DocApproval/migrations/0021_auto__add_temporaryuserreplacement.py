@@ -5,8 +5,8 @@ from south.v2 import SchemaMigration
 
 class Migration(SchemaMigration):
     def forwards(self, orm):
-        # Adding model 'TemporaryUserReplacement'
-        db.create_table(u'DocApproval_temporaryuserreplacement', (
+        # Adding model 'TemporaryUserImpersonation'
+        db.create_table(u'DocApproval_temporaryuserimpersonation', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('replaced_user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='replaced_by',
                                                                                     to=orm['DocApproval.UserProfile'])),
@@ -15,12 +15,12 @@ class Migration(SchemaMigration):
             ('replacement_start', self.gf('django.db.models.fields.DateField')()),
             ('replacement_end', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
         ))
-        db.send_create_signal('DocApproval', ['TemporaryUserReplacement'])
+        db.send_create_signal('DocApproval', ['TemporaryUserImpersonation'])
 
 
     def backwards(self, orm):
-        # Deleting model 'TemporaryUserReplacement'
-        db.delete_table(u'DocApproval_temporaryuserreplacement')
+        # Deleting model 'TemporaryUserImpersonation'
+        db.delete_table(u'DocApproval_temporaryuserimpersonation')
 
 
     models = {
@@ -127,8 +127,8 @@ class Migration(SchemaMigration):
             'code': ('django.db.models.fields.CharField', [], {'max_length': '50', 'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '800'})
         },
-        'DocApproval.temporaryuserreplacement': {
-            'Meta': {'object_name': 'TemporaryUserReplacement'},
+        'DocApproval.temporaryuserimpersonation': {
+            'Meta': {'object_name': 'TemporaryUserImpersonation'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'new_user': ('django.db.models.fields.related.ForeignKey', [],
                          {'related_name': "'replacing'", 'to': "orm['DocApproval.UserProfile']"}),

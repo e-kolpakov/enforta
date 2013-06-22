@@ -40,7 +40,7 @@ class CityAdmin(admin.ModelAdmin):
     pass
 
 
-class TemporaryUserReplacementAdmin(admin.ModelAdmin):
+class TemporaryUserImpersonationAdmin(admin.ModelAdmin):
     list_display = ('replaced_user', 'new_user', 'date_period')
     search_fields = (
         '^replaced_user__first_name', '^replaced_user__middle_name', '^replaced_user__last_name',
@@ -74,7 +74,7 @@ admin.site.register(auth_models.User, CustomizedUserAdmin)
 admin.site.register(City, CityAdmin)
 admin.site.register(Position, PositionAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
-admin.site.register(TemporaryUserReplacement, TemporaryUserReplacementAdmin)
+admin.site.register(TemporaryUserImpersonation, TemporaryUserImpersonationAdmin)
 admin.site.register(RequestStatus, RequestStatusAdmin)
 
 admin.site.register(Request, RequestAdmin)

@@ -112,7 +112,7 @@ class UserProfile(models.Model):
         return {self.user} | set(repl.replaced_user.user for repl in self.active_replacements)
 
 
-class TemporaryUserReplacement(models.Model):
+class TemporaryUserImpersonation(models.Model):
     replaced_user = models.ForeignKey(UserProfile, verbose_name=_(u"Замещаемый"), related_name='replaced_by')
     new_user = models.ForeignKey(UserProfile, verbose_name=_(u"Замещающий"), related_name='replacing')
     replacement_start = models.DateField(verbose_name=_(u"Начало периода"))
