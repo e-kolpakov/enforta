@@ -24,7 +24,7 @@ class HomePagePartBase(object):
 
 
 class MyApprovalsHomePagePart(HomePagePartBase):
-    show_to_groups = (Groups.USERS, )
+    show_to_groups = (Groups.APPROVERS, )
     template = "home_page/generic_request_list_page.html"
     code = 'my_approvals'
     label = _(u"Ожидают утверждения")

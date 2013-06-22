@@ -41,6 +41,9 @@ class Permissions:
     class ApprovalRoute:
         CAN_MANAGE_TEMPLATES = "docapproval_can_create_templates"
 
+    class TemplateUserReplacements:
+        CAN_MANAGE_REPLACEMENTS = "docapproval_can_manage_replacements"
+
 
 class Groups:
     APPROVERS = u'Утверждающие'

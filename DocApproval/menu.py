@@ -3,6 +3,7 @@ import logging
 
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
+from DocApproval.utilities.permission_checker import PermissionChecker
 
 from models import Permissions
 from url_naming import names as url_names
@@ -134,7 +135,7 @@ class MenuManager(object):
             NavigableMenuItem(caption=_(u"Главная"), url=reverse(url_names.Common.HOME), image="icons/home.png")
         )
         self._add_root_item(self._build_request_actions_menu())
-        if self.user.has_perm(Permissions._(Permissions.ApprovalRoute.CAN_MANAGE_TEMPLATES)):
+        if PermissionChecker(self.user).check_permission(Permissions.ApprovalRoute.CAN_MANAGE_TEMPLATES):
             self._add_root_item(self._build_approvals_menu())
         self._add_root_item(self._build_profile_menu())
         for item, order in self._delayed_items:
@@ -147,7 +148,8 @@ class MenuManager(object):
         child_items = [
             NavigableMenuItem(caption=_(u"Все заявки"), image="icons/list.png", url=reverse(url_names.Request.LIST)),
         ]
-        if self.user.has_perm(Permissions._(Permissions.Request.CAN_CREATE_REQUESTS)):
+        checker = PermissionChecker(self.user)
+        if checker.check_permission(Permissions.Request.CAN_CREATE_REQUESTS):
             child_items.insert(
                 0, NavigableMenuItem(caption=_(u"Создать"), image="icons/create.png",
                                      url=reverse(url_names.Request.CREATE))
@@ -157,7 +159,7 @@ class MenuManager(object):
                                   url=reverse(url_names.Request.MY_REQUESTS))
             )
 
-        if self.user.has_perm(Permissions._(Permissions.Request.CAN_APPROVE_REQUESTS)):
+        if checker.check_permission(Permissions.Request.CAN_APPROVE_REQUESTS):
             child_items.append(
                 NavigableMenuItem(caption=_(u"Ожидают утверждения"), image="icons/my_approvals.png",
                                   url=reverse(url_names.Request.MY_APPROVALS))
@@ -206,11 +208,12 @@ class MenuManagerExtensionBase(object):
 
     def check_user_permissions(self, class_permissions=None, instance_permissions=None, instance=None):
         result = False
+        checker = PermissionChecker(self._user)
         if class_permissions:
-            result = result or any(self._user.has_perm(Permissions._(perm)) for perm in class_permissions)
+            result = result or any(checker.check_permission(perm) for perm in class_permissions)
 
         if instance_permissions and instance:
-            result = result or any(self._user.has_perm(Permissions._(perm), instance) for perm in instance_permissions)
+            result = result or any(checker.check_permission(perm, instance) for perm in instance_permissions)
 
         return result
 

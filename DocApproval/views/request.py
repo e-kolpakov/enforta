@@ -12,7 +12,6 @@ from django.views.generic import View, TemplateView, DetailView, ListView
 from django.views.generic.detail import SingleObjectMixin
 from django.contrib import messages
 
-from guardian.decorators import permission_required
 from DocApproval.request_management.actions import RequestActionRepository
 from DocApproval.request_management.request_factory import RequestFactory
 from DocApproval.utilities.utility import parse_string_to_datetime
@@ -25,6 +24,7 @@ from ..forms import EditRequestForm, EditContractForm
 
 from ..utilities.utility import get_url_base, reprint_form_errors
 from ..utilities.datatables import JsonConfigurableDatatablesBaseView
+from ..utilities.permission_checker import impersonated_permission_required
 
 
 class CreateUpdateRequestView(TemplateView):
@@ -114,7 +114,7 @@ class CreateRequestView(CreateUpdateRequestView):
     override_request_status = RequestStatus.PROJECT
     success_message = RequestMessages.REQUEST_CREATED
 
-    @method_decorator(permission_required(Permissions._(Permissions.Request.CAN_CREATE_REQUESTS), raise_exception=True))
+    @method_decorator(impersonated_permission_required(Permissions.Request.CAN_CREATE_REQUESTS, return_403=True))
     def dispatch(self, request, *args, **kwargs):
         return super(CreateUpdateRequestView, self).dispatch(request, *args, **kwargs)
 
@@ -144,8 +144,8 @@ class UpdateRequestView(CreateUpdateRequestView, MenuModifierViewMixin):
     form_submit = CommonMessages.MODIFY
     success_message = RequestMessages.REQUEST_MODIFIED
 
-    @method_decorator(permission_required(
-        Permissions._(Permissions.Request.CAN_EDIT_REQUEST),
+    @method_decorator(impersonated_permission_required(
+        Permissions.Request.CAN_EDIT_REQUEST,
         (Request, 'pk', 'pk'),
         return_403=True)
     )
@@ -197,8 +197,8 @@ class DetailRequestView(DetailView, MenuModifierViewMixin):
     _logger = logging.getLogger(__name__)
     extender_class = RequestContextMenuManagerExtension
 
-    @method_decorator(permission_required(
-        Permissions._(Permissions.Request.CAN_VIEW_REQUEST),
+    @method_decorator(impersonated_permission_required(
+        Permissions.Request.CAN_VIEW_REQUEST,
         (Request, 'pk', 'pk'),
         return_403=True)
     )
@@ -275,7 +275,7 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
                 Q(approval_route__processes__is_current=True) &
                 Q(approval_route__processes__is_successful=False) &
                 Q(approval_route__steps__step_number=F('approval_route__processes__current_step_number')) &
-                Q(approval_route__steps__approver=approver)
+                Q(approval_route__steps__approver__in=UserProfile.objects.get(pk=approver).effective_profiles)
             ),
             'converter': int
         },
@@ -298,11 +298,13 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
 
     def get_initial_queryset(self):
         show_only = self.request.GET.get('show_only', None)
-        qs = self.model.objects.get_accessible_requests(self.request.user)
+
         if show_only == ListRequestView.MY_APPROVALS:
             qs = self.model.objects.get_awaiting_approval(self.request.user)
         elif show_only == ListRequestView.MY_REQUESTS:
-            pass
+            qs = self.model.objects.get_accessible_requests(self.request.user)
+        else:
+            qs = self.model.objects.get_accessible_requests(self.request.user)
         return qs
 
     def filter_queryset(self, qs):
