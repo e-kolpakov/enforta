@@ -2,8 +2,9 @@
 from django.utils.translation import ugettext as _
 from django.shortcuts import render
 from django.views.generic import TemplateView
+from DocApproval.constants import Groups
 
-from DocApproval.models import Groups, Request, RequestStatus
+from DocApproval.models import Request, RequestStatus
 
 
 class HomePagePartBase(object):

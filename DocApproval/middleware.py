@@ -4,8 +4,8 @@ import logging
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from DocApproval.constants import Groups
 from DocApproval.messages import ProfileMessages
-from DocApproval.models.common import Groups
 
 from .menu import MenuManager
 

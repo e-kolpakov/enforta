@@ -19,7 +19,7 @@ from guardian.exceptions import GuardianError, MixedContentTypeError, WrongAppEr
 from guardian.conf import settings as guardian_settings
 from guardian.utils import get_user_obj_perms_model, get_group_obj_perms_model
 
-from DocApproval.models.common import Permissions
+from DocApproval.utilities.utility import wrap_permission
 
 # Fixme: All this is one big hack. Need to rethink that impersonation thing.
 
@@ -35,7 +35,7 @@ class PermissionChecker(object):
 
     def check_permission(self, permission, obj=None):
 
-        eff_perm = Permissions._(permission)
+        eff_perm = wrap_permission(permission)
         if obj:
             resolver = partial(self.check_object_permission, permission=eff_perm, obj=obj)
         else:

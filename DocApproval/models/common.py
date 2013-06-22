@@ -45,13 +45,6 @@ class Permissions:
         CAN_MANAGE_REPLACEMENTS = "docapproval_can_manage_replacements"
 
 
-class Groups:
-    APPROVERS = u'Утверждающие'
-    ADMINISTRATORS = u'Администраторы'
-    USERS = u'Пользователи'
-    ACCOUNTANTS = u'Бухгалтера'
-
-
 #Some "dictionaries" first
 class Position(models.Model):
     position_name = models.CharField(_(u'Должность'), max_length=ModelConstants.MAX_VARCHAR_LENGTH)

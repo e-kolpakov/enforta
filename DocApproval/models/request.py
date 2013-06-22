@@ -17,6 +17,7 @@ from .common import City, ModelConstants, Permissions
 from .approval import ApprovalRoute
 from DocApproval.url_naming.names import Request as RequestUrls
 from DocApproval.utilities.humanization import Humanizer
+from DocApproval.constants import Periods
 
 
 _logger = logging.getLogger(__name__)
@@ -59,10 +60,21 @@ class Contract(models.Model):
         return self._get_path('signed', filename)
 
     date = models.DateField(_(u'Дата договора'))
-    active_period = models.IntegerField(_(u'Срок действия'))
     paid_date = models.DateField(_(u'Дата оплаты'), blank=True, null=True)
     activation_date = models.DateField(_(u"Начало действия договора"), blank=True, null=True)
     prolongation = models.BooleanField(_(u'Возможность пролонгации'), blank=True, default=False)
+
+    active_period = models.IntegerField(_(u'Срок действия'))
+    active_period_unit = models.CharField(
+        verbose_name=_(u'ед. изм.'), null=False, blank=False, default=Periods.DAYS,
+        max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH,
+        choices=(
+            (Periods.DAYS, _(u"дней")),
+            (Periods.WEEKS, _(u"недель")),
+            (Periods.MONTHS, _(u"месяцев")),
+            (Periods.YEARS, _(u"лет")),
+        )
+    )
 
     document = models.FileField(_(u'Документ'), upload_to=upload_to)
     document_signed = models.FileField(_(u'Подписанный документ'), upload_to=upload_to_signed, null=True, blank=True)
@@ -76,7 +88,7 @@ class Contract(models.Model):
         verbose_name_plural = _(u"Документы")
 
     def active_period_humanize(self):
-        return Humanizer().humanize_days(self.active_period)
+        return Humanizer().humanize_period(self.active_period, unit=self.active_period_unit)
 
 
 class RequestManager(models.Manager):

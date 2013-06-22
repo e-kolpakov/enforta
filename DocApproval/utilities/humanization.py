@@ -1,6 +1,10 @@
 #-*- coding: utf-8 -*-
+from collections import OrderedDict
+
 from dateutil.relativedelta import relativedelta
 from django.utils.translation import ugettext as _
+
+from DocApproval.constants import Periods
 
 
 def yes_no(bool_var):
@@ -29,46 +33,46 @@ class EnumerableGrammarFrom:
 class Humanizer(object):
     DATE_PRECISION_DAY = 0
     DATE_PRECISION_SECOND = 1
-    _period_names = {
-        'years': {
+    _period_names = OrderedDict([
+        ('years', {
             EnumerableGrammarFrom.SINGULAR: _(u"год"),
             EnumerableGrammarFrom.PLURAL_ONE: _(u"года"),
             EnumerableGrammarFrom.PLURAL_TWO: _(u"лет"),
-        },
-        'months': {
+        }),
+        ('months', {
             EnumerableGrammarFrom.SINGULAR: _(u"месяц"),
             EnumerableGrammarFrom.PLURAL_ONE: _(u"месяца"),
             EnumerableGrammarFrom.PLURAL_TWO: _(u"месяцев"),
-        },
-        'days': {
+        }),
+        ('days', {
             EnumerableGrammarFrom.SINGULAR: _(u"день"),
             EnumerableGrammarFrom.PLURAL_ONE: _(u"дня"),
             EnumerableGrammarFrom.PLURAL_TWO: _(u"дней"),
-        },
-        'hours': {
+        }),
+        ('hours', {
             EnumerableGrammarFrom.SINGULAR: _(u"час"),
             EnumerableGrammarFrom.PLURAL_ONE: _(u"часа"),
             EnumerableGrammarFrom.PLURAL_TWO: _(u"часов"),
-        },
-        'minutes': {
+        }),
+        ('minutes', {
             EnumerableGrammarFrom.SINGULAR: _(u"минута"),
             EnumerableGrammarFrom.PLURAL_ONE: _(u"минуты"),
             EnumerableGrammarFrom.PLURAL_TWO: _(u"минут"),
-        },
-        'seconds': {
+        }),
+        ('seconds', {
             EnumerableGrammarFrom.SINGULAR: _(u"секунда"),
             EnumerableGrammarFrom.PLURAL_ONE: _(u"секунды"),
             EnumerableGrammarFrom.PLURAL_TWO: _(u"секунд"),
-        }
-    }
+        })
+    ])
 
     def get_period_name(self, name, form):
         return self._period_names.get(name, {}).get(form, "")
 
-    def humanize_days(self, days, precision=1):
-        delta = relativedelta(days=days)
+    def humanize_period(self, quantity, precision=DATE_PRECISION_DAY, unit=Periods.DAYS):
+        delta = relativedelta(**{unit: quantity})
         attributes = self._period_names.keys()
-        if precision == self.DATE_PRECISION_SECOND:
+        if precision == self.DATE_PRECISION_DAY:
             attributes.remove('hours')
             attributes.remove('minutes')
             attributes.remove('seconds')

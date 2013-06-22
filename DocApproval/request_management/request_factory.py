@@ -1,6 +1,7 @@
 from django.db import transaction
 from guardian.shortcuts import assign_perm
 from DocApproval.models import ApprovalRoute, RequestStatus, Permissions
+from DocApproval.utilities.utility import wrap_permission
 
 
 class RequestFactory(object):
@@ -25,8 +26,8 @@ class RequestFactory(object):
         new_request.approval_route = approval_route
         new_request.save()
 
-        assign_perm(Permissions._(Permissions.Request.CAN_VIEW_REQUEST), self._user, new_request)
-        assign_perm(Permissions._(Permissions.Request.CAN_EDIT_REQUEST), self._user, new_request)
-        assign_perm(Permissions._(Permissions.Request.CAN_EDIT_ROUTE), self._user, new_request)
+        assign_perm(wrap_permission(Permissions.Request.CAN_VIEW_REQUEST), self._user, new_request)
+        assign_perm(wrap_permission(Permissions.Request.CAN_EDIT_REQUEST), self._user, new_request)
+        assign_perm(wrap_permission(Permissions.Request.CAN_EDIT_ROUTE), self._user, new_request)
 
         return new_request

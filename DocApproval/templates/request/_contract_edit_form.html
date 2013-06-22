@@ -1,0 +1,33 @@
+{#'date', 'prolongation', 'active_period', 'active_period_unit', 'document'#}
+<div class='edit-form'>
+    {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+    {% endfor %}
+    {% include "common/_standard_control_row.html" with field=form.date %}
+    {% include "common/_standard_control_row.html" with field=form.prolongation %}
+
+    {% with active_period=form.active_period active_period_unit=form.active_period_unit %}
+        <div class="control-group {% if active_period.errors or active_period_unit.errors %}error{% endif %}">
+            <label for='{{ active_period.id }}' class='control-label'> {{ active_period.label }}
+                {% if active_period.errors or active_period_unit.errors %}
+                    <span class='field_errors' title=''>*</span>
+                    <div class='field_errors_list'>
+                        {% for error in active_period.errors %}
+                            <div class='field_error'>{{ error }}</div>
+                        {% endfor %}
+                        {% for error in active_period_unit.errors %}
+                            <div class='field_error'>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </label>
+
+            <div class="controls">
+                {{ active_period }}
+                {{ active_period_unit }}
+            </div>
+        </div>
+    {% endwith %}
+
+    {% include "common/_standard_control_row.html" with field=form.document %}
+</div>

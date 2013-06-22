@@ -26,3 +26,8 @@ def parse_string_to_datetime(string):
 def public_view(func):
     func.is_public = True
     return func
+
+
+def wrap_permission(permission, app_label='DocApproval'):
+    """Adds app_label to requested permission"""
+    return app_label + "." + permission

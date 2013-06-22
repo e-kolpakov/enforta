@@ -6,7 +6,7 @@ from django.contrib.auth.forms import UserChangeForm
 from django.utils.translation import ugettext as _
 
 from models import UserProfile, Request, Contract, Permissions
-from widgets import DatePickerWidget, PeriodSelectorWidget
+from widgets import DatePickerWidget
 
 
 class EditRequestForm(forms.ModelForm):
@@ -26,10 +26,11 @@ class EditContractForm(forms.ModelForm):
 
     class Meta:
         model = Contract
-        fields = ('date', 'prolongation', 'active_period', 'document')
+        fields = ('date', 'prolongation', 'active_period', 'active_period_unit', 'document')
         widgets = {
             'date': DatePickerWidget(attrs={'class': 'span4'}),
-            'active_period': PeriodSelectorWidget(attrs={'class': 'qwe'})
+            'active_period': forms.TextInput(attrs={'class': 'input-mini'}),
+            'active_period_unit': forms.Select(attrs={'class': 'input-small'}),
         }
 
 

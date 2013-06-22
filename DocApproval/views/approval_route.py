@@ -14,6 +14,7 @@ from django.contrib.auth.models import User, Permission
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
+from DocApproval.utilities.utility import wrap_permission
 
 from ..menu import MenuModifierViewMixin, RequestContextMenuManagerExtension
 from ..models import ApprovalRoute, TemplateApprovalRoute, ApprovalRouteStep, Permissions, ApprovalRouteExceptionBase, UserProfile
@@ -109,7 +110,7 @@ class EditApprovalRouteView(ApprovalRouteEditHandlerView, MenuModifierViewMixin)
 class EditTemplateApprovalRouteView(ApprovalRouteEditHandlerView, MenuModifierViewMixin):
     template_name = 'approvals/edit_route.html'
 
-    @method_decorator(permission_required(Permissions._(Permissions.ApprovalRoute.CAN_MANAGE_TEMPLATES)))
+    @method_decorator(permission_required(wrap_permission(Permissions.ApprovalRoute.CAN_MANAGE_TEMPLATES)))
     def dispatch(self, request, *args, **kwargs):
         return super(EditTemplateApprovalRouteView, self).dispatch(request, *args, **kwargs)
 
@@ -141,7 +142,7 @@ class TemplateApprovalRouteListJson(JsonConfigurableDatatablesBaseView):
             },
         }
 
-    @method_decorator(permission_required(Permissions._(Permissions.ApprovalRoute.CAN_MANAGE_TEMPLATES)))
+    @method_decorator(permission_required(wrap_permission(Permissions.ApprovalRoute.CAN_MANAGE_TEMPLATES)))
     def dispatch(self, request, *args, **kwargs):
         return super(TemplateApprovalRouteListJson, self).dispatch(request, *args, **kwargs)
 

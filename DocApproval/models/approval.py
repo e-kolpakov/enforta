@@ -7,6 +7,7 @@ from django.dispatch.dispatcher import Signal
 from django.utils.translation import ugettext as _
 
 from guardian.shortcuts import assign_perm, remove_perm
+from DocApproval.utilities.utility import wrap_permission
 
 from .user import UserProfile
 from .common import ModelConstants, Permissions
@@ -171,10 +172,10 @@ class ApprovalRoute(models.Model):
             return
 
         for approver in (to_remove or []):
-            remove_perm(Permissions._(Permissions.Request.CAN_VIEW_REQUEST), approver.user, self.request)
+            remove_perm(wrap_permission(Permissions.Request.CAN_VIEW_REQUEST), approver.user, self.request)
 
         for approver in (to_add or []):
-            assign_perm(Permissions._(Permissions.Request.CAN_VIEW_REQUEST), approver.user, self.request)
+            assign_perm(wrap_permission(Permissions.Request.CAN_VIEW_REQUEST), approver.user, self.request)
 
     def get_steps_count(self):
         return self.steps.all().aggregate(models.Max('step_number')).get('step_number__max')

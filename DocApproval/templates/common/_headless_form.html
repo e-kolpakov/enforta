@@ -1,21 +1,8 @@
-{% load i18n %}
 <div class='edit-form'>
     {% for hidden in form.hidden_fields %}
         {{ hidden }}
     {% endfor %}
     {% for field in form.visible_fields %}
-        <div class="control-group {% if field.errors %}error{% endif %}">
-            <label for='{{ field.id }}' class='control-label'> {{ field.label }}
-                {% if field.errors %}
-                    <span class='field_errors' title=''>*</span>
-                    <div class='field_errors_list'>
-                        {% for error in field.errors %}
-                            <div class='field_error'>{{ error }}</div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </label>
-            <div class="controls">{{ field }}</div>
-        </div>
+        {% include "common/_standard_control_row.html" with field=field %}
     {% endfor %}
 </div>

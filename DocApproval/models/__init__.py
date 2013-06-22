@@ -23,7 +23,7 @@ model_signals.post_syncdb.disconnect(
     sender=auth_app,
     dispatch_uid="django.contrib.auth.management.create_superuser")
 
-from common import Position, City, ModelConstants, Permissions, Groups
+from common import Position, City, ModelConstants, Permissions
 from approval import (
     ApprovalRoute, TemplateApprovalRoute, ApprovalRouteStep, ApprovalProcess, ApprovalProcessAction,
     NonTemplateApprovalRouteException, ApprovalRouteExceptionBase,
