@@ -90,5 +90,9 @@ class SignatureCheckMiddleware(object):
         ))
         if request.user.groups.filter(name=Groups.APPROVERS).exists():
             if not request.user.profile.sign and not request.COOKIES.get('ignore_empty_signature'):
-                messages.add_message(request, messages.WARNING, ProfileMessages.SIGNATURE_EMPTY)
+                storage = messages.get_messages(request)
+                added = any(message.message == ProfileMessages.SIGNATURE_EMPTY for message in storage)
+                storage.used = False
+                if not added:
+                    messages.add_message(request, messages.WARNING, ProfileMessages.SIGNATURE_EMPTY)
         return None
