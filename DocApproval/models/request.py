@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 
 from jsonfield import JSONField
 from DocApproval.models.approval import ApprovalProcessAction
-from DocApproval.utilities.guardian_extensions import get_objects_for_users
+from DocApproval.utilities.permission_checker import get_objects_for_users
 
 from .user import UserProfile
 from .common import City, ModelConstants, Permissions
