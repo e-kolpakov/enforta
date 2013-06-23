@@ -257,7 +257,7 @@
         var t = [
             ["resolve", "done", b.Callbacks("once memory"), "resolved"],
             ["reject", "fail", b.Callbacks("once memory"), "rejected"],
-            ["notify_element", "progress", b.Callbacks("memory")]
+            ["notify", "progress", b.Callbacks("memory")]
         ], n = "pending", r = {state: function () {
             return n
         }, always: function () {
@@ -269,7 +269,7 @@
                     var a = o[0], s = b.isFunction(e[t]) && e[t];
                     i[o[1]](function () {
                         var e = s && s.apply(this, arguments);
-                        e && b.isFunction(e.promise) ? e.promise().done(n.resolve).fail(n.reject).progress(n.notify_element) : n[a + "With"](this === r ? n.promise() : this, s ? [e] : arguments)
+                        e && b.isFunction(e.promise) ? e.promise().done(n.resolve).fail(n.reject).progress(n.notify) : n[a + "With"](this === r ? n.promise() : this, s ? [e] : arguments)
                     })
                 }), e = null
             }).promise()
