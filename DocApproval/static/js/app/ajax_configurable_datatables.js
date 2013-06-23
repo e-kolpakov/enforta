@@ -27,9 +27,11 @@ define(
                     if (!column.checkbox_config) {
                         cell.text(column.name);
                     } else {
-                        $("<input>").attr('type', 'checkbox').addClass('dt-select-all').appendTo(cell).
+                        $("<input>").attr('type', 'checkbox').
+                            addClass('dt-select-all').appendTo(cell).
                             click(function () {
-                                $("input.row-checkbox", "table#grid.dataTable").prop('checked', $(this).is(':checked'));
+                                var checked = $(this).is(':checked');
+                                $("input.row-checkbox", $(this).parents(".dataTables_wrapper")).prop('checked', checked);
                             });
                     }
                 }

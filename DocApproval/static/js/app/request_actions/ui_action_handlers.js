@@ -1,7 +1,7 @@
 /*global define*/
 define(
-    ['extend', 'app/services/ui_interaction_manager', 'app/services/logger'],
-    function (extend, UIManager, Logger) {
+    ['extend', 'app/services/ui_interaction_manager', 'app/services/logger', 'app/messages'],
+    function (extend, UIManager, Logger, messages) {
         // Always keep in sync with codes in request_management/actions.py
         var ActionCodes = {
             TO_APPROVAL: 'to_approval',
@@ -11,13 +11,7 @@ define(
             SET_PAID: 'set_paid'
         };
 
-        var Messages = {
-            confirm_to_negotiation: 'Перевод заявки в состояние "В согласовании" начнет процесс утверждения. Продолжить?',
-            confirm_to_project: 'Перевод заявки в состояние "Проект" приведет к остановке текущего процесса утверждения. Продолжить?',
-            confirm_approve: "Утвердить заявку?",
-            confirm_rejection: "Отклонить заявку?",
-            prompt_for_paid_date: "Введите дату оплаты"
-        };
+        var Messages = messages.ActionMessages;
 
         var ui_manager = new UIManager();
 
