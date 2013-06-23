@@ -1,6 +1,6 @@
 /*global define*/
 define(
-    ['jquery', 'app/modal_popup'],
+    ['jquery', 'app/services/modal_popup'],
     function ($, modal_popup_module_exports) {
         var BasicPopupClass = modal_popup_module_exports.basic_popup_class;
         var ApproveActionPopupClass = modal_popup_module_exports.approve_action_popup_class;

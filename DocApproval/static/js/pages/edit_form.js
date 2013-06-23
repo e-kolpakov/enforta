@@ -1,5 +1,5 @@
 /*global define, page_data*/
-define(['jquery', 'app/forms'], function ($) {
+define(['jquery', 'app/forms/forms'], function ($) {
     function get_page_data() {
         return page_data; // assuming global page-specific page_data variable
     }

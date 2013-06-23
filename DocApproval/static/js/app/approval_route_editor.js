@@ -1,7 +1,10 @@
 /*global globals, define*/
 //TODO: code in this file does a bit too much - might be beneficial to separate it further
 define(
-    ['jquery', 'app/ui_interaction_manager', 'app/ajax_communicator', 'app/logger', 'libjquery/jquery.cookie'],
+    [
+        'jquery', 'app/services/ui_interaction_manager', 'app/services/ajax_communicator',
+        'app/services/logger', 'libjquery/jquery.cookie'
+    ],
     function ($, UIManager, Communicator, Logger) {
         "use strict";
 

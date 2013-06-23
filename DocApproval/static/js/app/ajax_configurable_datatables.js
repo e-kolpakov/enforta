@@ -1,7 +1,7 @@
 /*globals define*/
 define(
     [
-        'jquery', 'app/ajax_communicator', 'app/request_search_form',
+        'jquery', 'app/services/ajax_communicator', 'app/forms/request_search_form',
         'datatables/jquery.dataTables', 'datatables/dt_bootstrap', 'datatables/datatables-ru'
     ],
     function ($, Communicator, SearchForm) {
