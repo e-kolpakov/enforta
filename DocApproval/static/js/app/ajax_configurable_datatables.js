@@ -27,7 +27,10 @@ define(
                     if (!column.checkbox_config) {
                         cell.text(column.name);
                     } else {
-                        $("<input>").attr('type', 'checkbox').addClass('dt-select-all').appendTo(cell);
+                        $("<input>").attr('type', 'checkbox').addClass('dt-select-all').appendTo(cell).
+                            click(function () {
+                                $("input.row-checkbox", "table#grid.dataTable").prop('checked', $(this).is(':checked'));
+                            });
                     }
                 }
             },
@@ -125,7 +128,7 @@ define(
             createCheckBoxRenderer: function (checkbox_spec) {
                 return function (data, type, full) {
                     var entity_key = checkbox_spec.entity_key || 'pk';
-                    return "<input type='checkbox' value='" + full[entity_key] + "'/>";
+                    return "<input type='checkbox' class='row-checkbox' value='" + full[entity_key] + "'/>";
                 }
             }
         };
