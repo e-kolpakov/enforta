@@ -303,8 +303,16 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
         show_only = self.request.GET.get('show_only', None)
         if show_only == ListRequestView.MY_APPROVALS:
             result = {
-                'approve': {'caption': CommonMessages.APPROVE, 'css_class': 'btn btn-success'},
-                'reject': {'caption': CommonMessages.REJECT, 'css_class': 'btn btn-danger'},
+                'approve': {
+                    'caption': CommonMessages.APPROVE,
+                    'css_class': 'btn btn-success',
+                    'attributes': {'data-behavior': 'mass-approve'}
+                },
+                'reject': {
+                    'caption': CommonMessages.REJECT,
+                    'css_class': 'btn btn-danger',
+                    'attributes': {'data-behavior': 'mass-reject'}
+                },
             }
         else:
             result = {}

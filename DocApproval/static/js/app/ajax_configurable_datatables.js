@@ -51,6 +51,9 @@ define(
                     if (btn_cfg.css_class) {
                         btn.addClass(btn_cfg.css_class);
                     }
+                    if (btn_cfg.attributes) {
+                        btn.attr(btn_cfg.attributes);
+                    }
                 }
             }
         };
