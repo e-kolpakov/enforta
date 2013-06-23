@@ -257,7 +257,7 @@
         var t = [
             ["resolve", "done", b.Callbacks("once memory"), "resolved"],
             ["reject", "fail", b.Callbacks("once memory"), "rejected"],
-            ["notify", "progress", b.Callbacks("memory")]
+            ["notify_element", "progress", b.Callbacks("memory")]
         ], n = "pending", r = {state: function () {
             return n
         }, always: function () {
@@ -269,7 +269,7 @@
                     var a = o[0], s = b.isFunction(e[t]) && e[t];
                     i[o[1]](function () {
                         var e = s && s.apply(this, arguments);
-                        e && b.isFunction(e.promise) ? e.promise().done(n.resolve).fail(n.reject).progress(n.notify) : n[a + "With"](this === r ? n.promise() : this, s ? [e] : arguments)
+                        e && b.isFunction(e.promise) ? e.promise().done(n.resolve).fail(n.reject).progress(n.notify_element) : n[a + "With"](this === r ? n.promise() : this, s ? [e] : arguments)
                     })
                 }), e = null
             }).promise()
@@ -1715,14 +1715,14 @@
             var e = b.prop(this, "elements");
             return e ? b.makeArray(e) : this
         }).filter(function () {
-            var e = this.type;
-            return this.name && !b(this).is(":disabled") && hn.test(this.nodeName) && !dn.test(e) && (this.checked || !Nt.test(e))
-        }).map(function (e, t) {
-            var n = b(this).val();
-            return null == n ? null : b.isArray(n) ? b.map(n, function (e) {
-                return{name: t.name, value: e.replace(fn, "\r\n")}
-            }) : {name: t.name, value: n.replace(fn, "\r\n")}
-        }).get()
+                var e = this.type;
+                return this.name && !b(this).is(":disabled") && hn.test(this.nodeName) && !dn.test(e) && (this.checked || !Nt.test(e))
+            }).map(function (e, t) {
+                var n = b(this).val();
+                return null == n ? null : b.isArray(n) ? b.map(n, function (e) {
+                    return{name: t.name, value: e.replace(fn, "\r\n")}
+                }) : {name: t.name, value: n.replace(fn, "\r\n")}
+            }).get()
     }}), b.param = function (e, n) {
         var r, i = [], o = function (e, t) {
             t = b.isFunction(t) ? t() : null == t ? "" : t, i[i.length] = encodeURIComponent(e) + "=" + encodeURIComponent(t)
@@ -1787,8 +1787,8 @@
         return u >= 0 && (i = e.slice(u, e.length), e = e.slice(0, u)), b.isFunction(n) ? (r = n, n = t) : n && "object" == typeof n && (a = "POST"), s.length > 0 && b.ajax({url: e, type: a, dataType: "html", data: n}).done(function (e) {
             o = arguments, s.html(i ? b("<div>").append(b.parseHTML(e)).find(i) : e)
         }).complete(r && function (e, t) {
-            s.each(r, o || [e.responseText, t, e])
-        }), this
+                s.each(r, o || [e.responseText, t, e])
+            }), this
     }, b.each(["ajaxStart", "ajaxStop", "ajaxComplete", "ajaxError", "ajaxSuccess", "ajaxSend"], function (e, t) {
         b.fn[t] = function (e) {
             return this.on(t, e)

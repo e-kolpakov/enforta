@@ -1,10 +1,10 @@
 /*globals define*/
 define(
     [
-        'jquery', 'app/services/ajax_communicator', 'app/forms/request_search_form',
+        'jquery', 'app/services/ajax_communicator', 'app/forms/request_search_form', 'app/dispatcher',
         'datatables/jquery.dataTables', 'datatables/dt_bootstrap', 'datatables/datatables-ru'
     ],
-    function ($, Communicator, SearchForm) {
+    function ($, Communicator, SearchForm, Dispatcher) {
 
         var html_helper = {
             _create_header: function (target) {
@@ -54,6 +54,7 @@ define(
                     if (btn_cfg.attributes) {
                         btn.attr(btn_cfg.attributes);
                     }
+                    Dispatcher.notify_element(btn);
                 }
             }
         };
