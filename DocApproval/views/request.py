@@ -258,6 +258,7 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
     link_field = 'name'
     model_fields = ('name', 'city', 'status', 'creator', 'send_on_approval', 'created', 'accepted')
     calculated_fields = {'current_approvers': RequestMessages.CURRENT_REVIEVERS, }
+    checkbox_column = 'pk'
 
     as_is = lambda x: x
     to_date = parse_string_to_datetime
@@ -282,6 +283,7 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
         },
     }
 
+    # Todo: might be a good idea to refactor links into ColumnDefinition subclass and use it instead of dicts
     def get_links_config(self):
         return {
             'name': {

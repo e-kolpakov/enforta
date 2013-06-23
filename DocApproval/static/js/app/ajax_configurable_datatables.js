@@ -23,7 +23,12 @@ define(
                 var header_row = this._create_header(target);
                 for (var i = 0; i < columns.length; i++) {
                     var column = columns[i];
-                    $("<th></th>").text(column.name).appendTo(header_row);
+                    var cell = $("<th></th>").appendTo(header_row);
+                    if (!column.checkbox_config) {
+                        cell.text(column.name);
+                    } else {
+                        $("<input>").attr('type', 'checkbox').addClass('dt-select-all').appendTo(cell);
+                    }
                 }
             },
 
@@ -38,19 +43,25 @@ define(
 
 
         var config_parser = function (options) {
+            function build_column_definition(col) {
+                var column = !(col.checkbox_config)
+                    ? {mData: col.column, sName: col.column}
+                    : {mData: null, mRender: CustomColumnRenderersFactory.createCheckBoxRenderer(col.checkbox_config)};
+                if (col.link_config) {
+                    column['mRender'] = CustomColumnRenderersFactory.createEntityLinkRenderer(col.link_config);
+                }
+                if (col.is_calculated) {
+                    column['bSortable'] = false;
+                }
+                return column;
+            }
+
             function get_column_config(data) {
                 var columns = data.columns;
                 var result = [];
                 for (var i = 0; i < columns.length; i++) {
                     var col = columns[i];
-                    var column = {'mData': col.column, 'sName': col.column};
-                    if (col.link_config) {
-                        column['mRender'] = CustomColumnRenderersFactory.createEntityLinkRenderer(col.link_config);
-                    }
-                    if (col.is_calculated) {
-                        column['bSortable'] = false;
-                    }
-                    result.push(column);
+                    result.push(build_column_definition(col));
                 }
                 return result;
             }
@@ -74,6 +85,7 @@ define(
             return {
                 parse_config: function (datables_config, datatables_options, search_form) {
                     var new_options = {
+                        aaSorting: [],
                         sAjaxSource: options.data_url,
                         aoColumns: get_column_config(datables_config),
                         aLengthMenu: [5, 10, 25, 50, 100]
@@ -89,7 +101,7 @@ define(
                         $.getJSON(sSource, aoData, function (json) {
                             fnCallback(json)
                         });
-                    }
+                    };
 
                     return {
                         options: $.extend({}, default_options, new_options, datatables_options),
@@ -107,6 +119,13 @@ define(
                     var entity_key = link_spec.entity_key || 'pk';
                     var link_url = base_url + "/" + full[entity_key];
                     return "<a href='" + link_url + "'>" + data + "</a>";
+                }
+            },
+
+            createCheckBoxRenderer: function (checkbox_spec) {
+                return function (data, type, full) {
+                    var entity_key = checkbox_spec.entity_key || 'pk';
+                    return "<input type='checkbox' value='" + full[entity_key] + "'/>";
                 }
             }
         };

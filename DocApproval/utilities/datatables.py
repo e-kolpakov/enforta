@@ -20,6 +20,17 @@ class ColumnDefinition(object):
         return result
 
 
+class CheckboxColumnDefinition(ColumnDefinition):
+    def __init__(self, entity_key):
+        super(CheckboxColumnDefinition, self).__init__('', '', True, None)
+        self.entity_key = entity_key
+
+    def to_dict(self):
+        sup = super(CheckboxColumnDefinition, self).to_dict()
+        sup['checkbox_config'] = {'entity_key': self.entity_key}
+        return sup
+
+
 class JsonConfigurableDatatablesBaseView(BaseDatatableView):
     CONFIG_MARKER = 'config'
 
@@ -29,6 +40,7 @@ class JsonConfigurableDatatablesBaseView(BaseDatatableView):
     calculated_fields = {}
     link_target = None
     link_field = None
+    checkbox_column = False
 
     def get_link_url(self):
         link = self.link_target
@@ -75,6 +87,8 @@ class JsonConfigurableDatatablesBaseView(BaseDatatableView):
 
         column_order = self.get_order_columns()
         columns.sort(key=lambda col: column_order.index(col.column))
+        if self.checkbox_column:
+            columns.insert(0, CheckboxColumnDefinition(self.checkbox_column))
         return [col.to_dict() for col in columns]
 
     def get_links_config(self):
