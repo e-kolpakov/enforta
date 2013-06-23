@@ -108,7 +108,7 @@ define(
                 set_ctrl_data(name_input, data.name || '', eff_safe);
                 set_ctrl_data(desc_input, data.description || '', eff_safe);
 
-                if (!eff_safe) {
+                if (eff_safe) {
                     set_controls_availability(!that.is_template);
                 }
             };
