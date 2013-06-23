@@ -13,7 +13,10 @@
             data_url: '{% url datatables_data %}',
             config_url: '{% url datatables_config %}',
             search_form: '#search_form',
-            search_form_prefix: ''
+            search_form_prefix: '',
+            extra_config_params: {
+                show_only: '{{ show_only }}'
+            }
         }
     </script>
 {% endblock scripts %}

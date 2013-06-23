@@ -300,10 +300,15 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
         }
 
     def get_buttons_config(self):
-        return {
-            'approve': {'caption': CommonMessages.APPROVE, 'css_class': 'btn btn-success'},
-            'reject': {'caption': CommonMessages.REJECT, 'css_class': 'btn btn-danger'},
-        }
+        show_only = self.request.GET.get('show_only', None)
+        if show_only == ListRequestView.MY_APPROVALS:
+            result = {
+                'approve': {'caption': CommonMessages.APPROVE, 'css_class': 'btn btn-success'},
+                'reject': {'caption': CommonMessages.REJECT, 'css_class': 'btn btn-danger'},
+            }
+        else:
+            result = {}
+        return result
 
     def get_initial_queryset(self):
         show_only = self.request.GET.get('show_only', None)
@@ -344,7 +349,7 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
             'accepted': accepted,
             'send_on_approval_pk': item.send_on_approval.pk,
             'creator_pk': item.creator.pk,
-            'current_approvers': [profile.short_name for profile in item.get_current_approvers()]
+            'current_approvers': ", ".join(profile.short_name for profile in item.get_current_approvers())
         }
 
 

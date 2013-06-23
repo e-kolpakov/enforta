@@ -149,10 +149,10 @@ define(
             var datatables_options = datatables_opts || {};
             var parser = config_parser(options);
             var comm = new Communicator(options.csrftoken);
-            var promise = comm.make_request({url: options.config_url, type: 'GET'});
+            var config_promise = comm.make_request({url: options.config_url, type: 'GET'}, options.extra_config_params || {});
             var search_form = options.search_form ? new SearchForm(options.search_form, options.search_form_prefix) : null;
 
-            promise.done(function (datatables_config, textStatus, jqXHR) {
+            config_promise.done(function (datatables_config, textStatus, jqXHR) {
                 var config = parser.parse_config(datatables_config, datatables_options, search_form);
                 html_helper.make_header(self, config.columns);
                 if (options.caption) {
