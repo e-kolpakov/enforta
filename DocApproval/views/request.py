@@ -235,6 +235,9 @@ class DetailRequestView(DetailView, MenuModifierViewMixin):
 
 
 class RequestHistoryView(SingleObjectMixin, ListView, MenuModifierViewMixin):
+    AUTO_FILTER_TOKEN = 'auto_filter'
+    APPROVE_ACTIONS_ONLY = 'approve_actions_only'
+
     paginate_by = 50
     template_name = "request/request_approval_history.html"
     _logger = logging.getLogger(__name__)
@@ -245,10 +248,14 @@ class RequestHistoryView(SingleObjectMixin, ListView, MenuModifierViewMixin):
         return super(RequestHistoryView, self).get_context_data(**kwargs)
 
     def get_queryset(self):
-        return RequestHistory.objects.filter(request=self.object).order_by('action_date')
+        result = RequestHistory.objects.filter(request=self.object).order_by('action_date')
+        if self.auto_filter and self.auto_filter == self.APPROVE_ACTIONS_ONLY:
+            result = result.filter(action_type__in=RequestHistory.approval_actions)
+        return result
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object(Request.objects.all())
+        self.auto_filter = kwargs.get(self.AUTO_FILTER_TOKEN, None)
         self._apply_extender(request, self.object)
         return super(RequestHistoryView, self).get(request, *args, **kwargs)
 

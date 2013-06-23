@@ -199,6 +199,8 @@ class RequestHistory(models.Model):
     REJECTION = ApprovalProcessAction.ACTION_REJECT
     FINAL_APPROVE = ApprovalProcessAction.ACTION_FINAL_APPROVE
 
+    approval_actions = (APPROVAL, REJECTION, FINAL_APPROVE)
+
     _default_action = "action_types/unknown.png"
 
     _status_icons = {

@@ -240,11 +240,14 @@ class RequestContextMenuManagerExtension(MenuManagerExtensionBase):
                                   url=reverse(url_names.Request.DETAILS, kwargs={'pk': req.pk})), order=0)
             self._accumulate_child(
                 NavigableMenuItem(caption=_(u"История заявки"), image='icons/history.png',
-                                  url=reverse(url_names.Request.APPROVAL_HISTORY, kwargs={'pk': req.pk})), order=30)
+                                  url=reverse(url_names.Request.REQUEST_HISTORY, kwargs={'pk': req.pk})), order=30)
+            self._accumulate_child(
+                NavigableMenuItem(caption=_(u"История утверждения заявки"), image='icons/approval_history.png',
+                                  url=reverse(url_names.Request.APPROVAL_HISTORY, kwargs={'pk': req.pk})), order=40)
             if req.is_approved():
                 self._accumulate_child(
                     NavigableMenuItem(caption=_(u"Лист утверждения"), image='icons/approval_sheet.png',
-                                      url=reverse(url_names.Request.APPROVAL_SHEET, kwargs={'pk': req.pk})), order=40)
+                                      url=reverse(url_names.Request.APPROVAL_SHEET, kwargs={'pk': req.pk})), order=50)
 
         if self.check_user_permissions(
                 instance_permissions=(Permissions.Request.CAN_EDIT_REQUEST,),
