@@ -123,9 +123,9 @@ class Request(models.Model):
 
     approval_route = models.OneToOneField(ApprovalRoute, verbose_name=_(u"Маршрут утверждения"), null=True)
 
-    created = models.DateField(_(u'Дата создания заявки'), auto_now_add=True)
-    updated = models.DateField(_(u'Дата последних изменений'), auto_now=True)
-    accepted = models.DateField(_(u'Дата согласования'), blank=True, null=True)
+    created = models.DateField(_(u'Создана'), auto_now_add=True)
+    updated = models.DateField(_(u'Изменена'), auto_now=True)
+    accepted = models.DateField(_(u'Согласована'), blank=True, null=True)
 
     comments = models.CharField(_(u'Комментарии'), max_length=ModelConstants.MAX_VARCHAR_LENGTH, null=True,
                                 blank=True)
@@ -253,7 +253,7 @@ class RequestHistory(models.Model):
     @property
     def icon(self):
         if self.action_type == self.STATUS_CHANGE:
-            new_status = self.action_parameters['new_status']
+            new_status = self.action_parameters.get('new_status')
             return self._status_icons.get(new_status, "")
         else:
             return self._action_type_icons.get(self.action_type, "")
