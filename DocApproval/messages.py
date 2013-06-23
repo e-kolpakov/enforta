@@ -11,6 +11,9 @@ class CommonMessages:
     IMAGE_MISSING = _(u"[Изображение отсутсвует]")
     FORM_VALIDATION_ERROR = _(u"Введены некорректные данные")
 
+    APPROVE = _(u"Утвердить")
+    REJECT = _(u"Отклонить")
+
     @classmethod
     def access_denied_message(cls, detailed_message):
         return u"{0}: {1}".format(cls.ACCESS_DENIED, detailed_message)

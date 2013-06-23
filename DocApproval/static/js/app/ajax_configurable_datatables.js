@@ -41,6 +41,17 @@ define(
 
             create_table: function (target, table_options) {
                 return target.dataTable(table_options);
+            },
+
+            set_buttons: function (target, buttons_config) {
+                for (var btn_class in buttons_config) {
+                    if (!buttons_config.hasOwnProperty(btn_class)) continue;
+                    var btn_cfg = buttons_config[btn_class];
+                    var btn = $("<button/>").addClass(btn_class).text(btn_cfg.caption).appendTo($(target));
+                    if (btn_cfg.css_class) {
+                        btn.addClass(btn_cfg.css_class);
+                    }
+                }
             }
         };
 
@@ -148,6 +159,7 @@ define(
                     html_helper.add_caption(self, options.caption);
                 }
                 var oTable = html_helper.create_table(self, config.options);
+                html_helper.set_buttons(self.parent(".dataTables_wrapper").find(".btns"), datatables_config.buttons);
 
                 if (search_form) {
                     search_form.add_listener(function (data) {

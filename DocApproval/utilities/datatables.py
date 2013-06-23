@@ -91,12 +91,16 @@ class JsonConfigurableDatatablesBaseView(BaseDatatableView):
             columns.insert(0, CheckboxColumnDefinition(self.checkbox_column))
         return [col.to_dict() for col in columns]
 
+    def get_buttons_config(self):
+        return None
+
     def get_links_config(self):
         return None
 
     def get_config(self, **kwargs):
         return {
-            'columns': self.get_columns_config()
+            'columns': self.get_columns_config(),
+            'buttons': self.get_buttons_config()
         }
 
     def prepare_results(self, qs):

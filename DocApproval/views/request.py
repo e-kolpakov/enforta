@@ -299,6 +299,12 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
             }
         }
 
+    def get_buttons_config(self):
+        return {
+            'approve': {'caption': CommonMessages.APPROVE, 'css_class': 'btn btn-success'},
+            'reject': {'caption': CommonMessages.REJECT, 'css_class': 'btn btn-danger'},
+        }
+
     def get_initial_queryset(self):
         show_only = self.request.GET.get('show_only', None)
 
