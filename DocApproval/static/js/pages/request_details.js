@@ -1,6 +1,6 @@
 /*global define, page_data*/
 
-define(['jquery', 'app/request_actions'], function ($) {
+define(['jquery', 'app/request_actions/request_actions'], function ($) {
     function get_page_data() {
         return page_data;
     }
