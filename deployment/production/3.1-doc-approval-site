@@ -19,7 +19,7 @@
     </Directory>
 
 	WSGIScriptAlias / /home/enfortit/docapproval/portal/wsgi.py
-	WSGIDaemonProcess docApproval processes=2 maximum-requests=0 threads=25 \
+	WSGIDaemonProcess docApproval processes=2 maximum-requests=1000 threads=25 \
 	python-path=/home/enfortit/docapproval:/home/enfortit/.virtualenvs/DocApproval/lib/python2.7/site-packages \
 	lang='en_US.UTF-8' locale='en_US.UTF-8'
     WSGIProcessGroup docApproval
