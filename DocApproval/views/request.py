@@ -313,12 +313,18 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
                 'approve': {
                     'caption': CommonMessages.APPROVE,
                     'css_class': 'btn btn-success',
-                    'attributes': {'data-behavior': 'mass-approve'}
+                    'attributes': {
+                        'data-behavior': 'mass-approve',
+                        'data-backend-url': reverse(RequestUrl.LIST_ACTIONS_BACKEND_JSON)
+                    }
                 },
                 'reject': {
                     'caption': CommonMessages.REJECT,
                     'css_class': 'btn btn-danger',
-                    'attributes': {'data-behavior': 'mass-reject'}
+                    'attributes': {
+                        'data-behavior': 'mass-reject',
+                        'data-backend-url': reverse(RequestUrl.LIST_ACTIONS_BACKEND_JSON)
+                    }
                 },
             }
         else:
@@ -368,6 +374,52 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
         }
 
 
+class ListRequestActionsJson(View):
+    _logger = logging.getLogger(__name__)
+
+    def _parse_parameters(self, request):
+        if request.is_ajax():
+            raw_data = request.body
+            data = json.loads(raw_data)
+            return {
+                'action': data.get('action', None),
+                'request_pks': data.get('request_pks', []),
+                'parameters': data.get('parameters', {})
+            }
+        else:
+            raise ValueError("Data should be json-formatted")
+
+    def post(self, request, *args, **kwargs):
+        try:
+            parsed_parameters = self._parse_parameters(request)
+            data = parsed_parameters
+            action = RequestActionRepository()[parsed_parameters['action']]
+            requests = list(Request.objects.filter(pk__in=parsed_parameters['request_pks']))
+
+            failed_actions = []
+            for req in requests:
+                if action.is_available(request.user, req):
+                    params = parsed_parameters['parameters']
+                    action.execute(request.user, req, **params)
+                else:
+                    failed_actions.append(req)
+
+            data = {
+                'success': True
+            }
+            if failed_actions:
+                names = (RequestMessages.ACTION_IS_NOT_ACCESSIBLE.format(unicode(req)) for req in failed_actions)
+                data['errors'] = "\n".join(names)
+        except Exception as e:
+            self._logger.exception(e)
+            data = {
+                'success': False,
+                'response': None,
+                'errors': [e.message]
+            }
+        return HttpResponse(json.dumps(data), content_type="application/json")
+
+
 class RequestActionsJson(View):
     _logger = logging.getLogger(__name__)
 
@@ -393,7 +445,7 @@ class RequestActionsJson(View):
                 params = parsed_parameters['parameters']
                 response = action.execute(request.user, req, **params)
             else:
-                response = RequestMessages.ACTION_IS_NOT_ACCESSIBLE
+                response = RequestMessages.ACTION_IS_NOT_ACCESSIBLE.format(req)
 
             data = {
                 'success': True,

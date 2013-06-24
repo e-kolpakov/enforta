@@ -6,6 +6,10 @@ define(
     ],
     function ($, Communicator, SearchForm, Dispatcher) {
 
+        function reload_table(oTable) {
+            oTable.fnDraw(false);
+        }
+
         var html_helper = {
             _create_header: function (target) {
                 var header = target.children('thead');
@@ -45,7 +49,7 @@ define(
                 return target.dataTable(table_options);
             },
 
-            set_buttons: function (target, buttons_config) {
+            set_buttons: function (target, buttons_config, oTable) {
                 for (var btn_class in buttons_config) {
                     if (!buttons_config.hasOwnProperty(btn_class)) continue;
                     var btn_cfg = buttons_config[btn_class];
@@ -57,6 +61,9 @@ define(
                         btn.attr(btn_cfg.attributes);
                     }
                     Dispatcher.notify_element(btn);
+                    btn.on('reload.datatable', function () {
+                        reload_table(oTable);
+                    })
                 }
             }
         };
@@ -165,11 +172,14 @@ define(
                     html_helper.add_caption(self, options.caption);
                 }
                 var oTable = html_helper.create_table(self, config.options);
-                html_helper.set_buttons(self.parent(".dataTables_wrapper").find(".btns"), datatables_config.buttons);
+                html_helper.set_buttons(
+                    self.parent(".dataTables_wrapper").find(".btns"),
+                    datatables_config.buttons,
+                    oTable);
 
                 if (search_form) {
                     search_form.add_listener(function (data) {
-                        oTable.fnDraw(false);
+                        reload_table(oTable);
                     });
                 }
             });

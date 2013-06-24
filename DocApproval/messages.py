@@ -32,7 +32,7 @@ class RequestMessages:
 
     CURRENT_REVIEVERS = _(u"Ожидает утверждения")
 
-    ACTION_IS_NOT_ACCESSIBLE = _(u"Нельзя совершить выбранное действие над данной заявкой")
+    ACTION_IS_NOT_ACCESSIBLE = _(u"Нельзя совершить выбранное действие над данной {0}")
 
 
 class ProfileMessages:

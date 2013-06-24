@@ -2,14 +2,10 @@
 define(
     [
         'jquery', 'app/services/ui_interaction_manager', 'app/services/ajax_communicator',
-        'app/request_actions/ui_action_handlers', 'app/services/logger'
+        'app/request_actions/ui_action_handlers', 'app/services/logger', 'app/messages'
     ],
-    function ($, UIManager, Communicator, handlers, Logger) {
+    function ($, UIManager, Communicator, handlers, Logger, Messages) {
         "use strict";
-
-        var Messages = {
-            action_failed: "Не удалось совершить действие: "
-        };
 
         var logger = new Logger();
 
@@ -61,7 +57,7 @@ define(
                             var response = response_data.response;
                             reload_if_needed(response.reload_require, response.reload_ask);
                         } else {
-                            ui_manager.message(Messages.action_failed + response_data.errors.join("\n"));
+                            ui_manager.message(Messages.Common.action_failed + response_data.errors.join("\n"));
                         }
                     });
 

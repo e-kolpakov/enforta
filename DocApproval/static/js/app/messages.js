@@ -8,6 +8,11 @@ define(
             confirm_approve: "Утвердить заявку?",
             confirm_rejection: "Отклонить заявку?",
             prompt_for_paid_date: "Введите дату оплаты"
+        },
+
+        Common: {
+            errors_happened: "Произошли ошибки: ",
+            action_failed: "Не удалось совершить действие: "
         }
     }
 );

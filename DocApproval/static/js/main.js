@@ -2,7 +2,7 @@
 
 requirejs.config({
     baseUrl: globals.static_root + "js/lib",
-    urlArgs: "version=v0.8.2.3",
+    urlArgs: "version=v0.8.2.7",
     paths: {
         'jquery': 'jquery/jquery',
         'jquery-ui': 'jquery/jquery-ui',

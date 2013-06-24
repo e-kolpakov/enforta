@@ -1,14 +1,24 @@
 /*global define*/
 define(
-    ['jquery', 'app/dispatcher', 'app/services/ui_interaction_manager', 'app/services/logger', 'app/messages'],
-    function ($, Dispatcher, UIManager, Logger, messages) {
+    [
+        'jquery',
+        'app/dispatcher', 'app/services/ui_interaction_manager', 'app/services/ajax_communicator',
+        'app/services/logger', 'app/messages'
+    ],
+    function ($, Dispatcher, UIManager, Communicator, Logger, Messages) {
         "use strict";
 
         var logger = new Logger();
         var ui_manager = new UIManager();
+        var comm = new Communicator();
 
         function get_comments(message, callback) {
             ui_manager.input(message, callback);
+        }
+
+        function get_backend_url(element) {
+            return $(element).attr('data-backend-url');
+
         }
 
         function get_request_pks(button) {
@@ -19,25 +29,42 @@ define(
             });
         }
 
-        function handle_action(button, action, comment) {
+        function handle_action(button, action, comment, backend_url) {
             var pks = get_request_pks(button);
-            logger.log(action);
-            logger.log(comment);
-            logger.log(pks);
+            var data = JSON.stringify({
+                action: action,
+                request_pks: pks,
+                parameters: { comment: comment }
+            });
+            var action_promise = comm.make_request({url: backend_url}, data);
+            action_promise.done(function (response_data, textStatus, jqXHR) {
+                if (response_data.success) {
+                }
+                if (response_data.errors) {
+                    ui_manager.message(Messages.Common.errors_happened + response_data.errors.join("\n"));
+                }
+                $(button).trigger('reload.datatable');
+            });
+
+            action_promise.fail(function (jqXHR, textStatus, errorThrown) {
+                ui_manager.error(errorThrown);
+            });
         }
 
         function mass_approve(event) {
-            get_comments(messages.ActionMessages.confirm_approve, function (data) {
+            var backend_url = get_backend_url(event.target);
+            get_comments(Messages.ActionMessages.confirm_approve, function (data) {
                 if (data.success) {
-                    handle_action(event.target, 'approve', data.comment);
+                    handle_action(event.target, 'approve', data.comment, backend_url);
                 }
             });
         }
 
         function mass_reject(event) {
-            get_comments(messages.ActionMessages.confirm_rejection, function (data) {
+            var backend_url = get_backend_url(event.target);
+            get_comments(Messages.ActionMessages.confirm_rejection, function (data) {
                 if (data.success) {
-                    handle_action(event.target, 'reject', data.comment);
+                    handle_action(event.target, 'reject', data.comment, backend_url);
                 }
             });
         }
