@@ -12,7 +12,6 @@ urlpatterns = patterns(
         name=request_names.LIST_JSON_CONF),
     url(r"^list.json", request.RequestListJson.as_view(), name=request_names.LIST_JSON),
     url(r"^actions.json", request.RequestActionsJson.as_view(), name=request_names.ACTIONS_BACKEND_JSON),
-    url(r"^list_actions.json", request.ListRequestActionsJson.as_view(), name=request_names.LIST_ACTIONS_BACKEND_JSON),
 
     # single request pages
     url(r"^create", request.CreateRequestView.as_view(), name=request_names.CREATE),

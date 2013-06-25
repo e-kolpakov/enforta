@@ -14,6 +14,7 @@ from django.contrib.auth.models import User, Permission
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
+from DocApproval.utilities.datatables import LinkColumnDefinition, ColumnDefinition
 from DocApproval.utilities.utility import wrap_permission
 
 from ..menu import MenuModifierViewMixin, RequestContextMenuManagerExtension
@@ -131,16 +132,23 @@ class EditTemplateApprovalRouteView(ApprovalRouteEditHandlerView, MenuModifierVi
 
 class TemplateApprovalRouteListJson(JsonConfigurableDatatablesBaseView):
     model = ApprovalRoute
-    link_field = 'name'
     model_fields = ('name', 'description')
-    calculated_fields = {'steps_count': ApprovalRouteMessages.STEPS_COUNT, }
 
-    def get_links_config(self):
-        return {
-            'name': {
-                'base_url': get_url_base(reverse(ApprovalRouteUrls.TEMPLATE_EDIT, kwargs={'pk': 0}))
-            },
+    def get_other_columns(self):
+        result = {
+            # 'checkboxes': CheckboxColumnDefinition(entity_key='pk', order=-1),
+            'name': LinkColumnDefinition(
+                field='name', model=self.model,
+                base_url=get_url_base(reverse(ApprovalRouteUrls.TEMPLATE_EDIT, kwargs={'pk': 0})),
+                order=0
+            ),
+            'current_approvers': ColumnDefinition(
+                column='steps_count',
+                name=ApprovalRouteMessages.STEPS_COUNT,
+                is_calculated=True, order=1000
+            )
         }
+        return result
 
     @method_decorator(permission_required(wrap_permission(Permissions.ApprovalRoute.CAN_MANAGE_TEMPLATES)))
     def dispatch(self, request, *args, **kwargs):

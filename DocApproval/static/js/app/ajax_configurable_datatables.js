@@ -1,4 +1,4 @@
-/*globals define*/
+/*globals define, globals*/
 define(
     [
         'jquery', 'app/services/ajax_communicator', 'app/forms/request_search_form', 'app/dispatcher',
@@ -28,15 +28,15 @@ define(
                 for (var i = 0; i < columns.length; i++) {
                     var column = columns[i];
                     var cell = $("<th></th>").appendTo(header_row);
-                    if (!column.checkbox_config) {
-                        cell.text(column.name);
-                    } else {
+                    if (column.column_type == 'checkbox_column') {
                         $("<input>").attr('type', 'checkbox').
                             addClass('dt-select-all').appendTo(cell).
                             click(function () {
                                 var checked = $(this).is(':checked');
                                 $("input.row-checkbox", $(this).parents(".dataTables_wrapper")).prop('checked', checked);
                             });
+                    } else {
+                        cell.text(column.name);
                     }
                 }
             },
@@ -70,15 +70,19 @@ define(
 
 
         var config_parser = function (options) {
+            var custom_column_renderers = {
+                link_column: CustomColumnRenderersFactory.createEntityLinkRenderer,
+                checkbox_column: CustomColumnRenderersFactory.createCheckBoxRenderer,
+                actions_column: CustomColumnRenderersFactory.createActionColumnRenderer
+            };
+
             function build_column_definition(col) {
-                var column = !(col.checkbox_config)
-                    ? {mData: col.column, sName: col.column}
-                    : {mData: null, mRender: CustomColumnRenderersFactory.createCheckBoxRenderer(col.checkbox_config)};
-                if (col.link_config) {
-                    column['mRender'] = CustomColumnRenderersFactory.createEntityLinkRenderer(col.link_config);
-                }
-                if (col.is_calculated) {
+                var column = !(col.is_virtual) ? { mData: col.column, sName: col.column } : {mData: null};
+                if (col.is_calculated || col.is_virtual) {
                     column['bSortable'] = false;
+                }
+                if (custom_column_renderers[col.column_type]) {
+                    column['mRender'] = custom_column_renderers[col.column_type](col.specification);
                 }
                 return column;
             }
@@ -140,22 +144,55 @@ define(
         };
 
         var CustomColumnRenderersFactory = {
-            createEntityLinkRenderer: function (link_spec) {
+            createEntityLinkRenderer: function (specification) {
                 return function (data, type, full) {
-                    var base_url = link_spec.base_url || "";
-                    var entity_key = link_spec.entity_key || 'pk';
+                    var base_url = specification.base_url || "";
+                    var entity_key = specification.entity_key || 'pk';
                     var link_url = base_url + "/" + full[entity_key];
                     return "<a href='" + link_url + "'>" + data + "</a>";
                 }
             },
 
-            createCheckBoxRenderer: function (checkbox_spec) {
+            createCheckBoxRenderer: function (specification) {
                 return function (data, type, full) {
-                    var entity_key = checkbox_spec.entity_key || 'pk';
+                    var entity_key = specification.entity_key || 'pk';
                     return "<input type='checkbox' class='row-checkbox' value='" + full[entity_key] + "'/>";
+                }
+            },
+
+            createActionColumnRenderer: function (specification) {
+                function make_button(icon, code, url, pk) {
+                    var btn = $("<img/>").attr('src', window.globals.static_root + 'img/' + icon).attr({
+                        'data-behavior': 'list-approve-action',
+                        'data-backend-url': url,
+                        'data-action-code': code,
+                        'data-request-pk': pk
+                    });
+                    return btn[0].outerHTML;
+                }
+
+                return function (data, type, full) {
+                    var result = [];
+                    for (var i = 0; i < specification.length; i++) {
+                        var btn_spec = specification[i];
+                        var entity_key = specification[i].entity_key || 'pk';
+                        result.push(make_button(btn_spec.icon, btn_spec.code, btn_spec.backend_url, full[entity_key]));
+                    }
+                    return "<span class='btn-wrapper'>" + result.join("") + "</span>";
                 }
             }
         };
+
+        function row_callback(row, table) {
+            var datatable = $(table).dataTable(); //should be created before we hit this - just returns oTable
+            $("[data-behavior]", row).each(function () {
+                Dispatcher.notify_element(this);
+                $(this).on("reload_datatable.behaviors.list_approve", function () {
+                    reload_table(datatable);
+                })
+            });
+            return row;
+        }
 
         $.fn.ajaxConfigurableDatatables = function (options, datatables_opts) {
             var self = this;
@@ -167,15 +204,20 @@ define(
 
             config_promise.done(function (datatables_config, textStatus, jqXHR) {
                 var config = parser.parse_config(datatables_config, datatables_options, search_form);
+                config.options.fnRowCallback = function (row, aData, iDisplayIndex) {
+                    row_callback(row, self);
+                }
                 html_helper.make_header(self, config.columns);
                 if (options.caption) {
                     html_helper.add_caption(self, options.caption);
                 }
                 var oTable = html_helper.create_table(self, config.options);
-                html_helper.set_buttons(
-                    self.parent(".dataTables_wrapper").find(".btns"),
-                    datatables_config.buttons,
-                    oTable);
+                if (datatables_config.buttons) {
+                    html_helper.set_buttons(
+                        self.parent(".dataTables_wrapper").find(".btns"),
+                        datatables_config.buttons,
+                        oTable);
+                }
 
                 if (search_form) {
                     search_form.add_listener(function (data) {

@@ -1,33 +1,89 @@
+import logging
+from collections import OrderedDict
+
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models.fields import FieldDoesNotExist
 from django_datatables_view.base_datatable_view import BaseDatatableView
+
+_logger = logging.getLogger(__name__)
 
 
 class ColumnDefinition(object):
-    def __init__(self, column, name, is_calculated=False, link_config=None):
+    is_virtual = False
+    column_type = None
+
+    def __init__(self, column='', name='', order=0, is_calculated=False):
         self.column = column
         self.name = name
         self.is_calculated = is_calculated
-        self.link_config = link_config
+        self.order = order
 
     def to_dict(self):
         result = {
             'column': self.column,
             'name': self.name,
-            'is_calculated': self.is_calculated
+            'is_calculated': self.is_calculated,
+            'is_virtual': self.is_virtual,
+            'column_type': self.column_type
         }
-        if self.link_config:
-            result['link_config'] = self.link_config
         return result
 
 
+class ModelField(ColumnDefinition):
+    column_type = 'model_field_column'
+
+    def __init__(self, field, model, **kwargs):
+        try:
+            field_def = model._meta.get_field_by_name(field)[0]
+            super(ModelField, self).__init__(column=field, name=field_def.verbose_name, **kwargs)
+        except FieldDoesNotExist as e:
+            _logger.exception(e)
+            raise ImproperlyConfigured("Field {0} not found for model {1}".format(field, model.__class__.name))
+
+
+class LinkColumnDefinition(ModelField):
+    column_type = 'link_column'
+
+    def __init__(self, base_url, entity_key='pk', *args, **kwargs):
+        self.base_url = base_url
+        self.entity_key = entity_key
+        super(LinkColumnDefinition, self).__init__(*args, **kwargs)
+
+    def to_dict(self):
+        sup = super(LinkColumnDefinition, self).to_dict()
+        sup['specification'] = {'base_url': self.base_url, 'entity_key': self.entity_key}
+        return sup
+
+
 class CheckboxColumnDefinition(ColumnDefinition):
-    def __init__(self, entity_key):
-        super(CheckboxColumnDefinition, self).__init__('', '', True, None)
+    is_virtual = True
+    column_type = 'checkbox_column'
+
+    def __init__(self, entity_key, **kwargs):
+        super(CheckboxColumnDefinition, self).__init__(**kwargs)
         self.entity_key = entity_key
 
     def to_dict(self):
         sup = super(CheckboxColumnDefinition, self).to_dict()
-        sup['checkbox_config'] = {'entity_key': self.entity_key}
+        sup['specification'] = {'entity_key': self.entity_key}
+        return sup
+
+
+class ActionsColumnDefintion(ColumnDefinition):
+    is_virtual = True
+    column_type = 'actions_column'
+
+    def __init__(self, actions, backend_url, *args, **kwargs):
+        self.actions = actions
+        self.backend_url = backend_url
+        super(ActionsColumnDefintion, self).__init__(*args, **kwargs)
+
+    def to_dict(self):
+        sup = super(ActionsColumnDefintion, self).to_dict()
+        sup['specification'] = [
+            {'icon': action.icon, 'code': action.code, 'backend_url': self.backend_url}
+            for action in self.actions
+        ]
         return sup
 
 
@@ -35,34 +91,7 @@ class JsonConfigurableDatatablesBaseView(BaseDatatableView):
     CONFIG_MARKER = 'config'
 
     model = None
-    display_fields = ()
     model_fields = ()
-    calculated_fields = {}
-    link_target = None
-    link_field = None
-    checkbox_column = False
-
-    def get_link_url(self):
-        link = self.link_target
-        return link() if hasattr(link, '__call__') else link
-
-    def get_model_fields(self):
-        return self.model_fields
-
-    def get_display_fields(self):
-        return self.get_model_fields() + tuple(self.get_calculated_fields().keys())
-
-    def get_calculated_fields(self):
-        return self.calculated_fields
-
-    def get_order_columns(self):
-        return self.get_display_fields()
-
-    def prepare_single_item(self, item):
-        return item.__dict__
-
-    def get_model_columns(self):
-        return {f.name: f.verbose_name for f in self.model._meta.local_fields}
 
     def get_context_data(self, *args, **kwargs):
         if kwargs.get(self.CONFIG_MARKER, False):
@@ -70,31 +99,20 @@ class JsonConfigurableDatatablesBaseView(BaseDatatableView):
         else:
             return super(JsonConfigurableDatatablesBaseView, self).get_context_data(self, *args, **kwargs)
 
-    def get_columns_config(self):
-        columns = []
-        links_config = self.get_links_config()
-        for field in self.get_model_fields():
-            field_def = self.model._meta.get_field_by_name(field)[0]
-            if field_def is None:
-                raise ImproperlyConfigured("Field {0} not found for model {1}".format(field, self.model.__class__.name))
-            col_def = ColumnDefinition(field, field_def.verbose_name, is_calculated=False,
-                                       link_config=links_config.get(field, None))
-            columns.append(col_def)
-        for field, caption in self.get_calculated_fields().iteritems():
-            col_def = ColumnDefinition(field, caption, is_calculated=True,
-                                       link_config=links_config.get(field, None))
-            columns.append(col_def)
+    def get_model_columns(self):
+        return {field: ModelField(field, self.model, order=idx * 10) for idx, field in enumerate(self.model_fields)}
 
-        column_order = self.get_order_columns()
-        columns.sort(key=lambda col: column_order.index(col.column))
-        if self.checkbox_column:
-            columns.insert(0, CheckboxColumnDefinition(self.checkbox_column))
-        return [col.to_dict() for col in columns]
+    def get_other_columns(self):
+        return OrderedDict()
+
+    def get_columns_config(self):
+        columns = self.get_model_columns()
+        columns.update(self.get_other_columns())
+        cols = columns.values()
+        cols.sort(key=lambda x: x.order)
+        return [col.to_dict() for col in cols]
 
     def get_buttons_config(self):
-        return None
-
-    def get_links_config(self):
         return None
 
     def get_config(self, **kwargs):
@@ -102,6 +120,9 @@ class JsonConfigurableDatatablesBaseView(BaseDatatableView):
             'columns': self.get_columns_config(),
             'buttons': self.get_buttons_config()
         }
+
+    def prepare_single_item(self, item):
+        return item.__dict__
 
     def prepare_results(self, qs):
         return [self.prepare_single_item(item) for item in qs]

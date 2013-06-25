@@ -5,7 +5,7 @@
 div.dataTables_wrapper {
   div.btns {
     button.btn {
-      margin-right: @action-buttons-spacing;
+      margin-right: @datatables-header-action-buttons-spacing;
     }
   }
   div.dataTables_length {
@@ -15,6 +15,19 @@ div.dataTables_wrapper {
   table.dataTable {
     input[type='checkbox'] {
       vertical-align: top;
+    }
+  }
+
+  tr {
+    td {
+      span.btn-wrapper {
+        white-space: nowrap;
+        img {
+          height: @datatables-action-buttons-size;
+          margin-right: @datatables-action-buttons-spacing;
+          cursor: pointer;
+        }
+      }
     }
   }
 }

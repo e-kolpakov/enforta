@@ -12,7 +12,8 @@ define(
 
         Common: {
             errors_happened: "Произошли ошибки: ",
-            action_failed: "Не удалось совершить действие: "
+            action_failed: "Не удалось совершить действие: ",
+            generic_action_confirmation: "Вы уверены?"
         }
     }
 );
