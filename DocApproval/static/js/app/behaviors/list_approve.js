@@ -69,7 +69,7 @@ define(
             });
         }
 
-        Dispatcher.notify_behavior('mass-approve', {'click': mass_approve});
-        Dispatcher.notify_behavior('mass-reject', {'click': mass_reject});
+        Dispatcher.notify_behavior('mass-approve', {'click.behaviors.list_approve': mass_approve});
+        Dispatcher.notify_behavior('mass-reject', {'click.behaviors.list_approve': mass_reject});
     }
 );

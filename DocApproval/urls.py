@@ -16,7 +16,7 @@ urlpatterns = patterns(
 
     url(r'^accounts/', include(authentication)),
     url(r'^requests/', include(request)),
-    url(r'^profile/', include(profile)),
+    url(r'^profile/', include(profile)), # if renamed, update js/services/modal_popup.js impersonations_backend variable
     url(r'^approval/', include(approval_route)),
     url(r'^media/', include(media))
 )

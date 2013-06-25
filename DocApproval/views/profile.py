@@ -1,8 +1,19 @@
-from django.views.generic import (UpdateView, DetailView)
-from django.shortcuts import (render, get_object_or_404)
+import json
+import logging
 
-from ..models import UserProfile
+from django.contrib.auth.models import User
+from django.http.response import HttpResponse
+from django.views.generic import UpdateView, DetailView
+from django.shortcuts import render, get_object_or_404
+from django.views.generic.base import View
+
+from ..models import UserProfile, Request
 from ..forms import UserProfileForm
+from ..messages import ProfileMessages
+
+
+class ImpersonationBackendParameterError(Exception):
+    pass
 
 
 class UserProfileDetailsView(DetailView):
@@ -24,3 +35,37 @@ class UserProfileUpdateView(UpdateView):
     model = UserProfile
     template_name = "profile/update.html"
     form_class = UserProfileForm
+
+
+class ImpersonationsForRequestView(View):
+    _logger = logging.getLogger(__name__)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            target_profile_pk = request.POST.get('user', None)
+            if target_profile_pk:
+                target_user = User.objects.get(pk=target_profile_pk)
+            else:
+                target_user = request.user
+
+            target_requests_raw = request.POST.get('requests', None)
+            if not target_requests_raw:
+                raise ImpersonationBackendParameterError(ProfileMessages.TARGET_REQUESTS_NOT_SPECIFIED)
+            target_requests = json.loads(target_requests_raw)
+            requests = Request.objects.get_accessible_requests(target_user).filter(pk_in=target_requests)
+
+            impersonations = target_user.profile.effective_profiles
+            for request in requests:
+                impersonations &= set(request.get_current_approvers())
+                if not impersonations:  # short-circuit as soon as no common impersonations are present
+                    break
+
+            data = {profile.pk: profile.short_name for profile in impersonations}
+        except Exception as e:
+            self._logger.exception(e)
+            data = {
+                'success': False,
+                'response': None,
+                'errors': [str(e)]
+            }
+        return HttpResponse(json.dumps(data), content_type="application/json")

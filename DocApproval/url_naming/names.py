@@ -65,6 +65,9 @@ class Profile:
     MY_PROFILE = "my_profile"
     UPDATE = "edit"
 
+    CURRENT_USER_IMPERSONATIONS_FOR_REQUEST = 'current_user_impersonations_for_request'
+    CURRENT_USER_IMPERSONATIONS = 'current_user_impersonations'
+
 
 class Media:
     __metaclass__ = _NamesMeta

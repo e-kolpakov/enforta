@@ -62,6 +62,10 @@ class ApprovalRouteMessages:
     NO_MANAGER = _(u"Для текущего пользователя не задан непосредственный начальник")
 
 
+class ProfileMessages:
+    TARGET_REQUESTS_NOT_SPECIFIED = _(u"Целевые заявки не заданы")
+
+
 class PeriodMessages:
     DAYS = _(u"дней")
     WEEKS = _(u"недель")

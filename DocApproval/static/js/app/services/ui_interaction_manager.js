@@ -55,7 +55,7 @@ define(
                     callback($.extend({}, data, {success: success}));
                 }
 
-                popup.create_controls(false, {});
+                popup.create_controls();
                 popup.set_buttons({
                     ok: function () {
                         handle(true);

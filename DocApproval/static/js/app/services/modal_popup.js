@@ -1,7 +1,10 @@
 /*global define*/
 define(
-    ['jquery', 'extend', 'bootstrap'],
-    function ($, extend) {
+    [
+        'jquery', 'extend', 'app/dispatcher',
+        'bootstrap', 'app/behaviors/impersonation_list'
+    ],
+    function ($, extend, Dispatcher) {
         var button_types = {
             ok: {text: 'OK', cssClass: 'btn btn-primary', id: 'btn-ok'},
             save: {text: 'Сохранить', cssClass: 'btn btn-primary', id: 'btn-save'},
@@ -9,6 +12,8 @@ define(
             approve: {text: 'Утвердить', cssClass: 'btn btn-primary', id: 'btn-approve'},
             reject: {text: 'Отклонить', cssClass: 'btn btn-primary', id: 'btn-reject'}
         };
+
+        var impersonations_backend = "profile/impersonations/request"; //keep this in sync with url_naming/profile.py
 
         function make_elem(elem) {
             return $("<" + elem + "></" + elem + ">");
@@ -38,6 +43,10 @@ define(
                 }
                 if (control.initial) {
                     input_ctrl.val(control.initial);
+                }
+                if (all_attributes[Dispatcher.behavior_attribute]) {
+                    Dispatcher.notify_element(input_ctrl);
+                    input_ctrl.trigger("init_control");
                 }
                 input_ctrl.appendTo(ctrls);
                 row.appendTo(form);
@@ -110,7 +119,7 @@ define(
 
         extend(ApproveActionPopup, ModalPopup);
         (function () {
-            ApproveActionPopup.prototype.create_controls = function (with_on_behalf, on_behalf_list) {
+            ApproveActionPopup.prototype.create_controls = function () {
                 var form = make_bootstrap_form();
                 var controls = [
                     {
@@ -119,8 +128,18 @@ define(
                         id: 'action-reason',
                         attributes: {rows: 10},
                         cssClass: 'input-xlarge'
-                    }
+                    },
                 ];
+                var impersonation_attrs = { 'data-backend-url': impersonations_backend, disabled: true };
+                impersonation_attrs[Dispatcher.behavior_attribute] = 'select-impersonation-for-request';
+                var impersonation_dropdown = {
+                    type: 'select',
+                    label: 'От имени',
+                    id: 'impersonation',
+                    attributes: impersonation_attrs,
+                    cssClass: 'input-xlarge'
+                };
+                controls.push(impersonation_dropdown);
                 make_bootstrap_form_rows(form, controls);
                 form.appendTo(this.fragments.body);
             };
@@ -142,7 +161,7 @@ define(
 
         extend(DateInputModalPopup, ModalPopup);
         (function () {
-            DateInputModalPopup.prototype.create_controls = function (with_on_behalf, on_behalf_list) {
+            DateInputModalPopup.prototype.create_controls = function () {
                 var form = make_bootstrap_form();
                 var controls = [
                     {
@@ -151,7 +170,7 @@ define(
                         id: 'paid-date',
                         attributes: {type: 'text'},
                         cssClass: 'datepicker'
-                    }
+                    },
                 ];
                 make_bootstrap_form_rows(form, controls);
                 form.appendTo(this.fragments.body);

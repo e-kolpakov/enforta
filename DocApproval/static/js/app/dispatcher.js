@@ -6,8 +6,10 @@ define(
         var behaviors = {};
 
         var Dispatcher = {
+            behavior_attribute: 'data-behavior',
+
             notify_element: function (element) {
-                var behavior = $(element).attr('data-behavior');
+                var behavior = $(element).attr(Dispatcher.behavior_attribute);
                 if (behaviors[behavior]) {
                     for (var event in behaviors[behavior]) {
                         if (!behaviors[behavior].hasOwnProperty(event)) continue;
