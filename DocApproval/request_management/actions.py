@@ -13,6 +13,7 @@ _logger = logging.getLogger(__name__)
 
 
 class RequestActionBase(object):
+    code = None
     reload_ask = False
     reload_require = True
 

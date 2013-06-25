@@ -15,6 +15,7 @@ from DocApproval.constants import Groups
 
 from DocApproval.request_management.actions import RequestActionRepository
 from DocApproval.request_management.request_factory import RequestFactory
+from DocApproval.utilities.datatables import LinkColumnDefinition, ColumnDefinition, ActionsColumnDefintion
 from DocApproval.utilities.utility import parse_string_to_datetime
 
 from ..menu import RequestContextMenuManagerExtension, MenuModifierViewMixin
@@ -262,10 +263,7 @@ class RequestHistoryView(SingleObjectMixin, ListView, MenuModifierViewMixin):
 
 class RequestListJson(JsonConfigurableDatatablesBaseView):
     model = Request
-    link_field = 'name'
     model_fields = ('name', 'city', 'status', 'creator', 'send_on_approval', 'created', 'accepted')
-    calculated_fields = {'current_approvers': RequestMessages.CURRENT_REVIEVERS, }
-    checkbox_column = 'pk'
 
     as_is = lambda x: x
     to_date = parse_string_to_datetime
@@ -290,46 +288,41 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
         },
     }
 
-    # Todo: might be a good idea to refactor links into ColumnDefinition subclass and use it instead of dicts
-    def get_links_config(self):
-        return {
-            'name': {
-                'base_url': get_url_base(reverse(RequestUrl.DETAILS, kwargs={'pk': 0}))
-            },
-            'send_on_approval': {
-                'base_url': get_url_base(reverse(ProfileUrl.PROFILE, kwargs={'pk': 0})),
-                'entity_key': 'send_on_approval_pk',
-            },
-            'creator': {
-                'base_url': get_url_base(reverse(ProfileUrl.PROFILE, kwargs={'pk': 0})),
-                'entity_key': 'creator_pk',
-            }
+    def get_other_columns(self):
+        rslt = {
+            # 'checkboxes': CheckboxColumnDefinition(entity_key='pk', order=-1),
+            'name': LinkColumnDefinition(
+                field='name', model=self.model,
+                base_url=get_url_base(reverse(RequestUrl.DETAILS, kwargs={'pk': 0})),
+                order=0
+            ),
+            'send_on_approval': LinkColumnDefinition(
+                field='send_on_approval', model=self.model,
+                base_url=get_url_base(reverse(ProfileUrl.PROFILE, kwargs={'pk': 0})),
+                entity_key='send_on_approval_pk', order=1000
+            ),
+            'creator': LinkColumnDefinition(
+                field='creator', model=self.model,
+                base_url=get_url_base(reverse(ProfileUrl.PROFILE, kwargs={'pk': 0})),
+                entity_key='creator_pk', order=1001
+            ),
+            'current_approvers': ColumnDefinition(
+                column='current_approvers',
+                name=RequestMessages.CURRENT_REVIEVERS,
+                is_calculated=True, order=1002
+            )
         }
-
-    def get_buttons_config(self):
-        show_only = self.request.GET.get('show_only', None)
-        if show_only == ListRequestView.MY_APPROVALS:
-            result = {
-                'approve': {
-                    'caption': CommonMessages.APPROVE,
-                    'css_class': 'btn btn-success',
-                    'attributes': {
-                        'data-behavior': 'mass-approve',
-                        'data-backend-url': reverse(RequestUrl.LIST_ACTIONS_BACKEND_JSON)
-                    }
-                },
-                'reject': {
-                    'caption': CommonMessages.REJECT,
-                    'css_class': 'btn btn-danger',
-                    'attributes': {
-                        'data-behavior': 'mass-reject',
-                        'data-backend-url': reverse(RequestUrl.LIST_ACTIONS_BACKEND_JSON)
-                    }
-                },
-            }
-        else:
-            result = {}
-        return result
+        if self.request.GET.get('show_only', None) == ListRequestView.MY_APPROVALS:
+            action_repository = RequestActionRepository()
+            rslt['actions'] = ActionsColumnDefintion(
+                actions=[
+                    action_repository[RequestActionRepository.APPROVE],
+                    action_repository[RequestActionRepository.REJECT]
+                ],
+                backend_url=reverse(RequestUrl.ACTIONS_BACKEND_JSON),
+                order=-2
+            )
+        return rslt
 
     def get_initial_queryset(self):
         show_only = self.request.GET.get('show_only', None)
@@ -372,52 +365,6 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
             'creator_pk': item.creator.pk,
             'current_approvers': ", ".join(profile.short_name for profile in item.get_current_approvers())
         }
-
-
-class ListRequestActionsJson(View):
-    _logger = logging.getLogger(__name__)
-
-    def _parse_parameters(self, request):
-        if request.is_ajax():
-            raw_data = request.body
-            data = json.loads(raw_data)
-            return {
-                'action': data.get('action', None),
-                'request_pks': data.get('request_pks', []),
-                'parameters': data.get('parameters', {})
-            }
-        else:
-            raise ValueError("Data should be json-formatted")
-
-    def post(self, request, *args, **kwargs):
-        try:
-            parsed_parameters = self._parse_parameters(request)
-            data = parsed_parameters
-            action = RequestActionRepository()[parsed_parameters['action']]
-            requests = list(Request.objects.filter(pk__in=parsed_parameters['request_pks']))
-
-            failed_actions = []
-            for req in requests:
-                if action.is_available(request.user, req):
-                    params = parsed_parameters['parameters']
-                    action.execute(request.user, req, **params)
-                else:
-                    failed_actions.append(req)
-
-            data = {
-                'success': True
-            }
-            if failed_actions:
-                names = (RequestMessages.ACTION_IS_NOT_ACCESSIBLE.format(unicode(req)) for req in failed_actions)
-                data['errors'] = "\n".join(names)
-        except Exception as e:
-            self._logger.exception(e)
-            data = {
-                'success': False,
-                'response': None,
-                'errors': [e.message]
-            }
-        return HttpResponse(json.dumps(data), content_type="application/json")
 
 
 class RequestActionsJson(View):

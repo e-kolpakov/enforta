@@ -12,28 +12,17 @@ define(
         var ui_manager = new UIManager();
         var comm = new Communicator();
 
-        function get_comments(message, callback) {
-            ui_manager.input(message, callback);
+        var confirmation_messages = {
+            'approve': Messages.ActionMessages.confirm_approve,
+            'reject': Messages.ActionMessages.confirm_rejection
         }
 
-        function get_backend_url(element) {
-            return $(element).attr('data-backend-url');
-
-        }
-
-        function get_request_pks(button) {
-            var table = $(button).parents(".dataTables_wrapper").find("table.dataTable");
-            var checkboxes = $(table).find("input[type='checkbox'].row-checkbox:checked");
-            return $.map(checkboxes, function (val, idx) {
-                return $(val).val();
-            });
-        }
-
-        function handle_action(button, action, comment, backend_url) {
-            var pks = get_request_pks(button);
+        function handle_action(button, action, comment) {
+            var backend_url = $(button).data('backendUrl');
+            var request_pk = $(button).data('requestPk');
             var data = JSON.stringify({
                 action: action,
-                request_pks: pks,
+                request_pk: request_pk,
                 parameters: { comment: comment }
             });
             var action_promise = comm.make_request({url: backend_url}, data);
@@ -51,25 +40,16 @@ define(
             });
         }
 
-        function mass_approve(event) {
-            var backend_url = get_backend_url(event.target);
-            get_comments(Messages.ActionMessages.confirm_approve, function (data) {
+        function list_approve_action(event) {
+            var action_code = $(event.target).data('actionCode');
+            var confirmation = confirmation_messages[action_code] || Messages.Common.generic_action_confirmation;
+            ui_manager.input(confirmation, function (data) {
                 if (data.success) {
-                    handle_action(event.target, 'approve', data.comment, backend_url);
+                    handle_action(event.target, action_code, data.comment);
                 }
             });
         }
 
-        function mass_reject(event) {
-            var backend_url = get_backend_url(event.target);
-            get_comments(Messages.ActionMessages.confirm_rejection, function (data) {
-                if (data.success) {
-                    handle_action(event.target, 'reject', data.comment, backend_url);
-                }
-            });
-        }
-
-        Dispatcher.notify_behavior('mass-approve', {'click.behaviors.list_approve': mass_approve});
-        Dispatcher.notify_behavior('mass-reject', {'click.behaviors.list_approve': mass_reject});
+        Dispatcher.notify_behavior('list-approve-action', {'click': list_approve_action});
     }
 );

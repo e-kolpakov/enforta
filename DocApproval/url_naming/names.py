@@ -31,7 +31,6 @@ class Request:
     LIST_JSON = "list_json"
     LIST_JSON_CONF = "list_json_conf"
     ACTIONS_BACKEND_JSON = "actions"
-    LIST_ACTIONS_BACKEND_JSON = "list_actions"
 
     REQUEST_HISTORY = "request_history"
     APPROVAL_HISTORY = "approval_history"
