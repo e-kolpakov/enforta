@@ -33,6 +33,8 @@ class RequestMessages:
     CURRENT_REVIEVERS = _(u"Ожидает утверждения")
 
     ACTION_IS_NOT_ACCESSIBLE = _(u"Нельзя совершить выбранное действие над данной {0}")
+    FILE_IS_TOO_BIG = _(u'Слишком большой размер файла ({0}). Разрешенный максимальный размер {1}')
+    FILE_TYPE_IS_NOT_SUPPORTED = _(u'Данный тип файла ({0}) не поддерживается')
 
 
 class ProfileMessages:

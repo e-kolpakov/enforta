@@ -18,6 +18,7 @@ from .approval import ApprovalRoute
 from DocApproval.url_naming.names import Request as RequestUrls
 from DocApproval.utilities.humanization import Humanizer
 from DocApproval.constants import Periods
+from DocApproval.utilities.file_upload import ContentTypeRestrictedFileField
 
 
 _logger = logging.getLogger(__name__)
@@ -76,8 +77,9 @@ class Contract(models.Model):
         )
     )
 
-    document = models.FileField(_(u'Документ'), upload_to=upload_to)
-    document_signed = models.FileField(_(u'Подписанный документ'), upload_to=upload_to_signed, null=True, blank=True)
+    document = ContentTypeRestrictedFileField(_(u'Документ'), upload_to=upload_to)
+    document_signed = ContentTypeRestrictedFileField(_(u'Подписанный документ'), upload_to=upload_to_signed, null=True,
+                                                     blank=True)
 
     def __unicode__(self):
         return u"{0} {2} {1} {3}".format(_(u"Документ №"), _(u"от"), self.pk, self.date)

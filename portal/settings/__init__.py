@@ -19,4 +19,5 @@ try:
 except ImportError:
     pass
 
-    # sys.stderr.write("DEBUG is {0}\n".format(locals()['DEBUG']))
+# a little fix to allow a slightly larger than limit files to still hit the form validations
+FILE_UPLOAD_MAX_MEMORY_SIZE = MAX_FILE_SIZE + 15 * 2 ** 20

@@ -118,7 +118,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 FILE_UPLOAD_HANDLERS = (
-    # "DocApproval.utilities.basic_file_upload_handler.BasicFileUploadHandler",
+    # "DocApproval.utilities.file_upload.BasicFileUploadHandler",
     "django.core.files.uploadhandler.MemoryFileUploadHandler",
     "django.core.files.uploadhandler.TemporaryFileUploadHandler"
 )
@@ -223,10 +223,39 @@ AUTHENTICATION_BACKENDS = (
 GUARDIAN_RENDER_403 = True
 
 #DocApproval
-MAX_FILE_SIZE = 5120
+# nothing funny. Governs usage of python-magic for checking filetypes.
+# If set to true, python-magic is used, which is more secure, but might be more resource cosuming as well
+USE_MAGIC = True
 
 NOTIFICATIONS_TIMEOUT = '2 days'
 
 NOTIFICATIONS_FREQUENCY = '1 day'
 
 ACCOUNTING_EMAIL = 'accounting@enforta.ru'
+
+MAX_FILE_SIZE = 5120
+
+ALLOWED_MIME_TYPES = (
+    'application/pdf',
+    'application/x-pdf',
+    'image/tiff',
+    'image/x-tiff',
+    'image/jpeg',
+    'image/pjpeg',
+    'application/msword',
+    'application/excel',
+    'application/vnd.ms-excel',
+    'application/x-excel',
+    'application/x-msexcel',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+)
+
+# these files are essentially zipped xml, so magic misreports them as application/zip -
+# thus the only way is to skip them
+SKIP_MAGIC_FILE_TYPES = (
+    'application/x-excel',
+    'application/x-msexcel',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+)
