@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _
 from django.db import transaction
 
 from DocApproval.models import Permissions, RequestStatus, Contract, request_paid
+from DocApproval.models import UserProfile
 from DocApproval.utilities.permission_checker import PermissionChecker
 from DocApproval.utilities.utility import parse_string_to_datetime
 
@@ -121,15 +122,26 @@ class ApprovalProcessAction(StatusBasedAction):
     reload_require = False
 
     COMMENT_TOKEN = 'comment'
+    ON_BEHALF_OF_TOKEN = 'on_behalf_of'
+
+    def _parse_parameters(self, **kwargs):
+        return kwargs.get(self.COMMENT_TOKEN, None), kwargs.get(self.ON_BEHALF_OF_TOKEN, None)
 
     def is_available(self, user, request):
         return (
             user.profile.can_approve(request) and
             super(ApprovalProcessAction, self).is_available(user, request))
 
-    def _get_approver_profile(self, user):
-        # TODO: add support for temporary approver replacement
-        return user
+    def _get_approver_profile(self, user, on_behalf_of=None):
+        if on_behalf_of:
+            try:
+                result = UserProfile.objects.get(pk=on_behalf_of)
+            except UserProfile.DoesNotExist as e:
+                _logger.exception(e)
+                raise
+        else:
+            result = user.profile
+        return result
 
 
 class ApproveAction(ApprovalProcessAction):
@@ -141,10 +153,10 @@ class ApproveAction(ApprovalProcessAction):
 
     def _execute(self, user, request, **kwargs):
         _logger.info(u"User {0} approved request {1}".format(user, request))
-        comment = kwargs.get(self.COMMENT_TOKEN, None)
+        comment, on_behalf_of = self._parse_parameters(**kwargs)
 
         process = request.approval_route.get_current_process()
-        process.step_approved(user.profile, self._get_approver_profile(user).profile, comment)
+        process.step_approved(user.profile, self._get_approver_profile(user, on_behalf_of), comment)
 
 
 class RejectAction(ApprovalProcessAction):
@@ -156,10 +168,10 @@ class RejectAction(ApprovalProcessAction):
 
     def _execute(self, user, request, **kwargs):
         _logger.info(u"User {0} rejected request {1}".format(user, request))
-        comment = kwargs.get(self.COMMENT_TOKEN, None)
+        comment, on_behalf_of = self._parse_parameters(**kwargs)
 
         process = request.approval_route.get_current_process()
-        process.step_rejected(user.profile, self._get_approver_profile(user).profile, comment)
+        process.step_rejected(user.profile, self._get_approver_profile(user, on_behalf_of), comment)
 
 
 class RequestActionRepository(Mapping):
