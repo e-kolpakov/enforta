@@ -11,12 +11,12 @@ from django.utils.decorators import method_decorator
 from django.views.generic import View, TemplateView, DetailView, ListView
 from django.views.generic.detail import SingleObjectMixin
 from django.contrib import messages
-from DocApproval.constants import Groups
 
 from DocApproval.request_management.actions import RequestActionRepository
 from DocApproval.request_management.request_factory import RequestFactory
 from DocApproval.utilities.datatables import LinkColumnDefinition, ColumnDefinition, ActionsColumnDefintion
 from DocApproval.utilities.utility import parse_string_to_datetime
+from DocApproval.constants import Groups
 
 from ..menu import RequestContextMenuManagerExtension, MenuModifierViewMixin
 from ..messages import CommonMessages, RequestMessages

@@ -24,11 +24,12 @@
 	lang='en_US.UTF-8' locale='en_US.UTF-8'
     WSGIProcessGroup docApproval
 
+    # LimitRequestBody 10485760
     DocumentRoot /var/www/docapproval
 	<Directory /var/www/docapproval>
-	<Files wsgi.py>
-	Order deny,allow
-	Allow from all
-	</Files>
+        <Files wsgi.py>
+        Order deny,allow
+        Allow from all
+        </Files>
 	</Directory>
 </VirtualHost>
