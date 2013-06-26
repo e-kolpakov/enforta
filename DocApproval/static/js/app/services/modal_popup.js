@@ -2,7 +2,7 @@
 define(
     [
         'jquery', 'extend', 'app/dispatcher',
-        'bootstrap', 'app/behaviors/impersonation_list'
+        'bootstrap'
     ],
     function ($, extend, Dispatcher) {
         var button_types = {
@@ -12,8 +12,6 @@ define(
             approve: {text: 'Утвердить', cssClass: 'btn btn-primary', id: 'btn-approve'},
             reject: {text: 'Отклонить', cssClass: 'btn btn-primary', id: 'btn-reject'}
         };
-
-        var impersonations_backend = "profile/impersonations/request"; //keep this in sync with url_naming/profile.py
 
         function make_elem(elem) {
             return $("<" + elem + "></" + elem + ">");
@@ -119,18 +117,9 @@ define(
 
         extend(ApproveActionPopup, ModalPopup);
         (function () {
-            ApproveActionPopup.prototype.create_controls = function () {
+            ApproveActionPopup.prototype.create_controls = function (action, request_pk) {
                 var form = make_bootstrap_form();
-                var controls = [
-                    {
-                        type: 'textarea',
-                        label: this.comment_label || "Комментарий",
-                        id: 'action-reason',
-                        attributes: {rows: 10},
-                        cssClass: 'input-xlarge'
-                    },
-                ];
-                var impersonation_attrs = { 'data-backend-url': impersonations_backend, disabled: true };
+                var impersonation_attrs = { disabled: true, 'data-action-code': action, 'data-request-pk': request_pk };
                 impersonation_attrs[Dispatcher.behavior_attribute] = 'select-impersonation-for-request';
                 var impersonation_dropdown = {
                     type: 'select',
@@ -139,7 +128,16 @@ define(
                     attributes: impersonation_attrs,
                     cssClass: 'input-xlarge'
                 };
-                controls.push(impersonation_dropdown);
+                var controls = [
+                    impersonation_dropdown,
+                    {
+                        type: 'textarea',
+                        label: this.comment_label || "Комментарий",
+                        id: 'action-reason',
+                        attributes: {rows: 10},
+                        cssClass: 'input-xlarge'
+                    }
+                ];
                 make_bootstrap_form_rows(form, controls);
                 form.appendTo(this.fragments.body);
             };
@@ -150,7 +148,8 @@ define(
 
             ApproveActionPopup.prototype.get_data = function () {
                 return {
-                    comment: $('#action-reason', this.fragments.body).val()
+                    comment: $('#action-reason', this.fragments.body).val(),
+                    on_behalf_of: $('#impersonation', this.fragments.body).val()
                 };
             };
         }());

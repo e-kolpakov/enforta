@@ -12,11 +12,12 @@ class ColumnDefinition(object):
     is_virtual = False
     column_type = None
 
-    def __init__(self, column='', name='', order=0, is_calculated=False):
+    def __init__(self, column='', name='', order=0, is_calculated=False, css_class=None):
         self.column = column
         self.name = name
         self.is_calculated = is_calculated
         self.order = order
+        self.css_class = css_class
 
     def to_dict(self):
         result = {
@@ -26,6 +27,8 @@ class ColumnDefinition(object):
             'is_virtual': self.is_virtual,
             'column_type': self.column_type
         }
+        if (self.css_class):
+            result['css_class'] = self.css_class
         return result
 
 
@@ -76,7 +79,7 @@ class ActionsColumnDefintion(ColumnDefinition):
     def __init__(self, actions, backend_url, *args, **kwargs):
         self.actions = actions
         self.backend_url = backend_url
-        super(ActionsColumnDefintion, self).__init__(*args, **kwargs)
+        super(ActionsColumnDefintion, self).__init__(css_class='actions_column', *args, **kwargs)
 
     def to_dict(self):
         sup = super(ActionsColumnDefintion, self).to_dict()

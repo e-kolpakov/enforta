@@ -20,10 +20,15 @@ div.dataTables_wrapper {
 
   tr {
     td {
+      &.actions_column {
+        width: 40px;
+      }
+
       span.btn-wrapper {
         white-space: nowrap;
         img {
           height: @datatables-action-buttons-size;
+          width: @datatables-action-buttons-size;
           margin-right: @datatables-action-buttons-spacing;
           cursor: pointer;
         }

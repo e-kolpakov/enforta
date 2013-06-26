@@ -63,6 +63,7 @@ class ApprovalRouteMessages:
 
 
 class ProfileMessages:
+    SIGNATURE_EMPTY = _(u"Не задана ваша подпись. Листы утверждения будут распечатаны без вашей подписи.")
     TARGET_REQUESTS_NOT_SPECIFIED = _(u"Целевые заявки не заданы")
 
 

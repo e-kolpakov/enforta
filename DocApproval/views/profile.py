@@ -48,24 +48,23 @@ class ImpersonationsForRequestView(View):
             else:
                 target_user = request.user
 
-            target_requests_raw = request.POST.get('requests', None)
-            if not target_requests_raw:
+            target_request_raw = request.POST.get('request_pk', None)
+            if not target_request_raw:
                 raise ImpersonationBackendParameterError(ProfileMessages.TARGET_REQUESTS_NOT_SPECIFIED)
-            target_requests = json.loads(target_requests_raw)
-            requests = Request.objects.get_accessible_requests(target_user).filter(pk_in=target_requests)
+            target_request = int(target_request_raw)
+            request = Request.objects.get_accessible_requests(target_user).get(pk=target_request)
 
-            impersonations = target_user.profile.effective_profiles
-            for request in requests:
-                impersonations &= set(request.get_current_approvers())
-                if not impersonations:  # short-circuit as soon as no common impersonations are present
-                    break
+            impersonations = target_user.profile.effective_profiles & set(request.get_current_approvers())
 
-            data = {profile.pk: profile.short_name for profile in impersonations}
+            data = {
+                'success': True,
+                'impersonations': {profile.pk: profile.short_name for profile in impersonations}
+            }
         except Exception as e:
             self._logger.exception(e)
             data = {
                 'success': False,
                 'response': None,
-                'errors': [str(e)]
+                'errors': [unicode(e)]
             }
         return HttpResponse(json.dumps(data), content_type="application/json")

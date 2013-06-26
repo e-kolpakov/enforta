@@ -7,11 +7,14 @@ define(
             confirm_to_project: 'Перевод заявки в состояние "Проект" приведет к остановке текущего процесса утверждения. Продолжить?',
             confirm_approve: "Утвердить заявку?",
             confirm_rejection: "Отклонить заявку?",
-            prompt_for_paid_date: "Введите дату оплаты"
+            prompt_for_paid_date: "Введите дату оплаты",
+            approve_successful: "Заявка утверждена",
+            rejection_successful: "Заявка отклонена"
         },
 
         Common: {
             errors_happened: "Произошли ошибки: ",
+            action_successful: "Действие выполнено успешно",
             action_failed: "Не удалось совершить действие: ",
             generic_action_confirmation: "Вы уверены?"
         }

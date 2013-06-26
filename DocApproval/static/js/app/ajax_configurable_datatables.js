@@ -5,7 +5,7 @@ define(
         'datatables/jquery.dataTables', 'datatables/dt_bootstrap', 'datatables/datatables-ru'
     ],
     function ($, Communicator, SearchForm, Dispatcher) {
-
+        "use strict";
         function reload_table(oTable) {
             oTable.fnDraw(false);
         }
@@ -80,6 +80,9 @@ define(
                 var column = !(col.is_virtual) ? { mData: col.column, sName: col.column } : {mData: null};
                 if (col.is_calculated || col.is_virtual) {
                     column['bSortable'] = false;
+                }
+                if (col.css_class) {
+                    column['sClass'] = col.css_class;
                 }
                 if (custom_column_renderers[col.column_type]) {
                     column['mRender'] = custom_column_renderers[col.column_type](col.specification);

@@ -46,7 +46,7 @@ define(
                 });
                 popup.show();
             };
-            this.input = function (caption, callback) {
+            this.input = function (caption, action, request_pk, callback) {
                 var popup = instantiate_modal(caption, "Комментарий", ApproveActionPopupClass);
 
                 function handle(success) {
@@ -55,7 +55,7 @@ define(
                     callback($.extend({}, data, {success: success}));
                 }
 
-                popup.create_controls();
+                popup.create_controls(action, request_pk);
                 popup.set_buttons({
                     ok: function () {
                         handle(true);

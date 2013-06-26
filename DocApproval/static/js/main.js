@@ -2,7 +2,7 @@
 
 requirejs.config({
     baseUrl: globals.static_root + "js/lib",
-    urlArgs: "version=v0.8.3.3",
+    urlArgs: "version=v0.8.3.5",
     paths: {
         'jquery': 'jquery/jquery',
         'jquery-ui': 'jquery/jquery-ui',
@@ -30,7 +30,8 @@ require(
     [
         'jquery', 'bootstrap', 'jquery-ui',
         'app/startup', 'app/dispatcher', 'app/widgets/collapsible-panel',
-        'app/behaviors/list_approve'
+        // behaviors
+        'app/behaviors/list_approve', 'app/behaviors/impersonation_list'
     ],
     function ($) {
         // the start module is defined on the same script tag of data-main.
