@@ -12,6 +12,12 @@ from .common import City, Position, ModelConstants, Permissions
 from DocApproval.url_naming.names import Profile as ProfileUrls
 
 
+class CanNotImpersonateUser(Exception):
+    def __init__(self, profile, impersonated_profile):
+        self.message = _(u"Пользователь {0} не имеет права на осуществление действий от имени {1}"). \
+            format(profile, impersonated_profile)
+
+
 class UserProfile(models.Model):
     def upload_to(self, filename):
         fname, fext = os.path.splitext(filename)
@@ -110,6 +116,9 @@ class UserProfile(models.Model):
         Other users' accounts are added if there is an active temporary replacement other=>this
         """
         return {self.user} | set(repl.replaced_user.user for repl in self.active_replacements)
+
+    def can_impersonate(self, other_profile):
+        return other_profile in self.effective_profiles
 
 
 class TemporaryUserImpersonation(models.Model):

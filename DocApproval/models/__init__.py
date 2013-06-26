@@ -31,7 +31,7 @@ from request import (
     Request, RequestStatus, Contract, RequestHistory,
     request_status_change, request_paid
     )
-from user import UserProfile, TemporaryUserImpersonation
+from user import UserProfile, TemporaryUserImpersonation, CanNotImpersonateUser
 
 reversion.register(Request, follow=["contract"])
 reversion.register(Contract)

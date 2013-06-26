@@ -5,8 +5,7 @@ from collections import Mapping
 from django.utils.translation import gettext as _
 from django.db import transaction
 
-from DocApproval.models import Permissions, RequestStatus, Contract, request_paid
-from DocApproval.models import UserProfile
+from DocApproval.models import Permissions, RequestStatus, Contract, UserProfile, CanNotImpersonateUser, request_paid
 from DocApproval.utilities.permission_checker import PermissionChecker
 from DocApproval.utilities.utility import parse_string_to_datetime
 
@@ -136,6 +135,8 @@ class ApprovalProcessAction(StatusBasedAction):
         if on_behalf_of:
             try:
                 result = UserProfile.objects.get(pk=on_behalf_of)
+                if not user.profile.can_impersonate(result):
+                    raise CanNotImpersonateUser(user.profile, result)
             except UserProfile.DoesNotExist as e:
                 _logger.exception(e)
                 raise
