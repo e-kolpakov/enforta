@@ -1,12 +1,6 @@
-__author__ = 'john'
-
-
-# Prevent interactive question about wanting a superuser created.  (This
-# code has to go in this otherwise empty "models" module so that it gets
-# processed by the "syncdb" command during database creation.)
-
-import logging
+#-*- coding: utf-8 -*import logging
 import datetime
+import logging
 
 from django.db.models import signals as model_signals
 from django.contrib.auth.management import create_superuser
@@ -16,8 +10,12 @@ from django.dispatch import receiver
 import reversion
 
 from DocApproval.request_management.status_management import RequestStatusManager
+from DocApproval.messages import RequestHistoryMessages
 
 
+# Prevent interactive question about wanting a superuser created.  (This
+# code has to go in this otherwise empty "models" module so that it gets
+# processed by the "syncdb" command during database creation.)
 model_signals.post_syncdb.disconnect(
     create_superuser,
     sender=auth_app,
@@ -42,16 +40,20 @@ _logger = logging.getLogger(__name__)
 
 
 def _get_approval_signal_params(**kwargs):
-    return kwargs['request'], kwargs['user'], kwargs['comment'], kwargs['action_type']
+    return kwargs['request'], kwargs['user'], kwargs['on_behalf_of'], kwargs['comment'], kwargs['action_type']
 
 
 @receiver(approve_action_signal, sender=ApprovalProcess)
 def approve_action_handler(sender, **kwargs):
-    request, user, comment, action_type = _get_approval_signal_params(**kwargs)
+    request, user, on_behalf_of, comment, action_type = _get_approval_signal_params(**kwargs)
     need_save = True
     _logger.info("Handling {1} on request {0}", request, action_type)
     # need to save approval action in history first
-    RequestHistory.create_record(request=request, action_type=action_type, user=user, comment=comment)
+    if on_behalf_of != user:
+        comment += "\n" + RequestHistoryMessages.ON_BEHALF_OF.format(on_behalf_of.full_name)
+    RequestHistory.create_record(
+        request=request, action_type=action_type, user=user, comment=comment
+    )
     if action_type == ApprovalProcessAction.ACTION_APPROVE:
         pass # no additional processing required
     elif action_type == ApprovalProcessAction.ACTION_FINAL_APPROVE:

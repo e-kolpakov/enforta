@@ -67,6 +67,10 @@ class ProfileMessages:
     TARGET_REQUESTS_NOT_SPECIFIED = _(u"Целевые заявки не заданы")
 
 
+class RequestHistoryMessages:
+    ON_BEHALF_OF = _(u"От имени {0}")
+
+
 class PeriodMessages:
     DAYS = _(u"дней")
     WEEKS = _(u"недель")
