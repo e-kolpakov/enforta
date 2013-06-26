@@ -5,6 +5,7 @@ import itertools
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import date as _date
 from django.views.generic.detail import SingleObjectMixin
+from django.utils.translation import ugettext as _
 
 from DocApproval.models.request import Request
 from DocApproval.models.user import UserProfile
@@ -183,15 +184,22 @@ class ApprovalListPrint(PdfView, SingleObjectMixin):
                                     cell_contents={1: u"Подпись инициатора", 3: u"Подпись руководителя дирекции"})
         )
 
+    def _get_approved_part(self, actor, approver):
+        result = _(u"Согласовано: {0}").format(actor.full_name)
+        if actor != approver:
+            result += _(u" от имени {0}").format(approver.full_name_accusative)
+        return result
+
     def _get_approver_rows(self, approval):
-        user = approval.step.approver
+        approver = approval.step.approver
+        actor = approval.actor
         return (
             ApprovalListRow.get_row(
                 ApprovalListRow.THREE_CELL_ROW1,
                 height=2,
                 cell_contents={
-                    1: u"Согласовано: {0}".format(user.full_name),
-                    2: self._make_signature_img(user.sign),
+                    1: self._get_approved_part(actor, approver),
+                    2: self._make_signature_img(actor.sign),
                     3: self._format_date(approval.action_taken)
                 }
             ),

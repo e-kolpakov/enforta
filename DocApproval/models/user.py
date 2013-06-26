@@ -53,7 +53,7 @@ class UserProfile(models.Model):
         eff_first_accusative = self.first_name_accusative if self.first_name_accusative else self.first_name
         eff_last_accusative = self.last_name_accusative if self.last_name_accusative else self.last_name
         eff_middle_accusative = self.middle_name_accusative if self.middle_name_accusative else self.middle_name
-        return "{0} {1} {2}".format(eff_last_accusative, eff_first_accusative, eff_middle_accusative)
+        return u"{0} {1} {2}".format(eff_last_accusative, eff_first_accusative, eff_middle_accusative)
 
     def __unicode__(self):
         return u"{0} ({1})".format(self.full_name, self.position)
