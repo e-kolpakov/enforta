@@ -11,10 +11,13 @@ register = template.Library()
 
 
 class ModelDetailsNode(template.Node):
-    def __init__(self, model, child_nodes, exclude_fields=None, include_fields=None):
+    child_nodelists = ('extra',)
+
+    def __init__(self, model, child_nodes, exclude_fields=None, include_fields=None, extra=None):
         self._model = model
         self._exclude_fields = exclude_fields
         self._include_fields = include_fields
+        self._extra_nodes = extra
         self._children = child_nodes
 
     def _render_image(self, image, css_class):
@@ -78,6 +81,8 @@ class ModelDetailsNode(template.Node):
             output.append(self._children.render(context))
             context.pop()
 
+        output.append(self._extra_nodes.render(context))
+
         # cleaning up the context
         if len(classes_for_context) > 0:
             context.pop()
@@ -97,7 +102,15 @@ def def_model_details(parser, token):
     kwargs = token_kwargs(bits, parser)
     include_fields = kwargs.get('fields', None)
     exclude_fields = kwargs.get('exclude_fields', None)
-    nodelist = parser.parse(("end" + tag_name, ))
-    parser.delete_first_token()
+    nodelist = parser.parse(("end" + tag_name, 'extra'))
+    token = parser.next_token()
+    if token.contents == 'extra':
+        nodelist_extra = parser.parse(('end' + tag_name,))
+        parser.delete_first_token()
+    else:
+        nodelist_extra = None
 
-    return ModelDetailsNode(model, nodelist, include_fields=include_fields, exclude_fields=exclude_fields)
+    return ModelDetailsNode(
+        model, nodelist,
+        include_fields=include_fields, exclude_fields=exclude_fields, extra=nodelist_extra
+    )

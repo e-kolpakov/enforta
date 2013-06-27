@@ -17,6 +17,19 @@
                             <td class="{{ field_caption_class }}">{{ caption }}</td>
                             <td class="{{ field_value_class }}">{{ value }}</td>
                         </tr>
+                        {% extra %}
+                        {% with approvers=doc_request.get_current_approvers %}
+                            {% if approvers %}
+                                <tr>
+                                    <td>{% trans "Текущие утверждающие" %}</td>
+                                    <td>
+                                        {% for profile in approvers %}
+                                            {{ profile.full_name }}<br/>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endwith %}
                     {% endmodel_details %}
                 </table>
             </div>
