@@ -81,7 +81,8 @@ class ModelDetailsNode(template.Node):
             output.append(self._children.render(context))
             context.pop()
 
-        output.append(self._extra_nodes.render(context))
+        if self._extra_nodes:
+            output.append(self._extra_nodes.render(context))
 
         # cleaning up the context
         if len(classes_for_context) > 0:
