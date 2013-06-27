@@ -1,12 +1,13 @@
 #-*- coding: utf-8 -*-
-from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-import django.contrib.auth.models as auth_models
 import reversion
-from django.utils.translation import ugettext as _
 
-from models import *
-from forms import AdminCustomizedUserForm
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin, GroupAdmin
+from django.utils.translation import ugettext as _
+import django.contrib.auth.models as auth_models
+
+from DocApproval.models import *
+from DocApproval.forms import AdminCustomizedUserForm
 
 
 class NonDeleteableEntityAdmin(admin.ModelAdmin):
@@ -26,6 +27,18 @@ class CustomizedUserAdmin(NonDeleteableEntityAdmin, UserAdmin):
         ( None, {'fields': ('username', 'password', 'is_active')}),
         (_('Permissions'), {'fields': ('groups', 'user_permissions')})
     )
+
+    class Media:
+        css = {
+            'all': ('css/admin_overrides_bundle.css',)
+        }
+
+
+class CustomizedGroupAdmin(GroupAdmin):
+    class Media:
+        css = {
+            'all': ('css/admin_overrides_bundle.css',)
+        }
 
 
 class UserProfileAdmin(NonDeleteableEntityAdmin):
@@ -69,7 +82,9 @@ class ContractAdmin(reversion.VersionAdmin):
 
 
 admin.site.unregister(auth_models.User)
+admin.site.unregister(auth_models.Group)
 admin.site.register(auth_models.User, CustomizedUserAdmin)
+admin.site.register(auth_models.Group, CustomizedGroupAdmin)
 
 admin.site.register(City, CityAdmin)
 admin.site.register(Position, PositionAdmin)
