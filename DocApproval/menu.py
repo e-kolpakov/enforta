@@ -201,7 +201,7 @@ class MenuManager(object):
 class MenuManagerExtensionBase(object):
     def __init__(self, request, *args, **kwargs):
         self._user = request.user
-        self._target_menu_manager = request.menu_manager
+        self._target_menu_manager = get_menu_manager(request)
         self._children_to_add = []
         self._root_item = None
         super(MenuManagerExtensionBase, self).__init__(*args, **kwargs)
@@ -270,6 +270,11 @@ class RequestContextMenuManagerExtension(MenuManagerExtensionBase):
         return self._root_item
 
 
+def get_menu_manager(request):
+    if not hasattr(request, 'menu_manager'):
+        request.menu_manager = MenuManager(request.user)
+    return request.menu_manager
+
+
 def menu_context_processor(request):
-    manager = request.menu_manager
-    return {'menu': manager}
+    return {'menu': get_menu_manager(request)}

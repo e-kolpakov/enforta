@@ -1,7 +1,7 @@
 {% extends "base_layout.html" %}
 {% load i18n %}
 
-{% block page_title %}{% trans "История заявки" %}{% endblock page_title %}
+{% block page_title %}{% trans "История заявки" %} {{ request }}{% endblock page_title %}
 
 {% block maincontent %}
     {% include "common/_paginator.html" with page_data=page_obj paginator=paginator %}

@@ -2,7 +2,7 @@ import os
 
 ADMINS = ()
 
-DEBUG = True
+DEBUG = False
 
 DATABASES = {
     'default': {

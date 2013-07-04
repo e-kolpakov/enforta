@@ -1,15 +1,9 @@
 #-*- coding: utf-8 -*-
 import logging
+
 import magic
-
-try:
-    import cStringIO as StringIO
-except ImportError:
-    import StringIO
-
 import django.core.files.uploadhandler as upload_handler
 from django.conf import settings
-
 from django.db.models import FileField
 from django.forms import forms
 from django.template.defaultfilters import filesizeformat
@@ -20,12 +14,24 @@ from DocApproval.messages import RequestMessages
 _logger = logging.getLogger(__name__)
 
 
-def get_file_type(incoming_file):
-    ordinary_type = incoming_file.content_type
-    if settings.USE_MAGIC and ordinary_type in settings.SKIP_MAGIC_FILE_TYPES:
-        _logger.debug("Skipping file {0} from magic")
+class ContentTypeDetector(object):
+    UNKNOWN = 'unknown'
 
-    if settings.USE_MAGIC and ordinary_type not in settings.SKIP_MAGIC_FILE_TYPES:
+    def __init__(self, use_magic=None, skip_from_magic=None):
+        eff_magic = use_magic if use_magic is not None else settings.USE_MAGIC
+
+        self.type_checker = self._magic_checker if eff_magic else self._plain_checker
+        self._skip_from_magic = skip_from_magic if skip_from_magic else settings.SKIP_MAGIC_FILE_TYPES
+
+    def get_file_type(self, incoming_file):
+        return self.type_checker(incoming_file).lower()
+
+    def _magic_checker(self, incoming_file):
+        ordinary_type = self._plain_checker(incoming_file)
+        if ordinary_type in self._skip_from_magic or ordinary_type == self.UNKNOWN:
+            _logger.debug("Skipping file of type {0} from magic".format(ordinary_type))
+            return ordinary_type
+
         _logger.debug("Beware, using MAGIC!")
         try:
             incoming_file.open('r')
@@ -38,10 +44,17 @@ def get_file_type(incoming_file):
             "Ok, magic said that it is {0}, and file itself says it is {1}".
             format(magic_type, ordinary_type)
         )
-        result = magic_type
-    else:
-        result = ordinary_type
-    return result.lower()
+        return magic_type
+
+    def _plain_checker(self, incoming_file):
+        result = self.UNKNOWN
+        if hasattr(incoming_file, 'content_type'):
+            result = incoming_file.content_type
+        return result
+
+
+def get_file_type(incoming_file):
+    return ContentTypeDetector().get_file_type(incoming_file)
 
 
 class BasicFileUploadHandler(upload_handler.FileUploadHandler):
@@ -93,15 +106,16 @@ class ContentTypeRestrictedFileField(FileField):
 
         incoming_file = data.file
         try:
-            content_type = get_file_type(incoming_file)
-            if content_type in self.content_types:
-                if incoming_file._size > self.max_upload_size:
-                    max_file_size = filesizeformat(self.max_upload_size)
-                    current_file_size = filesizeformat(incoming_file._size)
-                    msg = RequestMessages.FILE_IS_TOO_BIG.format(current_file_size, max_file_size)
-                    raise forms.ValidationError(msg)
-            else:
-                raise forms.ValidationError(RequestMessages.FILE_TYPE_IS_NOT_SUPPORTED.format(content_type))
+            content_type = ContentTypeDetector().get_file_type(incoming_file)
+            if content_type != ContentTypeDetector.UNKNOWN:
+                if content_type in self.content_types:
+                    if incoming_file._size > self.max_upload_size:
+                        max_file_size = filesizeformat(self.max_upload_size)
+                        current_file_size = filesizeformat(incoming_file._size)
+                        msg = RequestMessages.FILE_IS_TOO_BIG.format(current_file_size, max_file_size)
+                        raise forms.ValidationError(msg)
+                else:
+                    raise forms.ValidationError(RequestMessages.FILE_TYPE_IS_NOT_SUPPORTED.format(content_type))
         except AttributeError:
             raise
 

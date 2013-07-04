@@ -21,7 +21,7 @@ from DocApproval.constants import Groups
 from ..menu import RequestContextMenuManagerExtension, MenuModifierViewMixin
 from ..messages import CommonMessages, RequestMessages
 from ..models import Request, RequestStatus, Permissions, City, UserProfile, RequestHistory
-from ..url_naming.names import Request as RequestUrl, Profile as ProfileUrl
+from ..url_naming.names import Request as RequestUrl, Profile as ProfileUrl, ApprovalRoute as ApprovalRouteUrls
 from ..forms import EditRequestForm, EditContractForm
 
 from ..utilities.utility import get_url_base, reprint_form_errors
@@ -42,6 +42,7 @@ class CreateUpdateRequestView(TemplateView):
     form_submit = None
 
     success_message = None
+    redirect_on_success = None
 
     def get_instances(self, pk):
         raise NotImplementedError()
@@ -63,6 +64,9 @@ class CreateUpdateRequestView(TemplateView):
             'form_submit': self.form_submit,
             'return_url': self.get_return_url(pk)
         }
+
+    def redirect_on_success(self, request):
+        raise NotImplementedError()
 
     def get(self, request, *args, **kwargs):
         pk = kwargs.get('pk', 0)
@@ -94,7 +98,7 @@ class CreateUpdateRequestView(TemplateView):
         if request_form.is_valid() and contract_form.is_valid():
             new_request = create_handler.persist_request(override_status=self.override_request_status)
             messages.success(request, self.success_message)
-            return HttpResponseRedirect(reverse(RequestUrl.DETAILS, kwargs={'pk': new_request.pk}))
+            return HttpResponseRedirect(self.redirect_on_success(new_request))
         else:
             messages.error(request, CommonMessages.FORM_VALIDATION_ERROR)
             errors = reprint_form_errors(request_form.errors) + reprint_form_errors(contract_form.errors)
@@ -115,6 +119,9 @@ class CreateRequestView(CreateUpdateRequestView):
 
     override_request_status = RequestStatus.PROJECT
     success_message = RequestMessages.REQUEST_CREATED
+
+    def redirect_on_success(self, request):
+        return reverse(ApprovalRouteUrls.UPDATE, kwargs={'pk': request.approval_route.pk})
 
     @method_decorator(impersonated_permission_required(Permissions.Request.CAN_CREATE_REQUESTS, return_403=True))
     def dispatch(self, request, *args, **kwargs):
@@ -145,6 +152,9 @@ class UpdateRequestView(CreateUpdateRequestView, MenuModifierViewMixin):
     form_heading = RequestMessages.MODIFY_REQUEST
     form_submit = CommonMessages.MODIFY
     success_message = RequestMessages.REQUEST_MODIFIED
+
+    def redirect_on_success(self, request):
+        return reverse(RequestUrl.DETAILS, kwargs={'pk': request.pk})
 
     @method_decorator(impersonated_permission_required(
         Permissions.Request.CAN_EDIT_REQUEST,
