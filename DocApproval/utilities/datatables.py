@@ -108,9 +108,19 @@ class JsonConfigurableDatatablesBaseView(BaseDatatableView):
     def get_other_columns(self):
         return OrderedDict()
 
-    def get_columns_config(self):
+    def get_order_columns(self):
+        columns = self._get_all_columns()
+        cols = sorted(columns.iteritems(), key=lambda x: x[1].order)
+        return [col[0] for col in cols]
+
+
+    def _get_all_columns(self):
         columns = self.get_model_columns()
         columns.update(self.get_other_columns())
+        return columns
+
+    def get_columns_config(self):
+        columns = self._get_all_columns()
         cols = columns.values()
         cols.sort(key=lambda x: x.order)
         return [col.to_dict() for col in cols]
