@@ -25,13 +25,14 @@ form.search-form {
       margin-left: 125px;
     }
   }
-  .input-xlarge {
-    width: 287px;
+  input {
+    #fixes > .border-box-fix(border-box);
+    height: 30px;
   }
+
   select {
-    &.input-xlarge {
-      width: 287px + 14px; //compensating for horz padding
-    }
+    #fixes > .border-box-fix(border-box);
+
     &.uneditable-input {
       height: 30px;
     }

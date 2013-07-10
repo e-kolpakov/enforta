@@ -240,7 +240,7 @@ define(
             }
 
             function make_dropdown(approvers, selected_approver) {
-                var select = HtmlHelper.create_elem("select").addClass("input-medium");
+                var select = HtmlHelper.create_elem("select").addClass("approver-selector");
                 HtmlHelper.create_elem("option").text("-----").attr("value", empty_approver).appendTo(select);
                 for (var k in approvers) {
                     if (!approvers.hasOwnProperty(k))

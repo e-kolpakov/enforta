@@ -9,8 +9,10 @@
     </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% block styles %}
+        <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}css/normalize.css"/>
         <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}css/main_bundle.css"/>
         <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}css/lib_bundle.css"/>
+        <link rel='stylesheet' type='text/css' href="{{ STATIC_URL }}css/device_specific_bundle.css"/>
     {% endblock styles %}
 
 

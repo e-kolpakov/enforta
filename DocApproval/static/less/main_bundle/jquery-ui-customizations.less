@@ -1,8 +1,16 @@
 @import-once "../variables.less";
 
 div.date-range-item {
-  width: 150px;
+  width: 135px;
   display: inline-block;
+
+  span {
+    &.date-range-start-label, &.date-range-end-label {
+      display: inline-block;
+      zoom: 1;
+      width: 16px;
+    }
+  }
 }
 
 div.datepicker-wrapper {
