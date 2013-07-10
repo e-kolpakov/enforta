@@ -7,13 +7,6 @@
 	Alias /robots.txt /home/john/GitRoot/Enforta/enforta/portal/static/robots.txt
     Alias /favicon.ico /home/john/GitRoot/Enforta/enforta/portal/static/favicon.ico
 
-    Alias /static 		/home/john/GitRoot/Enforta/enforta/portal/static
-
-    <Directory /home/enfortit/docapproval/portal/static>
-    Order deny,allow
-    Allow from all
-    </Directory>
-
 	SetEnv  EnvironmentType development
 
 	WSGIScriptAlias / /home/john/GitRoot/Enforta/enforta/portal/wsgi_dev.py

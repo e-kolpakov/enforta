@@ -9,4 +9,16 @@ table.table {
     }
     border-bottom: 1px solid @default-border-color;
   }
+
+  tr {
+    td {
+      &.document-file {
+        a {
+          word-wrap: break-word;
+          display: block;
+          width: 250px;
+        }
+      }
+    }
+  }
 }

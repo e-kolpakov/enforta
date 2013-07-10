@@ -30,14 +30,14 @@
         </tr>
         <tr>
             <td class="{{ field_caption_class }}">{% trans "Договор" %}</td>
-            <td class="{{ field_value_class }}">
+            <td class="{{ field_value_class }} document-file">
                 <a href="{{ contract.document.url }}">{{ contract.document|filename }}</a>
             </td>
         </tr>
         {% if contract.document_signed %}
             <tr>
                 <td class="{{ field_caption_class }}">{% trans "Подписанный договор" %}</td>
-                <td class="{{ field_value_class }}">
+                <td class="{{ field_value_class }} document-file">
                     <a href="{{ contract.document_signed.url }}">{{ contract.document_signed|filename }}</a>
                 </td>
             </tr>
