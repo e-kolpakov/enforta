@@ -21,7 +21,7 @@ class NonDeleteableEntityAdmin(admin.ModelAdmin):
         return actions
 
 
-class CustomizedUserAdmin(NonDeleteableEntityAdmin, UserAdmin):
+class CustomizedUserAdmin(UserAdmin):
     form = AdminCustomizedUserForm
     fieldsets = (
         ( None, {'fields': ('username', 'password', 'is_active')}),
@@ -41,7 +41,7 @@ class CustomizedGroupAdmin(GroupAdmin):
         }
 
 
-class UserProfileAdmin(NonDeleteableEntityAdmin):
+class UserProfileAdmin(admin.ModelAdmin):
     pass
 
 
