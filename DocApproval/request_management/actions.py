@@ -117,8 +117,8 @@ class SetPaidAction(StatusBasedAction):
 
 class ApprovalProcessAction(StatusBasedAction):
     status_code = RequestStatus.NEGOTIATION
-    reload_ask = True
-    reload_require = False
+    reload_ask = False
+    reload_require = True
 
     COMMENT_TOKEN = 'comment'
     ON_BEHALF_OF_TOKEN = 'on_behalf_of'
