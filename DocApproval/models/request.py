@@ -7,10 +7,11 @@ from django.db import models, transaction
 from django.dispatch.dispatcher import Signal
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
+from guardian.shortcuts import get_objects_for_user
 
 from jsonfield import JSONField
 from DocApproval.models.approval import ApprovalProcessAction
-from DocApproval.utilities.permission_checker import get_objects_for_users
+from DocApproval.utilities.permission_checker import PermissionChecker
 
 from .user import UserProfile
 from .common import City, ModelConstants, Permissions
@@ -100,8 +101,16 @@ class RequestManager(models.Manager):
     )
 
     def get_accessible_requests(self, user):
-        return get_objects_for_users(user.profile.effective_accounts, self.target_permissions, klass=Request,
-                                     any_perm=True)
+        checker = PermissionChecker(user)
+        if checker.check_permission(class_permissions=Permissions.Request.CAN_VIEW_ALL_REQUESTS):
+            result_qs = self.all()
+        else:
+            result_qs = get_objects_for_user(user, self.target_permissions, klass=Request, any_perm=True)
+            for account in user.profile.effective_accounts:
+                result_qs = result_qs | get_objects_for_user(account, self.target_permissions, klass=Request,
+                                                             any_perm=True)
+
+        return result_qs
 
     def get_awaiting_approval(self, user):
         return self.get_accessible_requests(user).filter(

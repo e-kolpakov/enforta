@@ -123,7 +123,10 @@ class CreateRequestView(CreateUpdateRequestView):
     def redirect_on_success(self, request):
         return reverse(ApprovalRouteUrls.UPDATE, kwargs={'pk': request.approval_route.pk})
 
-    @method_decorator(impersonated_permission_required(Permissions.Request.CAN_CREATE_REQUESTS, return_403=True))
+    @method_decorator(impersonated_permission_required(
+        class_permissions=Permissions.Request.CAN_CREATE_REQUESTS,
+        return_403=True
+    ))
     def dispatch(self, request, *args, **kwargs):
         return super(CreateUpdateRequestView, self).dispatch(request, *args, **kwargs)
 
@@ -157,8 +160,9 @@ class UpdateRequestView(CreateUpdateRequestView, MenuModifierViewMixin):
         return reverse(RequestUrl.DETAILS, kwargs={'pk': request.pk})
 
     @method_decorator(impersonated_permission_required(
-        Permissions.Request.CAN_EDIT_REQUEST,
-        (Request, 'pk', 'pk'),
+        class_permissions=Permissions.Request.CAN_VIEW_ALL_REQUESTS,
+        instance_permissions=Permissions.Request.CAN_EDIT_REQUEST,
+        lookup_variables=(Request, 'pk', 'pk'),
         return_403=True)
     )
     def dispatch(self, request, *args, **kwargs):
@@ -210,8 +214,9 @@ class DetailRequestView(DetailView, MenuModifierViewMixin):
     extender_class = RequestContextMenuManagerExtension
 
     @method_decorator(impersonated_permission_required(
-        Permissions.Request.CAN_VIEW_REQUEST,
-        (Request, 'pk', 'pk'),
+        class_permissions=Permissions.Request.CAN_VIEW_ALL_REQUESTS,
+        instance_permissions=Permissions.Request.CAN_VIEW_REQUEST,
+        lookup_variables=(Request, 'pk', 'pk'),
         return_403=True)
     )
     def dispatch(self, request, *args, **kwargs):

@@ -29,7 +29,8 @@ class RequestActionBase(object):
         raise NotImplementedError("Should be overridden in child classes")
 
     def _editable_by_user(self, user, request):
-        return PermissionChecker(user).check_permission(Permissions.Request.CAN_EDIT_REQUEST, request)
+        return PermissionChecker(user).check_permission(instance_permissions=Permissions.Request.CAN_EDIT_REQUEST,
+                                                        instance=request)
 
     def is_available(self, user, request):
         return self._check_condition(user, request)
@@ -98,7 +99,7 @@ class SetPaidAction(StatusBasedAction):
     DATE_TOKEN = 'paid_date'
 
     def _check_condition(self, user, request):
-        return PermissionChecker(user).check_permission(Permissions.Request.CAN_SET_PAID_DATE)
+        return PermissionChecker(user).check_permission(class_permissions=Permissions.Request.CAN_SET_PAID_DATE)
 
     def _execute(self, user, request, **kwargs):
         paid_date_raw = kwargs.get(self.DATE_TOKEN, None)

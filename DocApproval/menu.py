@@ -107,6 +107,7 @@ class MenuManager(object):
         self._root_items = []
         self._menu_built = False
         self._delayed_items = []
+        self.permissions_checker = PermissionChecker(self.user)
 
     def __iter__(self):
         for item in self.get_menu():
@@ -135,7 +136,7 @@ class MenuManager(object):
             NavigableMenuItem(caption=_(u"Главная"), url=reverse(url_names.Common.HOME), image="icons/home.png")
         )
         self._add_root_item(self._build_request_actions_menu())
-        if PermissionChecker(self.user).check_permission(Permissions.ApprovalRoute.CAN_MANAGE_TEMPLATES):
+        if self.permissions_checker.check_permission(class_permissions=Permissions.ApprovalRoute.CAN_MANAGE_TEMPLATES):
             self._add_root_item(self._build_approvals_menu())
         self._add_root_item(self._build_profile_menu())
         for item, order in self._delayed_items:
@@ -148,8 +149,8 @@ class MenuManager(object):
         child_items = [
             NavigableMenuItem(caption=_(u"Все заявки"), image="icons/list.png", url=reverse(url_names.Request.LIST)),
         ]
-        checker = PermissionChecker(self.user)
-        if checker.check_permission(Permissions.Request.CAN_CREATE_REQUESTS):
+
+        if self.permissions_checker.check_permission(class_permissions=Permissions.Request.CAN_CREATE_REQUESTS):
             child_items.insert(
                 0, NavigableMenuItem(caption=_(u"Создать"), image="icons/create.png",
                                      url=reverse(url_names.Request.CREATE))
@@ -159,7 +160,7 @@ class MenuManager(object):
                                   url=reverse(url_names.Request.MY_REQUESTS))
             )
 
-        if checker.check_permission(Permissions.Request.CAN_APPROVE_REQUESTS):
+        if self.permissions_checker.check_permission(class_permissions=Permissions.Request.CAN_APPROVE_REQUESTS):
             child_items.append(
                 NavigableMenuItem(caption=_(u"Ожидают утверждения"), image="icons/my_approvals.png",
                                   url=reverse(url_names.Request.MY_APPROVALS))
@@ -204,18 +205,12 @@ class MenuManagerExtensionBase(object):
         self._target_menu_manager = get_menu_manager(request)
         self._children_to_add = []
         self._root_item = None
+        self.permissions_checker = PermissionChecker(self._user)
         super(MenuManagerExtensionBase, self).__init__(*args, **kwargs)
 
     def check_user_permissions(self, class_permissions=None, instance_permissions=None, instance=None):
-        result = False
-        checker = PermissionChecker(self._user)
-        if class_permissions:
-            result = result or any(checker.check_permission(perm) for perm in class_permissions)
-
-        if instance_permissions and instance:
-            result = result or any(checker.check_permission(perm, instance) for perm in instance_permissions)
-
-        return result
+        return self.permissions_checker.check_permission(class_permissions=class_permissions,
+                                                         instance_permissions=instance_permissions, instance=instance)
 
     def _accumulate_child(self, menu_item, order=0):
         self._children_to_add.append((order, menu_item))
