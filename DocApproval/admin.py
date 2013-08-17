@@ -7,7 +7,7 @@ from django.utils.translation import ugettext as _
 import django.contrib.auth.models as auth_models
 
 from DocApproval.models import *
-from DocApproval.forms import AdminCustomizedUserForm
+from DocApproval.forms import AdminCustomizedUserForm, AdminCustomizedGroupForm
 
 
 class NonDeleteableEntityAdmin(admin.ModelAdmin):
@@ -35,6 +35,8 @@ class CustomizedUserAdmin(UserAdmin):
 
 
 class CustomizedGroupAdmin(GroupAdmin):
+    form = AdminCustomizedGroupForm
+
     class Media:
         css = {
             'all': ('css/admin_overrides_bundle.css',)

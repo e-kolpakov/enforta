@@ -51,12 +51,25 @@ class UserProfileForm(forms.ModelForm):
                   'last_name_accusative', 'first_name_accusative', 'middle_name_accusative']
 
 
-class AdminCustomizedUserForm(UserChangeForm):
-    user_permissions = forms.ModelMultipleChoiceField(
+def get_filtered_permissions_field():
+    return forms.ModelMultipleChoiceField(
         Permission.objects.filter(codename__startswith=Permissions.PREFIX),
         widget=FilteredSelectMultiple(_('permissions'), False), required=False)
+
+
+class AdminCustomizedUserForm(UserChangeForm):
+    user_permissions = get_filtered_permissions_field()
 
     def __init__(self, *args, **kwargs):
         super(AdminCustomizedUserForm, self).__init__(*args, **kwargs)
         self.fields['user_permissions'].label = unicode.capitalize(_("user permissions"))
+
+
+class AdminCustomizedGroupForm(forms.ModelForm):
+    permissions = get_filtered_permissions_field()
+
+    def __init__(self, *args, **kwargs):
+        super(AdminCustomizedGroupForm, self).__init__(*args, **kwargs)
+        self.fields['permissions'].label = unicode.capitalize(_("permissions"))
+
 
