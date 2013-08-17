@@ -2,7 +2,7 @@
 
 requirejs.config({
     baseUrl: globals.static_root + "js/lib",
-    urlArgs: "version=v0.8.3.9",
+    urlArgs: "version=v0.8.3.15",
     paths: {
         'jquery': 'jquery/jquery',
         'jquery-ui': 'jquery/jquery-ui',
@@ -28,10 +28,13 @@ requirejs.config({
 // http://stackoverflow.com/questions/11674824/how-to-use-requirejs-build-profile-r-js-in-a-multi-page-project/11730147#11730147
 require(
     [
+        //common libs
         'jquery', 'bootstrap', 'jquery-ui',
         'app/startup', 'app/dispatcher', 'app/widgets/collapsible-panel',
         // behaviors
-        'app/behaviors/list_approve', 'app/behaviors/impersonation_list'
+        'app/behaviors/list_approve', 'app/behaviors/impersonation_list',
+        //ie media queries support
+        'ie/respond.min', 'ie/html5shiv'//, 'ie/css3-mediaqueries'
     ],
     function ($) {
         // the start module is defined on the same script tag of data-main.

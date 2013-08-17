@@ -3,6 +3,7 @@ define(
     ['jquery'],
     function ($) {
         function SearchForm(form_selector, form_prefix) {
+            var that = this;
             this.form = $(form_selector);
             this._listeners = [];
 
@@ -34,17 +35,18 @@ define(
                     callback(data);
                 }
             };
-
-            $("button.search-btn", this.form).click(function (e) {
-                e.preventDefault();
-                this.submit();
-                return false;
-            }.bind(this));
-            $("button.reset-btn", this.form).click(function (e) {
-                e.preventDefault();
-                this.clear();
-                return this;
-            }.bind(this));
+            $(document).ready(function () {
+                $("button.search-btn", this.form).click(function (e) {
+                    e.preventDefault();
+                    that.submit();
+                    return false;
+                });
+                $("button.reset-btn", this.form).click(function (e) {
+                    e.preventDefault();
+                    that.clear();
+                    return this;
+                });
+            });
         }
 
         return SearchForm;
