@@ -84,11 +84,10 @@ define(
             var is_template_input = get_element(controls.is_template_input_selector || "#route-is-template");
 
             function set_controls_availability(is_readonly) {
-                var ctrls = name_input.add(desc_input);
                 if (is_readonly) {
-                    ctrls.attr('disabled', true);
+                    name_input.attr('disabled', true);
                 } else {
-                    ctrls.removeAttr('disabled');
+                    name_input.removeAttr('disabled');
                 }
             }
 
@@ -102,7 +101,7 @@ define(
 
             this.set_data = function (data, safe_set) {
                 var eff_safe = safe_set || false;
-                if (!safe_set) {
+                if (eff_safe) {
                     that.is_template = data.is_template || false;
                 }
 
@@ -174,11 +173,13 @@ define(
 
             this.render = function () {
                 var has_data = false;
+                var template_id;
                 create_table();
-                for (var template_id in templates) {
-                    if (!templates.hasOwnProperty(template_id)) continue;
-                    has_data = true;
-                    create_row(template_id, templates[template_id]).appendTo(table);
+                for (template_id in templates) {
+                    if (templates.hasOwnProperty(template_id)) {
+                        has_data = true;
+                        create_row(template_id, templates[template_id]).appendTo(table);
+                    }
                 }
                 if (!has_data) {
                     create_no_data_row().appendTo(table);
@@ -203,7 +204,33 @@ define(
                 return HtmlHelper.create_elem(wrapper_element).addClass("editor-wrapper table table-striped");
             }
 
+            function make_buttons_cell(row) {
+                var cell = HtmlHelper.create_elem(cell_element).addClass("span2 buttons-cell");
+                HtmlHelper.make_button(HtmlHelper.editor_button_config.add,function () {
+                    if (!that.is_readonly) {
+                        that.add_row([], row);
+                    }
+                }).appendTo(cell);
+                HtmlHelper.make_button(HtmlHelper.editor_button_config.remove,function () {
+                    if (!that.is_readonly) {
+                        that.delete_row(row);
+                    }
+                }).appendTo(cell);
+                return cell;
+            }
+
+            function make_add_approver_button() {
+                var span = HtmlHelper.create_elem("span").addClass("span3 add-approver");
+                HtmlHelper.make_button(HtmlHelper.editor_button_config.add_approver,function () {
+                    if (!that.is_readonly) {
+                        that.add_approver($(this).parents('span.add-approver'));
+                    }
+                }).appendTo(span);
+                return span;
+            }
+
             function make_row(row_data) {
+                var i;
                 var row = HtmlHelper.create_elem(row_element).attr({'id': "row_" + row_count}).addClass("row");
 
                 make_buttons_cell(row).appendTo(row);
@@ -213,10 +240,10 @@ define(
                 var elements_wrapper = HtmlHelper.create_elem("div").attr({'id': "row_wrapper_" + row_count});
                 elements_wrapper.addClass("row-fluid").appendTo(steps_cell);
 
-                for (var i = 0; i < row_data.length; i++) {
+                for (i = 0; i < row_data.length; i += 1) {
                     make_approver(that.approvers, row_data[i]).appendTo(elements_wrapper);
                 }
-                if (!row_data || row_data.length == 0) {
+                if (!row_data || row_data.length === 0) {
                     make_approver(that.approvers).appendTo(elements_wrapper);
                 }
 
@@ -232,8 +259,9 @@ define(
                 var remove_btn = HtmlHelper.make_image(HtmlHelper.editor_button_config.remove_approver.image).appendTo(remove);
                 remove_btn.addClass(HtmlHelper.editor_button_config.remove_approver.cssClass);
                 remove.click(function () {
-                    if (that.is_readonly) return;
-                    that.remove_approver($(this).parents('.span-approver'));
+                    if (!that.is_readonly) {
+                        that.remove_approver($(this).parents('.span-approver'));
+                    }
                 });
 
                 return span;
@@ -254,28 +282,6 @@ define(
                 else
                     select.val(empty_approver);
                 return select;
-            }
-
-            function make_buttons_cell(row) {
-                var cell = HtmlHelper.create_elem(cell_element).addClass("span2 buttons-cell");
-                HtmlHelper.make_button(HtmlHelper.editor_button_config.add,function () {
-                    if (that.is_readonly) return;
-                    that.add_row([], row);
-                }).appendTo(cell);
-                HtmlHelper.make_button(HtmlHelper.editor_button_config.remove,function () {
-                    if (that.is_readonly) return;
-                    that.delete_row(row);
-                }).appendTo(cell);
-                return cell;
-            }
-
-            function make_add_approver_button() {
-                var span = HtmlHelper.create_elem("span").addClass("span3 add-approver");
-                HtmlHelper.make_button(HtmlHelper.editor_button_config.add_approver,function () {
-                    if (that.is_readonly) return;
-                    that.add_approver($(this).parents('span.add-approver'));
-                }).appendTo(span);
-                return span;
             }
 
             function relabel_rows() {
@@ -308,14 +314,9 @@ define(
                 row_count = 0;
             }
 
-            function toggle_readonly(is_readonly) {
+            function set_readonly() {
                 var selector = "select, button, img.remove-approver-button";
-                if (is_readonly) {
-                    $(selector, that.target).attr('disabled', true);
-                }
-                else {
-                    $(selector, that.target).removeAttr('disabled');
-                }
+                $(selector, that.target).attr('disabled', true);
             }
 
             this.target = target;
@@ -343,7 +344,9 @@ define(
                 if (!has_rows) {
                     that.add_row([]);
                 }
-                toggle_readonly(that.is_readonly);
+                if (that.is_readonly) {
+                    set_readonly();
+                }
             };
 
             this.add_row = function (data, prev_row) {

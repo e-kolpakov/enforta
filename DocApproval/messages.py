@@ -48,6 +48,8 @@ class ContractMessages:
 
 class ApprovalRouteMessages:
     NEW_APPROVAL_ROUTE = _(u"Новый маршрут утверждения")
+    ROUTE_MODIFIED = _(u"Маршрут изменен")
+
     NEW_TEMPLATE_APPROVAL_ROUTE = _(u"Новый шаблонный маршрут утверждения")
     TEMPLATE_CREATED = _(u"Шаблонный маршрут утверждения создан")
 

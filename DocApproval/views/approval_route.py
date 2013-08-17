@@ -216,11 +216,12 @@ class SaveApprovalRouteView(View):
         return querydict.get('is_template', '0') != '0'
 
     def save_route(self, querydict, user, is_template):
-        route_class = TemplateApprovalRoute if is_template else ApprovalRoute
         if is_template:
             default_name = ApprovalRouteMessages.DEFAULT_TEMPLATE_APPROVAL_ROUTE_NAME
+            route_class = TemplateApprovalRoute
         else:
             default_name = ApprovalRouteMessages.NEW_APPROVAL_ROUTE
+            route_class = ApprovalRoute
         steps = self._get_steps(querydict.lists())
 
         route_pk = int(querydict.get('pk', 0))
@@ -228,27 +229,31 @@ class SaveApprovalRouteView(View):
         description = querydict.get('desc', '')
         try:
             route = route_class.objects.get(pk=route_pk)
-            needs_redirect = False
         except ApprovalRoute.DoesNotExist:
             route = route_class()
-            needs_redirect = True
 
         with transaction.commit_on_success():
             route.update_parameters(name=name, description=description)
             route.set_steps(steps=steps, user=user)
 
-        return route, needs_redirect
+        return route
 
     def post(self, request, *args, **kwargs):
         try:
             is_template = self._get_is_tempalte(request.POST)
-            route, needs_redirect = self.save_route(request.POST, request.user.profile, is_template)
+            route = self.save_route(request.POST, request.user.profile, is_template)
+            if is_template:
+                message = ApprovalRouteMessages.TEMPLATE_CREATED
+                redirect_to = reverse(ApprovalRouteUrls.TEMPLATE_EDIT, kwargs={'pk': route.pk})
+            else:
+                message = ApprovalRouteMessages.ROUTE_MODIFIED
+                redirect_to = reverse(RequestUrls.DETAILS, kwargs={'pk': route.request.pk})
+
             data = {
-                'success': True
+                'success': True,
+                'redirect': redirect_to
             }
-            if is_template and needs_redirect:
-                messages.success(request, ApprovalRouteMessages.TEMPLATE_CREATED)
-                data['redirect'] = reverse(ApprovalRouteUrls.TEMPLATE_EDIT, kwargs={'pk': route.pk})
+            messages.success(request, message)
         except ApprovalRouteExceptionBase as e:
             _logger.exception(e)
             data = {
