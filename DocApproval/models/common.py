@@ -45,7 +45,6 @@ class Permissions:
         CAN_MANAGE_REPLACEMENTS = "docapproval_can_manage_replacements"
 
 
-#Some "dictionaries" first
 class Position(models.Model):
     position_name = models.CharField(_(u'Должность'), max_length=ModelConstants.MAX_VARCHAR_LENGTH)
 
@@ -68,3 +67,19 @@ class City(models.Model):
 
     def __unicode__(self):
         return self.name
+
+
+class Department(models.Model):
+    name = models.CharField(_(u'Дирекция'), max_length=ModelConstants.MAX_VARCHAR_LENGTH)
+    city = models.ForeignKey(City, verbose_name=_(u'Город'))
+    show_in_list = models.BooleanField(verbose_name=_(u'Отображать в листе утверждения'), default=False)
+    #avoiding circular reference by using model name as a string
+    responsible_user = models.ForeignKey('UserProfile', verbose_name=_(u'Ответственный'), null=True, blank=True)
+
+    class Meta:
+        app_label = "DocApproval"
+        verbose_name = _(u'Дирекция')
+        verbose_name_plural = _(u'Дирекции')
+
+    def __unicode__(self):
+        return u'{0}({1})'.format(self.name, self.city.name)

@@ -11,6 +11,7 @@ import reversion
 
 from DocApproval.request_management.status_management import RequestStatusManager
 from DocApproval.messages import RequestHistoryMessages
+from DocApproval.utilities.file_upload import ContentTypeRestrictedFileField
 
 
 # Prevent interactive question about wanting a superuser created.  (This
@@ -21,7 +22,15 @@ model_signals.post_syncdb.disconnect(
     sender=auth_app,
     dispatch_uid="django.contrib.auth.management.create_superuser")
 
-from common import Position, City, ModelConstants, Permissions
+# Fixing South's introspection for ContentTypeRestrictedFileField
+from south.modelsinspector import add_introspection_rules
+
+add_introspection_rules(
+    [([ContentTypeRestrictedFileField], [], {})],
+    ["^DocApproval\.utilities\.file_upload\.ContentTypeRestrictedFileField"]
+)
+
+from common import ModelConstants, Permissions, City, Position, Department
 from approval import (
     ApprovalRoute, TemplateApprovalRoute, ApprovalRouteStep, ApprovalProcess, ApprovalProcessAction,
     NonTemplateApprovalRouteException, ApprovalRouteExceptionBase,
