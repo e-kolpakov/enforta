@@ -1,23 +1,209 @@
 # -*- coding: utf-8 -*-
 import logging
 import itertools
+from datetime import date
 
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import date as _date
 from django.views.generic.detail import SingleObjectMixin
 from django.utils.translation import ugettext as _
 
-from DocApproval.models.request import Request
-from DocApproval.models.user import UserProfile
+from DocApproval.models import Request, UserProfile, Department
 from DocApproval.utilities.pdf_generation import PdfView
 
 
-class ApprovalListCell(object):
-    def __init__(self, **kwargs):
-        cnt = kwargs.get('content', None)
-        self.content = cnt if cnt else mark_safe('&nbsp;')
-        self.css_class = kwargs.get('css_class', '')
-        self.colspan = kwargs.get('colspan', 1)
+class ApprovalListPrint(PdfView, SingleObjectMixin):
+    model = Request
+    pdf_template = "request/request_approval_sheet.html"
+
+    def _get_payload(self, *args, **kwargs):
+        req = self.get_object()
+        generator = ApprovalListGenerator(req)
+        return {
+            'request': req,
+            'rows': generator.get_rows(),
+            'date_format': generator.date_format
+        }
+
+
+class ApprovalListGenerator(object):
+    _logger = logging.getLogger(__name__ + ".ApprovalListPrint")
+    date_format = "«d» E Yг."
+
+    # show year in 201_ format - with blank trailing digit
+    date_tpl = u'«___»__________{0}_г.'.format(date.today().year / 10)
+    signature = u"подпись"
+
+    def __init__(self, request):
+        self._request = request
+        self._approval_actions = list(request.successful_approval.get_approval_actions())
+        self._approvers = [action.step.approver for action in self._approval_actions]
+
+    @property
+    def request(self):
+        return self._request
+
+    @property
+    def approval_actions(self):
+        return self._approval_actions
+
+    @property
+    def approvers(self):
+        return self._approvers
+
+    def get_rows(self):
+        return self._get_rows()
+
+    def _get_departments(self, city):
+        return Department.objects.get_departments_for_list(city)
+
+    def _make_signature_img(self, image):
+        img_url = image.url if image else ''
+        return mark_safe("<img src='{0}' class='signature'/>".format(img_url))
+
+    def _format_date(self, date):
+        return _date(date, self.date_format)
+
+    def _get_manager_approval(self):
+        signature, action_date = None, None
+        try:
+            manager = self.request.creator.manager
+        except UserProfile.DoesNotExist:
+            self._logger.warning("Manager is not set for user {0}".format(self.request.creator.pk))
+            return signature, action_date
+
+        action = self.request.successful_approval.get_approval_action(manager)
+        if action:
+            signature = manager.sign
+            action_date = action.action_taken
+        else:
+            self._logger.warning(
+                "Manager have not taken action in approval process of request {0}".format(self.request.pk))
+
+        return signature, action_date
+
+    def _get_general_info_rows(self):
+        return (
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
+            ApprovalListRow.get_row(
+                ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Документ", 3: self.request.name}
+            ),
+            ApprovalListRow.get_row(
+                ApprovalListRow.SIX_CELLS_ROW,
+                cell_contents={3: u"(основной договор, доп. соглашение)"}
+            ),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
+            ApprovalListRow.get_row(
+                ApprovalListRow.SIX_CELLS_ROW,
+                cell_contents={
+                    1: u"Закупочный заказ",
+                    4: u"Дата",
+                    6: self._format_date(self.request.created)}
+            ),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
+            ApprovalListRow.get_row(
+                ApprovalListRow.SIX_CELLS_ROW,
+                cell_contents={1: u"Инициатор заказа", 3: self.request.creator.full_name, 4: u"Дирекция"}),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={3: u"(Ф.И.О.)"}),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Контрагент"}),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Предмет договора"}),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Сумма", 4: u"Валюта"}),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Комментарии"}),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
+            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
+        )
+
+    def _get_creator_and_manager_rows(self):
+        creator_signature, creator_action_date = self.request.creator.sign, self.request.created
+        manager_signature, manager_action_date = self._get_manager_approval()
+
+        creator_sign_img = self._make_signature_img(creator_signature)
+        manager_sign_img = self._make_signature_img(manager_signature) if manager_signature else ''
+        date_tpl = self.date_tpl
+        return (
+            ApprovalListRow.get_row(
+                ApprovalListRow.FOUR_CELL_ROW,
+                height=2,
+                cell_contents={
+                    1: creator_sign_img,
+                    2: self._format_date(creator_action_date) if creator_action_date else date_tpl,
+                    3: manager_sign_img,
+                    4: self._format_date(manager_action_date) if manager_action_date else date_tpl,
+                }),
+            ApprovalListRow.get_row(ApprovalListRow.FOUR_CELL_ROW,
+                                    cell_contents={1: u"Подпись инициатора", 3: u"Подпись руководителя дирекции"})
+        )
+
+    def _get_approved_part(self, actor, approver):
+        result = _(u"Согласовано: {0}").format(actor.full_name)
+        if actor != approver:
+            result += _(u" от имени {0}").format(approver.full_name_accusative)
+        return result
+
+    def _get_approver_rows(self, approval):
+        approver = approval.step.approver
+        actor = approval.actor
+        return (
+            ApprovalListRow.get_row(
+                ApprovalListRow.THREE_CELL_ROW1,
+                height=2,
+                cell_contents={
+                    1: self._get_approved_part(actor, approver),
+                    2: self._make_signature_img(actor.sign),
+                    3: self._format_date(approval.action_taken)
+                }
+            ),
+            ApprovalListRow.get_row(ApprovalListRow.THREE_CELL_ROW2,
+                                    cell_contents={1: u"Фамилия И.О. ", 2: self.signature}),
+        )
+
+    def _get_department_rows(self, department):
+        rslt = [
+            ApprovalListRow.get_row(ApprovalListRow.THREE_CELL_ROW3,
+                                    cell_contents={1: department.name, 2: u"Дата поступления на согласование",
+                                                   3: self.date_tpl}),
+            ApprovalListRow.get_row(ApprovalListRow.THREE_CELL_ROW1, cell_contents={1: u"Замечания"}),
+            ApprovalListRow.get_row(ApprovalListRow.THREE_CELL_ROW1),
+            ApprovalListRow.get_row(ApprovalListRow.THREE_CELL_ROW1)
+        ]
+
+        approval = [approval for approval in self.approval_actions if
+                    approval.step.approver == department.responsible_user]
+        eff_approval = approval[0] if approval else None
+        if eff_approval:
+            approved_by_rows = self._get_approver_rows(eff_approval)
+        else:
+            approved_by_rows = [
+                ApprovalListRow.get_row(ApprovalListRow.THREE_CELL_ROW1,
+                                        cell_contents={1: u"Согласовано", 3: self.date_tpl}),
+                ApprovalListRow.get_row(ApprovalListRow.THREE_CELL_ROW2, cell_contents={2: self.signature})
+            ]
+        rslt.extend(approved_by_rows)
+        return rslt
+
+    def _get_rows(self):
+        departments = self._get_departments(self.request.city)
+        department_signers = [department.responsible_user for department in departments if department.responsible_user]
+
+        general_info_rows = self._get_general_info_rows()
+        creator_and_manager_rows = self._get_creator_and_manager_rows()
+        dep_rows = itertools.chain.from_iterable(
+            self._get_department_rows(dep) for dep in self._get_departments(self.request.city)
+        )
+
+        approval_rows = itertools.chain.from_iterable(
+            [
+                self._get_approver_rows(action)
+                for action in self.approval_actions
+                if action.step.approver not in department_signers
+            ]
+        )
+
+        return itertools.chain(general_info_rows, creator_and_manager_rows, approval_rows, dep_rows)
 
 
 class ApprovalListRow(object):
@@ -71,8 +257,10 @@ class ApprovalListRow(object):
 
     @classmethod
     def get_row(cls, row_type, cell_contents=None, height=1):
-        """ Generates row with six cells.
+        """ Generates row by template
+            @param row_type - type of the row (see ApprovalListRow constants)
             @param cell_contents - dictionary in format column_number (1-based): column_contents
+            @param height - row height class (idx only: 1, 2, 3)
         """
         contents = cell_contents if cell_contents else {}
         cell_def = cls._cell_definitions[row_type]
@@ -83,158 +271,12 @@ class ApprovalListRow(object):
         return cls(columns=columns, column_classes=cell_def['classes'], height=height)
 
 
-class ApprovalListPrint(PdfView, SingleObjectMixin):
-    model = Request
-    pdf_template = "request/request_approval_sheet.html"
-    _logger = logging.getLogger(__name__ + ".ApprovalListPrint")
+class ApprovalListCell(object):
+    def __init__(self, **kwargs):
+        cnt = kwargs.get('content', None)
+        self.content = cnt if cnt else mark_safe('&nbsp;')
+        self.css_class = kwargs.get('css_class', '')
+        self.colspan = kwargs.get('colspan', 1)
 
-    date_format = "«d» E Yг."
 
-    date_tpl = u'«___»__________201_г.'
-    signature = u"подпись"
 
-    departments = (
-        u"Бухгалтерия",
-        u"Финансовый отдел",
-        u"Дирекция по экономической безопасности",
-        u"Юридический отдел",
-    )
-
-    # Self-encapsulation: one day departments will live in the database, so this method will fetch them there
-    def _get_departments(self):
-        return self.departments
-
-    def _make_signature_img(self, image):
-        img_url = image.url if image else ''
-        return mark_safe("<img src='{0}' class='signature'/>".format(img_url))
-
-    def _format_date(self, date):
-        return _date(date, self.date_format)
-
-    def _get_manager_approval(self, request):
-        signature, action_date = None, None
-        try:
-            manager = request.creator.manager
-        except UserProfile.DoesNotExist:
-            self._logger.warning("Manager is not set for user {0}".format(request.creator.pk))
-            return signature, action_date
-
-        action = request.successful_approval.get_approval_action(manager)
-        if action:
-            signature = manager.sign
-            action_date = action.action_taken
-        else:
-            self._logger.warning("Manager have not taken action in approval process of request {0}".format(request.pk))
-
-        return signature, action_date
-
-    def _get_general_info_rows(self, request):
-        return (
-            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
-            ApprovalListRow.get_row(
-                ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Документ", 3: request.name}
-            ),
-            ApprovalListRow.get_row(
-                ApprovalListRow.SIX_CELLS_ROW,
-                cell_contents={3: u"(основной договор, доп. соглашение)"}
-            ),
-            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
-            ApprovalListRow.get_row(
-                ApprovalListRow.SIX_CELLS_ROW,
-                cell_contents={
-                    1: u"Закупочный заказ",
-                    4: u"Дата",
-                    6: self._format_date(request.created)}
-            ),
-            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
-            ApprovalListRow.get_row(
-                ApprovalListRow.SIX_CELLS_ROW,
-                cell_contents={1: u"Инициатор заказа", 3: request.creator.full_name, 4: u"Дирекция"}),
-            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={3: u"(Ф.И.О.)"}),
-            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Контрагент"}),
-            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
-            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Предмет договора"}),
-            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
-            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
-            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Сумма", 4: u"Валюта"}),
-            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
-            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Комментарии"}),
-            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
-            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
-        )
-
-    def _get_creator_and_manager_rows(self, request):
-        creator_signature, creator_action_date = request.creator.sign, request.created
-        manager_signature, manager_action_date = self._get_manager_approval(request)
-
-        creator_sign_img = self._make_signature_img(creator_signature)
-        manager_sign_img = self._make_signature_img(manager_signature) if manager_signature else ''
-        date_tpl = self.date_tpl
-        return (
-            ApprovalListRow.get_row(
-                ApprovalListRow.FOUR_CELL_ROW,
-                height=2,
-                cell_contents={
-                    1: creator_sign_img,
-                    2: self._format_date(creator_action_date) if creator_action_date else date_tpl,
-                    3: manager_sign_img,
-                    4: self._format_date(manager_action_date) if manager_action_date else date_tpl,
-                }),
-            ApprovalListRow.get_row(ApprovalListRow.FOUR_CELL_ROW,
-                                    cell_contents={1: u"Подпись инициатора", 3: u"Подпись руководителя дирекции"})
-        )
-
-    def _get_approved_part(self, actor, approver):
-        result = _(u"Согласовано: {0}").format(actor.full_name)
-        if actor != approver:
-            result += _(u" от имени {0}").format(approver.full_name_accusative)
-        return result
-
-    def _get_approver_rows(self, approval):
-        approver = approval.step.approver
-        actor = approval.actor
-        return (
-            ApprovalListRow.get_row(
-                ApprovalListRow.THREE_CELL_ROW1,
-                height=2,
-                cell_contents={
-                    1: self._get_approved_part(actor, approver),
-                    2: self._make_signature_img(actor.sign),
-                    3: self._format_date(approval.action_taken)
-                }
-            ),
-            ApprovalListRow.get_row(ApprovalListRow.THREE_CELL_ROW2,
-                                    cell_contents={1: u"Фамилия И.О. ", 2: self.signature}),
-        )
-
-    def _get_department_rows(self, department):
-        return (
-            ApprovalListRow.get_row(ApprovalListRow.THREE_CELL_ROW3,
-                                    cell_contents={1: department, 2: u"Дата поступления на согласование",
-                                                   3: self.date_tpl}),
-            ApprovalListRow.get_row(ApprovalListRow.THREE_CELL_ROW1, cell_contents={1: u"Замечания"}),
-            ApprovalListRow.get_row(ApprovalListRow.THREE_CELL_ROW1),
-            ApprovalListRow.get_row(ApprovalListRow.THREE_CELL_ROW1),
-            ApprovalListRow.get_row(ApprovalListRow.THREE_CELL_ROW1,
-                                    cell_contents={1: u"Согласовано", 3: self.date_tpl}),
-            ApprovalListRow.get_row(ApprovalListRow.THREE_CELL_ROW2, cell_contents={2: self.signature}),
-        )
-
-    def _get_rows(self, request):
-        general_info_rows = self._get_general_info_rows(request)
-        creator_and_manager_rows = self._get_creator_and_manager_rows(request)
-        dep_rows = itertools.chain.from_iterable(self._get_department_rows(dep) for dep in self._get_departments())
-
-        approval_rows = itertools.chain.from_iterable(
-            [self._get_approver_rows(action) for action in request.successful_approval.get_approval_actions()]
-        )
-
-        return itertools.chain(general_info_rows, creator_and_manager_rows, approval_rows, dep_rows)
-
-    def _get_payload(self, *args, **kwargs):
-        req = self.get_object()
-        return {
-            'request': req,
-            'rows': self._get_rows(req),
-            'date_format': self.date_format
-        }

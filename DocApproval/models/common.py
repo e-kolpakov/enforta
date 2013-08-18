@@ -69,7 +69,14 @@ class City(models.Model):
         return self.name
 
 
+class DepartmentManager(models.Manager):
+    def get_departments_for_list(self, city):
+        return self.filter(city=city, show_in_list=True).select_related('responsible_user')
+
+
 class Department(models.Model):
+    objects = DepartmentManager()
+
     name = models.CharField(_(u'Дирекция'), max_length=ModelConstants.MAX_VARCHAR_LENGTH)
     city = models.ForeignKey(City, verbose_name=_(u'Город'))
     show_in_list = models.BooleanField(verbose_name=_(u'Отображать в листе утверждения'), default=False)
