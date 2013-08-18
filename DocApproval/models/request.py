@@ -201,6 +201,10 @@ class Request(models.Model):
     def editable(self):
         return self.status.code == RequestStatus.PROJECT
 
+    @property
+    def show_process(self):
+        return self.status.code == RequestStatus.NEGOTIATION
+
 
 class RequestHistory(models.Model):
     EDITED = 'edited'

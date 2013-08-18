@@ -33,6 +33,8 @@ class Request:
     ACTIONS_BACKEND_JSON = "actions"
 
     REQUEST_HISTORY = "request_history"
+
+    APPROVAL_PROCESS = "approval_process"
     APPROVAL_HISTORY = "approval_history"
     APPROVAL_SHEET = "approval_sheet"
 

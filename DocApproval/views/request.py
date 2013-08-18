@@ -179,31 +179,6 @@ class UpdateRequestView(CreateUpdateRequestView, MenuModifierViewMixin):
         return super(UpdateRequestView, self).get(request, *args, **kwargs)
 
 
-class ListRequestView(TemplateView):
-    SHOW_ONLY_PARAM = 'show_only'
-    MY_REQUESTS = 'my_requests'
-    MY_APPROVALS = 'my_approvals'
-
-    template_name = 'request/list.html'
-
-    def _get_filter_data(self):
-        return {
-            'cities': City.objects.all(),
-            'statuses': RequestStatus.objects.all(),
-            'users': UserProfile.get_users_in_group(Groups.USERS),
-            'approvers': UserProfile.get_users_in_group(Groups.APPROVERS)
-        }
-
-    def get(self, request, *args, **kwargs):
-        show_only = kwargs.get(self.SHOW_ONLY_PARAM, None)
-        return render(request, self.template_name, {
-            'datatables_data': RequestUrl.LIST_JSON,
-            'datatables_config': RequestUrl.LIST_JSON_CONF,
-            'show_only': show_only,
-            'filter_data': self._get_filter_data()
-        })
-
-
 class DetailRequestView(DetailView, MenuModifierViewMixin):
     template_name = 'request/details.html'
     _logger = logging.getLogger(__name__)
@@ -242,7 +217,49 @@ class DetailRequestView(DetailView, MenuModifierViewMixin):
             'exclude_fields_req': exclude_fields,
             'contract': contract,
             'actions': self._get_actions(request.user, req),
-            'actions_backend_url': reverse(RequestUrl.ACTIONS_BACKEND_JSON)
+            'actions_backend_url': reverse(RequestUrl.ACTIONS_BACKEND_JSON),
+            'show_approval_process': req.show_process,
+            'approval_process_url': reverse(RequestUrl.APPROVAL_PROCESS, kwargs={'pk': req.approval_route.pk})
+        })
+
+
+class RequestApprovalProcessView(DetailView, SingleObjectMixin):
+    template_name = 'request/details.html'
+    _logger = logging.getLogger(__name__)
+    extender_class = RequestContextMenuManagerExtension
+
+    @method_decorator(impersonated_permission_required(
+        class_permissions=Permissions.Request.CAN_VIEW_ALL_REQUESTS,
+        instance_permissions=Permissions.Request.CAN_VIEW_REQUEST,
+        lookup_variables=(Request, 'pk', 'pk'),
+        return_403=True)
+    )
+    def dispatch(self, request, *args, **kwargs):
+        return super(RequestApprovalProcessView, self).dispatch(request, *args, **kwargs)
+
+
+class ListRequestView(TemplateView):
+    SHOW_ONLY_PARAM = 'show_only'
+    MY_REQUESTS = 'my_requests'
+    MY_APPROVALS = 'my_approvals'
+
+    template_name = 'request/list.html'
+
+    def _get_filter_data(self):
+        return {
+            'cities': City.objects.all(),
+            'statuses': RequestStatus.objects.all(),
+            'users': UserProfile.get_users_in_group(Groups.USERS),
+            'approvers': UserProfile.get_users_in_group(Groups.APPROVERS)
+        }
+
+    def get(self, request, *args, **kwargs):
+        show_only = kwargs.get(self.SHOW_ONLY_PARAM, None)
+        return render(request, self.template_name, {
+            'datatables_data': RequestUrl.LIST_JSON,
+            'datatables_config': RequestUrl.LIST_JSON_CONF,
+            'show_only': show_only,
+            'filter_data': self._get_filter_data()
         })
 
 

@@ -31,6 +31,12 @@
                             {% endif %}
                         {% endwith %}
                     {% endmodel_details %}
+                    {% if show_approval_process %}
+                        <tr>
+                            <td>{% trans "Процесс утверждения" %}</td>
+                            <td><a href="{{ approval_process_url }}">{% trans "Процесс утверждения" %}</a></td>
+                        </tr>
+                    {% endif %}
                 </table>
             </div>
             <div class="span4">
