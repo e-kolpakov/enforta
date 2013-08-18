@@ -10,15 +10,16 @@ from django.utils.translation import ugettext as _
 from guardian.shortcuts import get_objects_for_user
 
 from jsonfield import JSONField
-from DocApproval.models.approval import ApprovalProcessAction
-from DocApproval.utilities.permission_checker import PermissionChecker
 
 from .user import UserProfile
 from .common import City, ModelConstants, Permissions
-from .approval import ApprovalRoute
+from .approval import ApprovalRoute, ApprovalProcessAction
+
+from DocApproval.constants import Periods
+
 from DocApproval.url_naming.names import Request as RequestUrls
 from DocApproval.utilities.humanization import Humanizer
-from DocApproval.constants import Periods
+from DocApproval.utilities.permission_checker import PermissionChecker
 from DocApproval.utilities.file_upload import ContentTypeRestrictedFileField
 
 
