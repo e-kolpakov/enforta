@@ -12,21 +12,17 @@ from django.views.generic import View, TemplateView, DetailView, ListView
 from django.views.generic.detail import SingleObjectMixin
 from django.contrib import messages
 
-from DocApproval.request_management.actions import RequestActionRepository
-from DocApproval.request_management.request_factory import RequestFactory
-from DocApproval.utilities.datatables import LinkColumnDefinition, ColumnDefinition, ActionsColumnDefintion
-from DocApproval.utilities.utility import parse_string_to_datetime
 from DocApproval.constants import Groups
+from DocApproval.forms import EditRequestForm, EditContractForm
+from DocApproval.messages import CommonMessages, RequestMessages
+from DocApproval.menu import RequestContextMenuManagerExtension, MenuModifierViewMixin
+from DocApproval.models import Request, RequestStatus, Permissions, City, UserProfile, RequestHistory
+from DocApproval.request_management import actions as request_actions, request_factory
+from DocApproval.url_naming.names import Request as RequestUrl, Profile as ProfileUrl, ApprovalRoute as ApprovalRouteUrls
 
-from ..menu import RequestContextMenuManagerExtension, MenuModifierViewMixin
-from ..messages import CommonMessages, RequestMessages
-from ..models import Request, RequestStatus, Permissions, City, UserProfile, RequestHistory
-from ..url_naming.names import Request as RequestUrl, Profile as ProfileUrl, ApprovalRoute as ApprovalRouteUrls
-from ..forms import EditRequestForm, EditContractForm
-
-from ..utilities.utility import get_url_base, reprint_form_errors
-from ..utilities.datatables import JsonConfigurableDatatablesBaseView
-from ..utilities.permission_checker import impersonated_permission_required
+from DocApproval.utilities.datatables import JsonConfigurableDatatablesBaseView, LinkColumnDefinition, ColumnDefinition, ActionsColumnDefintion
+from DocApproval.utilities.permission_checker import impersonated_permission_required
+from DocApproval.utilities.utility import get_url_base, reprint_form_errors, parse_string_to_datetime
 
 
 class CreateUpdateRequestView(TemplateView):
@@ -93,7 +89,7 @@ class CreateUpdateRequestView(TemplateView):
         request_form = self.request_form_class(request.POST, instance=request_instance, prefix='request')
         contract_form = self.contract_form_class(request.POST, request.FILES, instance=contract_instance,
                                                  prefix='contract')
-        create_handler = RequestFactory(request_form, contract_form, request.user)
+        create_handler = request_factory.RequestFactory(request_form, contract_form, request.user)
 
         if request_form.is_valid() and contract_form.is_valid():
             new_request = create_handler.persist_request(override_status=self.override_request_status)
@@ -226,7 +222,7 @@ class DetailRequestView(DetailView, MenuModifierViewMixin):
         """ request is an instance of models.Request here"""
         return [
             action
-            for key, action in RequestActionRepository().items()
+            for key, action in request_actions.RequestActionRepository().items()
             if action.is_available(user, request)
         ]
 
@@ -328,11 +324,11 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
             )
         }
         if self.request.GET.get('show_only', None) == ListRequestView.MY_APPROVALS:
-            action_repository = RequestActionRepository()
+            action_repository = request_actions.RequestActionRepository()
             rslt['actions'] = ActionsColumnDefintion(
                 actions=[
-                    action_repository[RequestActionRepository.APPROVE],
-                    action_repository[RequestActionRepository.REJECT]
+                    action_repository[request_actions.RequestActionRepository.APPROVE],
+                    action_repository[request_actions.RequestActionRepository.REJECT]
                 ],
                 backend_url=reverse(RequestUrl.ACTIONS_BACKEND_JSON),
                 order=-2
@@ -400,7 +396,7 @@ class RequestActionsJson(View):
     def post(self, request, *args, **kwargs):
         try:
             parsed_parameters = self._parse_parameters(request)
-            action = RequestActionRepository()[parsed_parameters['action']]
+            action = request_actions.RequestActionRepository()[parsed_parameters['action']]
             req = Request.objects.get(pk=parsed_parameters['request_pk'])
 
             if action.is_available(request.user, req):
