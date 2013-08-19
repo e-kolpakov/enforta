@@ -1,9 +1,8 @@
 {% extends "base_layout.html" %}
 {% load i18n %}
 
-{% block maintitle %}
-    {% trans "Архив заявок" %}
-{% endblock maintitle %}
+{% block subtitle %} - {% trans "Архив заявок" %}{% endblock subtitle %}
+
 {% block maincontent %}
     {% trans "Архив пуст" %}
 {% endblock maincontent %}

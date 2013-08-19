@@ -173,7 +173,7 @@ class Request(models.Model):
         return reverse(RequestUrls.DETAILS, kwargs={'pk': self.pk})
 
     def __unicode__(self):
-        return u"{0} {2} {1} {3}".format(_(u"Заявка"), _(u"от"), self.name, self.created)
+        return u"{1} {0} {2}".format(_(u"от"), self.name, self.created)
 
     def get_current_approvers(self):
         if self.status.code == RequestStatus.NEGOTIATION:

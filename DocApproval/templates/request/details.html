@@ -2,6 +2,8 @@
 {% load i18n %}
 {% load model_details %}
 
+{% block subtitle %} - {{ doc_request }}{% endblock %}
+
 {% block maincontent %}
     {% if doc_request %}
         <div class='row'>

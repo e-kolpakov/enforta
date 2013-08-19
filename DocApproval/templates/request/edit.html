@@ -2,6 +2,8 @@
 {% load i18n %}
 {% load static from staticfiles %}
 
+{% block subtitle %} - {{ form_heading }}{% endblock %}
+
 {% block scripts %}
     {{ block.super }}
     <script type="text/javascript" language="JavaScript">
