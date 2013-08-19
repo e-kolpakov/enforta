@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 import json
 import logging
+from collections import OrderedDict
 
 from django.core.urlresolvers import reverse
 from django.db.models.expressions import F
@@ -16,7 +17,7 @@ from DocApproval.constants import Groups
 from DocApproval.forms import EditRequestForm, EditContractForm
 from DocApproval.messages import CommonMessages, RequestMessages
 from DocApproval.menu import RequestContextMenuManagerExtension, MenuModifierViewMixin
-from DocApproval.models import Request, RequestStatus, Permissions, City, UserProfile, RequestHistory
+from DocApproval.models import Request, RequestStatus, Permissions, City, UserProfile, RequestHistory, ApprovalProcessAction
 from DocApproval.request_management import actions as request_actions, request_factory
 from DocApproval.url_naming.names import Request as RequestUrl, Profile as ProfileUrl, ApprovalRoute as ApprovalRouteUrls
 
@@ -219,14 +220,15 @@ class DetailRequestView(DetailView, MenuModifierViewMixin):
             'actions': self._get_actions(request.user, req),
             'actions_backend_url': reverse(RequestUrl.ACTIONS_BACKEND_JSON),
             'show_approval_process': req.show_process,
-            'approval_process_url': reverse(RequestUrl.APPROVAL_PROCESS, kwargs={'pk': req.approval_route.pk})
+            'approval_process_url': reverse(RequestUrl.APPROVAL_PROCESS, kwargs={'pk': pk})
         })
 
 
-class RequestApprovalProcessView(DetailView, SingleObjectMixin):
-    template_name = 'request/details.html'
+class RequestApprovalProcessView(DetailView, SingleObjectMixin, MenuModifierViewMixin):
+    template_name = 'request/approval_process.html'
     _logger = logging.getLogger(__name__)
     extender_class = RequestContextMenuManagerExtension
+    model = Request
 
     @method_decorator(impersonated_permission_required(
         class_permissions=Permissions.Request.CAN_VIEW_ALL_REQUESTS,
@@ -236,6 +238,27 @@ class RequestApprovalProcessView(DetailView, SingleObjectMixin):
     )
     def dispatch(self, request, *args, **kwargs):
         return super(RequestApprovalProcessView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        req = self.get_object()
+        steps = req.approval_route.steps.all().order_by('step_number')
+        actions = req.approval_route.get_current_process().get_approval_actions()
+        self._apply_extender(request, req)
+
+        result = OrderedDict()
+        for step in steps:
+            if step.step_number not in result:
+                result[step.step_number] = dict()
+            result[step.step_number][step.approver.pk] = {'name': step.approver.full_name, 'action': None}
+
+        for action in actions:
+            result[action.step.step_number][action.step.approver.pk]['action'] = action.action
+
+        return render(request, self.template_name, {
+            'req': req,
+            'process': result,
+            'approve_constant': ApprovalProcessAction.ACTION_APPROVE
+        })
 
 
 class ListRequestView(TemplateView):

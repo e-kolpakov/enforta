@@ -1,0 +1,19 @@
+{% extends "base_layout.html" %}
+{% load i18n %}
+
+{% block page_title %}{{ req.name }}{% endblock %}
+
+{% block maincontent %}
+    <div class='approval-process-viewer'>
+        {% for step_number, appover_data in process.items %}
+            <div class='step row-fluid'>
+                <span class='step-number span1'>{% trans "Шаг №" %}{{ step_number }}</span>
+                {% for approver_id, details in appover_data.items %}
+                    <span class='span3 span-approver {% if details.action == approve_constant %}success{% endif %}'>
+                    {{ details.name }}
+                </span>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock maincontent %}

@@ -1,0 +1,27 @@
+@import-once "../variables";
+@import-once "../mixins";
+
+div.approval-process-viewer {
+  div.step {
+    padding: 5px;
+    border-bottom: 1px solid @default-separator-color;
+
+    span.step-number {
+      padding: 4px 2px;
+    }
+
+    span.span-approver {
+      position: relative;
+      padding: 4px;
+      margin-bottom: 5px;
+      border: 1px solid @default-border-color;
+      text-align: center;
+      .rounded-borders-mixin();
+    }
+
+    span.success {
+      background-color: @success-color;
+    }
+  }
+
+}
