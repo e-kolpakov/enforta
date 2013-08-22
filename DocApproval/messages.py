@@ -51,7 +51,7 @@ class ApprovalRouteMessages:
     ROUTE_MODIFIED = _(u"Маршрут изменен")
 
     NEW_TEMPLATE_APPROVAL_ROUTE = _(u"Новый шаблонный маршрут утверждения")
-    TEMPLATE_CREATED = _(u"Шаблонный маршрут утверждения создан")
+    TEMPLATE_SAVED = _(u"Шаблонный маршрут утверждения сохранен")
 
     STEPS_COUNT = _(u"Количество этапов")
     DEFAULT_TEMPLATE_APPROVAL_ROUTE_NAME = _(u"Шаблонный маршрут №{0}")

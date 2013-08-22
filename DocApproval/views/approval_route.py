@@ -243,7 +243,7 @@ class SaveApprovalRouteView(View):
             is_template = self._get_is_tempalte(request.POST)
             route = self.save_route(request.POST, request.user.profile, is_template)
             if is_template:
-                message = ApprovalRouteMessages.TEMPLATE_CREATED
+                message = ApprovalRouteMessages.TEMPLATE_SAVED
                 redirect_to = reverse(ApprovalRouteUrls.TEMPLATE_EDIT, kwargs={'pk': route.pk})
             else:
                 message = ApprovalRouteMessages.ROUTE_MODIFIED
