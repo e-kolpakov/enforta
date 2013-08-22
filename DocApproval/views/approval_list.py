@@ -3,6 +3,7 @@ import logging
 import itertools
 from datetime import date
 
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import date as _date
 from django.views.generic.detail import SingleObjectMixin
@@ -33,6 +34,9 @@ class ApprovalListGenerator(object):
     # show year in 201_ format - with blank trailing digit
     date_tpl = u'«___»__________{0}_г.'.format(date.today().year / 10)
     signature = u"подпись"
+
+    request_comment_tpl = u"<div class='comment'>{0}<div>"
+    approved_by_tpl = u"<div class='approved-by'>{0}</div><div class='comment'>{1}</div>"
 
     def __init__(self, request):
         self._request = request
@@ -115,7 +119,9 @@ class ApprovalListGenerator(object):
             ApprovalListRow.get_row(ApprovalListRow.ONE_CELL_ROW, css_class="comment-label",
                                     cell_contents={1: u"Комментарий"}),
             ApprovalListRow.get_row(ApprovalListRow.ONE_CELL_ROW, height=2, css_class="comment-text",
-                                    cell_contents={1: self.request.comments}),
+                                    cell_contents={
+                                        1: mark_safe(self.request_comment_tpl.format(escape(self.request.comments)))
+                                    })
         )
 
     def _get_creator_and_manager_rows(self):
@@ -139,10 +145,12 @@ class ApprovalListGenerator(object):
                                     cell_contents={1: u"Подпись инициатора", 3: u"Подпись руководителя дирекции"})
         )
 
-    def _get_approved_part(self, actor, approver):
-        result = _(u"Согласовано: {0}").format(actor.full_name)
+    def _get_approved_part(self, actor, approver, comment):
+        approved_by = _(u"Согласовано: {0}").format(actor.full_name)
         if actor != approver:
-            result += _(u" от имени {0}").format(approver.full_name_accusative)
+            approved_by += _(u" от имени {0}").format(approver.full_name_accusative)
+
+        result = mark_safe(self.approved_by_tpl.format(escape(approved_by), comment))
         return result
 
     def _get_approver_rows(self, approval):
@@ -153,7 +161,7 @@ class ApprovalListGenerator(object):
                 ApprovalListRow.THREE_CELL_ROW1,
                 height=2,
                 cell_contents={
-                    1: self._get_approved_part(actor, approver),
+                    1: self._get_approved_part(actor, approver, approval.comment),
                     2: self._make_signature_img(actor.sign),
                     3: self._format_date(approval.action_taken)
                 }

@@ -71,6 +71,7 @@ body {
 
         &.comment-text {
           td {
+            #fonts > #approval-list > .comment;
             border-top: none;
           }
         }
@@ -120,6 +121,11 @@ body {
 
           &.cell-colspan6 {
             width: @approval-list-cell1 + @approval-list-cell2 + @approval-list-cell3 + @approval-list-cell4 + @approval-list-cell5 + @approval-list-cell6 - 5 * @approval-list-cell-horizontal-padding;
+          }
+
+          div.comment {
+            margin-left: 5px;
+            #fonts > #approval-list > .comment;
           }
         }
       }

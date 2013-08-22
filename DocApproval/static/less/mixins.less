@@ -89,6 +89,12 @@
       .define(@size, @color, @family, @weight);
       text-transform: uppercase;
     }
+
+    .comment() {
+      @size: @comment-font-size;
+      .define(@size, @color, @family, @weight);
+      font-style: italic;
+    }
   }
 }
 
