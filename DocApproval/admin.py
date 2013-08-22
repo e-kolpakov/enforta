@@ -56,7 +56,7 @@ class CityAdmin(admin.ModelAdmin):
 
 
 class DepartmentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'city', 'responsible_user')
+    list_display = ('name', 'city', 'responsible_user', 'show_in_list')
 
 
 class TemporaryUserImpersonationAdmin(admin.ModelAdmin):
