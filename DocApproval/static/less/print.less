@@ -62,6 +62,19 @@ body {
           }
         }
 
+        &.comment-label {
+          td {
+            #fonts > #approval-list > .table-label;
+            border-bottom: none;
+          }
+        }
+
+        &.comment-text {
+          td {
+            border-top: none;
+          }
+        }
+
         td {
           border: 0.5pt solid black;
           padding: @approval-list-cell-vertical-padding @approval-list-cell-horizontal-padding;
@@ -103,6 +116,10 @@ body {
             &.department {
               #fonts > #approval-list > .table-department;
             }
+          }
+
+          &.cell-colspan6 {
+            width: @approval-list-cell1 + @approval-list-cell2 + @approval-list-cell3 + @approval-list-cell4 + @approval-list-cell5 + @approval-list-cell6 - 5 * @approval-list-cell-horizontal-padding;
           }
         }
       }

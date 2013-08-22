@@ -112,9 +112,10 @@ class ApprovalListGenerator(object):
             ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
             ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Сумма", 4: u"Валюта"}),
             ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
-            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW, cell_contents={1: u"Комментарии"}),
-            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
-            ApprovalListRow.get_row(ApprovalListRow.SIX_CELLS_ROW),
+            ApprovalListRow.get_row(ApprovalListRow.ONE_CELL_ROW, css_class="comment-label",
+                                    cell_contents={1: u"Комментарий"}),
+            ApprovalListRow.get_row(ApprovalListRow.ONE_CELL_ROW, height=2, css_class="comment-text",
+                                    cell_contents={1: self.request.comments}),
         )
 
     def _get_creator_and_manager_rows(self):
@@ -212,6 +213,7 @@ class ApprovalListRow(object):
     THREE_CELL_ROW1 = 'three-cell-row1'
     THREE_CELL_ROW2 = 'three-cell-row2'
     THREE_CELL_ROW3 = 'three-cell-row3'
+    ONE_CELL_ROW = 'one-cell'
 
     _cell_definitions = {
         SIX_CELLS_ROW: {
@@ -222,23 +224,28 @@ class ApprovalListRow(object):
         FOUR_CELL_ROW: {
             'number': 4,
             'colspans': [2, 1, 2, 1],
-            'classes': tuple(('cell1-colspan2 center', 'cell3', 'cell4-colspan2', 'cell6')),
+            'classes': ('cell1-colspan2 center', 'cell3', 'cell4-colspan2', 'cell6',),
         },
         THREE_CELL_ROW1: {
             'number': 3,
             'colspans': [3, 2, 1],
-            'classes': tuple(('cell1-colspan3', 'cell4-colspan2', 'cell6')),
+            'classes': ('cell1-colspan3', 'cell4-colspan2', 'cell6',),
         },
         THREE_CELL_ROW2: {
             'number': 3,
             'colspans': [3, 2, 1],
-            'classes': tuple(('cell1-colspan3 center', 'cell4-colspan2', 'cell6')),
+            'classes': ('cell1-colspan3 center', 'cell4-colspan2', 'cell6',),
         },
         THREE_CELL_ROW3: {
             'number': 3,
             'colspans': [3, 2, 1],
-            'classes': tuple(('cell1-colspan3 department', 'cell4-colspan2', 'cell6')),
-        }
+            'classes': ('cell1-colspan3 department', 'cell4-colspan2', 'cell6',),
+        },
+        ONE_CELL_ROW: {
+            'number': 1,
+            'colspans': [6],
+            'classes': ('cell-colspan6',)
+        },
     }
 
     def __init__(self, columns=None, column_classes=None, css_class=None, height=1):
@@ -256,7 +263,7 @@ class ApprovalListRow(object):
         return result
 
     @classmethod
-    def get_row(cls, row_type, cell_contents=None, height=1):
+    def get_row(cls, row_type, cell_contents=None, height=1, css_class=None):
         """ Generates row by template
             @param row_type - type of the row (see ApprovalListRow constants)
             @param cell_contents - dictionary in format column_number (1-based): column_contents
@@ -268,7 +275,7 @@ class ApprovalListRow(object):
             {'content': contents.get(i + 1, ''), 'colspan': cell_def['colspans'][i]}
             for i in range(0, cell_def['number'])
         ]
-        return cls(columns=columns, column_classes=cell_def['classes'], height=height)
+        return cls(columns=columns, column_classes=cell_def['classes'], css_class=css_class, height=height)
 
 
 class ApprovalListCell(object):
