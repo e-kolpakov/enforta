@@ -8,6 +8,10 @@
             <td class="{{ field_value_class }}">{{ contract.date|date:"DATE_FORMAT" }}</td>
         </tr>
         <tr>
+            <td class="{{ field_caption_class }}">{% trans "Сумма договора" %}</td>
+            <td class="{{ field_value_class }}">{{ contract.cost|stringformat:".2f" }} {{ contract.currency.short_caption }}</td>
+        </tr>
+        <tr>
             <td class="{{ field_caption_class }}">{% trans "Срок действия" %}</td>
             <td class="{{ field_value_class }}">{{ contract.active_period_humanize }}</td>
         </tr>

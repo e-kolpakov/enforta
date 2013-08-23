@@ -90,3 +90,18 @@ class Department(models.Model):
 
     def __unicode__(self):
         return u'{0}({1})'.format(self.name, self.city.name)
+
+
+class Currency(models.Model):
+    caption = models.CharField(_(u'Наименование'), max_length=ModelConstants.DEFAULT_VARCHAR_LENGTH)
+    caption_plural = models.CharField(_(u'Множественное число'), max_length=ModelConstants.DEFAULT_VARCHAR_LENGTH)
+    short_caption = models.CharField(_(u'Сокращенное наименование'), max_length=ModelConstants.DEFAULT_VARCHAR_LENGTH)
+    symbol = models.CharField(_(u'Символ'), max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH)
+
+    class Meta:
+        app_label = "DocApproval"
+        verbose_name = _(u'Валюта')
+        verbose_name_plural = _(u'Валюты')
+
+    def __unicode__(self):
+        return self.caption_plural

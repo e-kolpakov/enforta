@@ -5,6 +5,7 @@ import datetime
 
 from django.db import models, transaction
 from django.dispatch.dispatcher import Signal
+from django.core.validators import MinValueValidator
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 from guardian.shortcuts import get_objects_for_user
@@ -12,7 +13,7 @@ from guardian.shortcuts import get_objects_for_user
 from jsonfield import JSONField
 
 from .user import UserProfile
-from .common import City, ModelConstants, Permissions
+from .common import City, ModelConstants, Permissions, Currency
 from .approval import ApprovalRoute, ApprovalProcessAction
 
 from DocApproval.constants import Periods
@@ -64,6 +65,8 @@ class Contract(models.Model):
 
     date = models.DateField(_(u'Дата договора'))
     paid_date = models.DateField(_(u'Дата оплаты'), blank=True, null=True)
+    cost = models.DecimalField(_(u"Стоимость"), max_digits=15, decimal_places=4, validators=[MinValueValidator(0)])
+    currency = models.ForeignKey(Currency, verbose_name=_(u'Валюта'), null=False)
     activation_date = models.DateField(_(u"Начало действия договора"), blank=True, null=True)
     prolongation = models.BooleanField(_(u'Возможность пролонгации'), blank=True, default=False)
 

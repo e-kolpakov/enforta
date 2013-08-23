@@ -59,6 +59,10 @@ class DepartmentAdmin(admin.ModelAdmin):
     list_display = ('name', 'city', 'responsible_user', 'show_in_list')
 
 
+class CurrencyAdmin(admin.ModelAdmin):
+    list_display = ('caption', 'caption_plural', 'short_caption', 'symbol')
+
+
 class TemporaryUserImpersonationAdmin(admin.ModelAdmin):
     list_display = ('replaced_user', 'new_user', 'date_period')
     search_fields = (
@@ -94,6 +98,7 @@ admin.site.register(auth_models.Group, CustomizedGroupAdmin)
 
 admin.site.register(City, CityAdmin)
 admin.site.register(Position, PositionAdmin)
+admin.site.register(Currency, CurrencyAdmin)
 admin.site.register(Department, DepartmentAdmin)
 
 admin.site.register(UserProfile, UserProfileAdmin)

@@ -29,5 +29,27 @@
         </div>
     {% endwith %}
 
+    {% with cost=form.cost currency=form.currency %}
+        <div class="control-group {% if cost.errors or currency.errors %}error{% endif %}">
+            <label for='{{ cost.id }}' class='control-label'> {{ cost.label }}
+                {% if cost.errors or currency.errors %}
+                    <span class='field_errors' title=''>*</span>
+                    <div class='field_errors_list'>
+                        {% for error in cost.errors %}
+                            <div class='field_error'>{{ error }}</div>
+                        {% endfor %}
+                        {% for error in currency.errors %}
+                            <div class='field_error'>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </label>
+
+            <div class="controls">
+                {{ cost }}
+                {{ currency }}
+            </div>
+        </div>
+    {% endwith %}
     {% include "common/_standard_control_row.html" with field=form.document %}
 </div>

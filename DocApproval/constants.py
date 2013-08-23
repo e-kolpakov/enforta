@@ -13,3 +13,5 @@ class Periods:
     YEARS = 'years'
 
 
+class Currencies:
+    DEFAULT = 1

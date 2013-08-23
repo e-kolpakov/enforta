@@ -26,11 +26,13 @@ class EditContractForm(forms.ModelForm):
 
     class Meta:
         model = Contract
-        fields = ('date', 'prolongation', 'active_period', 'active_period_unit', 'document')
+        fields = ('date', 'cost', 'currency', 'prolongation', 'active_period', 'active_period_unit', 'document')
         widgets = {
             'date': DatePickerWidget(attrs={'class': 'span4'}),
-            'active_period': forms.TextInput(attrs={'class': 'input-mini'}),
+            'active_period': forms.TextInput(attrs={'class': 'input-medium'}),
             'active_period_unit': forms.Select(attrs={'class': 'input-small'}),
+            'cost': forms.TextInput(attrs={'class': 'input-medium'}),
+            'currency': forms.Select(attrs={'class': 'input-small'}),
         }
 
 

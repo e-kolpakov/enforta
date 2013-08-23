@@ -13,7 +13,7 @@ from django.views.generic import View, TemplateView, DetailView, ListView
 from django.views.generic.detail import SingleObjectMixin
 from django.contrib import messages
 
-from DocApproval.constants import Groups
+from DocApproval.constants import Groups, Periods, Currencies
 from DocApproval.forms import EditRequestForm, EditContractForm
 from DocApproval.messages import CommonMessages, RequestMessages
 from DocApproval.menu import RequestContextMenuManagerExtension, MenuModifierViewMixin
@@ -134,7 +134,7 @@ class CreateRequestView(CreateUpdateRequestView):
         return {}
 
     def get_initial_contract(self, request, *args, **kwargs):
-        return {}
+        return {'active_period_unit': Periods.MONTHS, 'currency': Currencies.DEFAULT}
 
     def get_return_url(self, pk):
         return reverse(RequestUrl.LIST)
