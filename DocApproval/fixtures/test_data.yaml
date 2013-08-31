@@ -195,6 +195,33 @@
     currency: 1
     cost: 3000
 
+- model: DocApproval.ApprovalRoute
+  pk: 1
+  fields:
+    name: "Test Route1"
+    description: "Test Route1 Description"
+    created: "2013-01-01"
+    modified: "2013-01-01"
+    is_template: False
+
+- model: DocApproval.ApprovalRoute
+  pk: 2
+  fields:
+    name: "Test Route2"
+    description: "Test Route2 Description"
+    created: "2013-01-01"
+    modified: "2013-01-01"
+    is_template: False
+
+- model: DocApproval.ApprovalRoute
+  pk: 3
+  fields:
+    name: "Test Route3"
+    description: "Test Route3 Description"
+    created: "2013-01-01"
+    modified: "2013-01-01"
+    is_template: False
+
 - model: DocApproval.Request
   pk: null
   fields:
@@ -208,6 +235,7 @@
     creator: 3
     last_updater: 3
     status: "project"
+    approval_route: 1
 
 - model: DocApproval.Request
   pk: null
@@ -222,6 +250,7 @@
     creator: 2
     last_updater: 3
     status: "project"
+    approval_route: 2
 
 
 - model: DocApproval.Request
@@ -237,3 +266,6 @@
     creator: 7
     last_updater: 7
     status: "project"
+    approval_route: 3
+
+
