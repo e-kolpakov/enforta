@@ -18,7 +18,7 @@ ADMINS = (
 # ('Your Name', 'your_email@example.com'),
 )
 
-LOGGING_DIRECTORY = "/var/log"
+LOGGING_DIRECTORY = os.path.join(PROJECT_PATH, "log")
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
