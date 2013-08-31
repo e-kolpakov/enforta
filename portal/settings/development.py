@@ -1,4 +1,5 @@
 import os
+from base import LOGGING_DIRECTORY
 
 ADMINS = ()
 
@@ -15,7 +16,7 @@ DATABASES = {
     }
 }
 
-LOGGING_DIRECTORY = "/var/log"
+# LOGGING_DIRECTORY = "log"
 
 LOGGING = {
     'version': 1,
@@ -42,7 +43,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(LOGGING_DIRECTORY, 'doc-approval/django.log'),
+            'filename': os.path.join(LOGGING_DIRECTORY, 'django.log'),
             'maxBytes': 102400,
             'backupCount': 1,
             'formatter': 'generic',
