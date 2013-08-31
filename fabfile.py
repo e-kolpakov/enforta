@@ -1,6 +1,8 @@
 from fabric.api import local, settings, abort, cd, run, env, roles
 from fabric.contrib.console import confirm
 
+
+env.key_filename = '/path/to/keyfile.pem'
 env.roledefs = {
     'production': ['enfortit@87.241.226.36']
 }
@@ -26,6 +28,7 @@ def prepare_deploy():
     # test()
     commit()
     push()
+
 
 @roles("production")
 def deploy():
