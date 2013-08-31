@@ -71,15 +71,23 @@ class City(models.Model):
 
 class DepartmentManager(models.Manager):
     def get_departments_for_list(self, city):
-        return self.filter(city=city, show_in_list=True).select_related('responsible_user')
+        departments = list(self.all().select_related('responsible_user'))
+        lookup = {department.pk: department for department in departments}
+        overrides = list(
+            DepartmentCityOverride.objects.filter(city=city).select_related('responsible_user', 'department'))
+        for override in overrides:
+            department = lookup.get(override.department.pk)
+            department.responsible_user = override.responsible_user
+            department.show_in_list = override.show_in_list
+            lookup[override.department.pk] = department
+        return [department for department in lookup.values() if department.show_in_list]
 
 
 class Department(models.Model):
     objects = DepartmentManager()
 
     name = models.CharField(_(u'Дирекция'), max_length=ModelConstants.MAX_VARCHAR_LENGTH)
-    city = models.ForeignKey(City, verbose_name=_(u'Город'))
-    show_in_list = models.BooleanField(verbose_name=_(u'Отображать в листе утверждения'), default=False)
+    show_in_list = models.BooleanField(verbose_name=_(u'Отображать в листе утверждения'), default=True)
     #avoiding circular reference by using model name as a string
     responsible_user = models.ForeignKey('UserProfile', verbose_name=_(u'Ответственный'), null=True, blank=True)
 
@@ -89,7 +97,23 @@ class Department(models.Model):
         verbose_name_plural = _(u'Дирекции')
 
     def __unicode__(self):
-        return u'{0}({1})'.format(self.name, self.city.name)
+        return self.name
+
+
+class DepartmentCityOverride(models.Model):
+    city = models.ForeignKey(City, verbose_name=_(u'Город'))
+    department = models.ForeignKey(Department, verbose_name=_(u'Дирекция'), related_name='city_overrides')
+    show_in_list = models.BooleanField(verbose_name=_(u'Отображать в листе утверждения'), default=True)
+    responsible_user = models.ForeignKey('UserProfile', verbose_name=_(u'Ответственный'), null=True, blank=True)
+
+    class Meta:
+        app_label = "DocApproval"
+        verbose_name = _(u'Изменения для дирекции в городе')
+        verbose_name_plural = _(u'Изменения для дирекций в городах')
+        unique_together = ('city', 'department')
+
+    def __unicode__(self):
+        return u'{2} {0}({1})'.format(self.department.name, self.city.name, _(u'Изменения для дирекции в городе'))
 
 
 class Currency(models.Model):

@@ -30,7 +30,7 @@ add_introspection_rules(
     ["^DocApproval\.utilities\.file_upload\.ContentTypeRestrictedFileField"]
 )
 
-from common import ModelConstants, Permissions, City, Position, Department, Currency
+from common import ModelConstants, Permissions, City, Position, Department, DepartmentCityOverride, Currency
 from approval import (
     ApprovalRoute, TemplateApprovalRoute, ApprovalRouteStep, ApprovalProcess, ApprovalProcessAction,
     NonTemplateApprovalRouteException, ApprovalRouteExceptionBase,

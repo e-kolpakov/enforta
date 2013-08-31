@@ -56,7 +56,11 @@ class CityAdmin(admin.ModelAdmin):
 
 
 class DepartmentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'city', 'responsible_user', 'show_in_list')
+    list_display = ('name', 'responsible_user', 'show_in_list')
+
+
+class DepartmentCityOverrideAdmin(admin.ModelAdmin):
+    list_display = ('department', 'city', 'responsible_user', 'show_in_list')
 
 
 class CurrencyAdmin(admin.ModelAdmin):
@@ -100,6 +104,7 @@ admin.site.register(City, CityAdmin)
 admin.site.register(Position, PositionAdmin)
 admin.site.register(Currency, CurrencyAdmin)
 admin.site.register(Department, DepartmentAdmin)
+admin.site.register(DepartmentCityOverride, DepartmentCityOverrideAdmin)
 
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(TemporaryUserImpersonation, TemporaryUserImpersonationAdmin)
