@@ -1,6 +1,5 @@
 #!/bin/bash
-#source /usr/local/bin/virtualenvwrapper.sh
-#mkvirtualenv DocApproval --no-site-packages
-virtualenv DocApproval --no-site-packages
-workon DocApproval
-pip install -r requirements.txt
+VIRTUALENV_NAME=DocApproval
+export WORKON_HOME=$HOME/.virtualenvs
+source /usr/local/bin/virtualenvwrapper.sh && mkvirtualenv $VIRTUALENV_NAME --no-site-packages
+workon $VIRTUALENV_NAME && pip install -r requirements.txt

@@ -1,5 +1,9 @@
-from fabric.api import local, settings, abort, cd, run
+from fabric.api import local, settings, abort, cd, run, env, roles
 from fabric.contrib.console import confirm
+
+env.roledefs = {
+    'production': ['enfortit@87.241.226.36']
+}
 
 
 def test():
@@ -23,14 +27,13 @@ def prepare_deploy():
     # commit()
     # push()
 
-
+@roles("production")
 def deploy():
     """deploys code"""
-    code_dir = '/home/john/enforta/'
-    code_dir = '/home/enfortit/enforta/'
+    code_dir = '/home/enfortit/docapproval2/'
     with settings(warn_only=True):
         if run("test -d %s" % code_dir).failed:
-            run("git clone user@vcshost:/path/to/repo/.git %s" % code_dir)
+            run("git clone https://e_kolpakov@bitbucket.org/e_kolpakov/enforta.git %s" % code_dir)
     with cd(code_dir):
         run("git pull")
-        run("touch app.wsgi")
+        run("touch portal/wsgi.py")
