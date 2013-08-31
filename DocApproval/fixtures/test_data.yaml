@@ -2,11 +2,11 @@
 - model: DocApproval.City
   pk: 1
   fields:
-    city_name: "Ростов-на-Дону"
+    name: "Ростов-на-Дону"
 - model: DocApproval.City
   pk: 2
   fields:
-    city_name: "Тмутаракань"
+    name: "Тмутаракань"
 
 - model: DocApproval.Position
   pk: 2
@@ -172,6 +172,8 @@
     date: "2013-05-01"
     document: documents/new/123.txt
     prolongation: false
+    currency: 1
+    cost: 1000
 
 - model: DocApproval.Contract
   pk: 2
@@ -180,6 +182,8 @@
     date: "2013-05-02"
     document: documents/new/456.txt
     prolongation: false
+    currency: 1
+    cost: 2000
 
 - model: DocApproval.Contract
   pk: 3
@@ -188,6 +192,8 @@
     date: "2013-05-03"
     document: documents/new/789.txt
     prolongation: false
+    currency: 1
+    cost: 3000
 
 - model: DocApproval.Request
   pk: null

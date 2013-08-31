@@ -72,39 +72,3 @@
   pk: "bill_required"
   fields:
     name: "Требуется счет"
-
-#refer to global_constants for field_type values meaning
-- model: DocApproval.DynamicSettings
-  pk: "max_file_size"
-  fields:
-    name: Максимальный размер загружаемого файла
-    field_type: 0
-    value: 5120
-    description: Максимальный размер загружаемого файла (в Кб)
-- model: DocApproval.DynamicSettings
-  pk: "file_upload_folder"
-  fields:
-    name: Путь хранения файлов
-    field_type: 1
-    description: Путь в файловой системе сервера для долговременного хранения загружаемых файлов.
-- model: DocApproval.DynamicSettings
-  pk: "accounting_email"
-  fields:
-    name: Email адрес бухгалтерии
-    field_type: 1
-    value: "accounting@portal.ru"
-    description: Основной e-mail адрес для оповощения бухгалтерии
-- model: DocApproval.DynamicSettings
-  pk: "notification_timeout"
-  fields:
-    name: Таймаут напоминаний
-    field_type: 2
-    value: "2 days"
-    description: Период времени по истечении которого пользователям будут высылаться напоминания о необходимых действиях
-- model: DocApproval.DynamicSettings
-  pk: "notification_frequency"
-  fields:
-    name: Периодичность автоматических напоминаний
-    field_type: 2
-    value: "1 day"
-    description: Частота отправки напоминаний

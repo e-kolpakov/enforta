@@ -26,7 +26,7 @@ class URLSmokeTest(BaseTest):
         self._request_and_check(Request.MY_REQUESTS, 200)
 
     def test_profile(self):
-        self._request_and_check(Profile.MY_PROFILE, 200)
+        self._request_and_check(Profile.UPDATE, 200, pk=1)
         self._request_and_check(Profile.PROFILE, 200, pk=1)
 
     def test_auth(self):
