@@ -24,8 +24,8 @@ def push():
 def prepare_deploy():
     """prepares code to be deployed"""
     # test()
-    # commit()
-    # push()
+    commit()
+    push()
 
 @roles("production")
 def deploy():
