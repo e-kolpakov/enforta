@@ -22,9 +22,10 @@ class Environments:
 
     class Development:
         VENV = "DocApproval"
-        SITE_ROOT = '/home/john/GitRoot/Enforta/enforta/'
+        # SITE_ROOT = '/home/john/GitRoot/Enforta/enforta/'
+        SITE_ROOT = '/home/john/tmp/'
         DB = "docapproval"
-        BRANCH = "master"
+        BRANCH = "production"
 
 
 @task

@@ -5,7 +5,6 @@ from fabric.api import cd, run
 from fabfile import virtualenv, get_environment
 
 from fabfile.db import migrate
-from fabfile.prepare_deployment import prepare_deploy
 
 
 def restart_server():
@@ -22,11 +21,13 @@ def update_requirements():
 @task
 def deploy():
     environment = get_environment()
-    prepare_deploy()
+    # prepare_deploy()
     with settings(warn_only=True):
-        if run("test -d %s" % environment.SITE_ROOT).failed:
-            run("git clone https://e_kolpakov@bitbucket.org/e_kolpakov/enforta.git -b %s %s" % (
-                environment.BRANCH, environment.SITE_ROOT))
+        result = run("test -d %s" % environment.SITE_ROOT)
+    if result.failed:
+        run("mkdir %s" % environment.BRANCH)
+        run("git clone https://e_kolpakov@bitbucket.org/e_kolpakov/enforta.git -b %s %s" % (
+            environment.BRANCH, environment.SITE_ROOT))
     with cd(environment.SITE_ROOT):
         run("git pull")
     update_requirements()
