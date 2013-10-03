@@ -13,7 +13,10 @@ def test():
 
 @task
 def commit():
-    local("git checkout master && git add -p && git commit")
+    with settings(warn_only=True):
+        result = local("git checkout master && git add -p && git commit")
+    if result.failed and not confirm("Nothing to commit. Continue anyway?"):
+        abort("Aborting at user request.")
 
 
 @task
