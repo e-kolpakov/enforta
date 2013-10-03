@@ -13,7 +13,7 @@ def test():
 
 @task
 def commit():
-    local("git add -p && git commit")
+    local("git checkout master && git add -p && git commit")
 
 
 @task
