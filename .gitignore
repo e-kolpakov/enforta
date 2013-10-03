@@ -2,3 +2,12 @@
 .idea/*
 ./static
 ./static/*
+
+portal/static
+portal/static/*
+log
+
+*.pyc
+
+!DocApproval/static/css/normalize.css
+DocApproval/static/css
