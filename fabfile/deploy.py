@@ -25,7 +25,8 @@ def deploy():
     prepare_deploy()
     with settings(warn_only=True):
         if run("test -d %s" % environment.SITE_ROOT).failed:
-            run("git clone https://e_kolpakov@bitbucket.org/e_kolpakov/enforta.git %s" % environment.SITE_ROOT)
+            run("git clone https://e_kolpakov@bitbucket.org/e_kolpakov/enforta.git -b %s %s" % (
+                environment.BRANCH, environment.SITE_ROOT))
     with cd(environment.SITE_ROOT):
         run("git pull")
     update_requirements()

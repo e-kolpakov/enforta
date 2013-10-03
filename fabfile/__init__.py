@@ -12,16 +12,19 @@ class Environments:
         VENV = "DocApproval"
         SITE_ROOT = '/home/enfortit/docapproval/'
         DB = "docapproval"
+        BRANCH = "production"
 
     class Staging:
         VENV = "DocApprovalStaging"
         SITE_ROOT = '/home/enfortit/docapproval-staging/'
         DB = "docapproval-staging"
+        BRANCH = "staging"
 
     class Development:
         VENV = "DocApproval"
         SITE_ROOT = '/home/john/GitRoot/Enforta/enforta/'
         DB = "docapproval"
+        BRANCH = "master"
 
 
 @task
