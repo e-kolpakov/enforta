@@ -22,4 +22,4 @@ def migrate():
     environment = get_environment()
 
     with cd(environment.SITE_ROOT), virtualenv(environment.VENV):
-        run("python ./manage.py syncdb && python ./manage.py migrate")
+        run("python ./manage.py syncdb && python ./manage.py migrate --all")
