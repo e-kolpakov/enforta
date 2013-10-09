@@ -11,10 +11,9 @@ def run_db_script(script, db, user="postgres"):
 @task
 def create_db(environment=None):
     env = environment if environment else get_environment()
-    scripts = ("create_db.sql", "grant_permissions.sql")
     with cd(env.SITE_ROOT + "/deployment"):
-        for script in scripts:
-            run_db_script(script, environment.DB)
+        sudo("psql -f {0}".format("create_db.sql"))
+        sudo("psql -d {1} -f {0}".format("grant_permissions.sql", environment.DB))
 
 
 @task
