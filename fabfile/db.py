@@ -9,17 +9,17 @@ def run_db_script(script, db, user="postgres"):
 
 
 @task
-def create_db():
-    environment = get_environment()
+def create_db(environment=None):
+    env = environment if environment else get_environment()
     scripts = ("create_db.sql", "grant_permissions.sql")
-    with cd(environment.SITE_ROOT + "/deployment"):
+    with cd(env.SITE_ROOT + "/deployment"):
         for script in scripts:
             run_db_script(script, environment.DB)
 
 
 @task
-def migrate():
-    environment = get_environment()
-
-    with cd(environment.SITE_ROOT), virtualenv(environment.VENV):
+def migrate(environment=None):
+    env = environment if environment else get_environment()
+    with cd(env.SITE_ROOT), virtualenv(env.VENV):
         run("python ./manage.py syncdb && python ./manage.py migrate --all")
+        run_db_script("grant_permissions.sql", environment.DB)
