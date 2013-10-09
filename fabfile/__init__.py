@@ -13,12 +13,16 @@ class Environments:
         SITE_ROOT = '/home/enfortit/docapproval/'
         DB = "docapproval"
         BRANCH = "production"
+        LOG_OWNER_USER = "enfortit"
+        LOG_OWNER_GROUP = "www-data"
 
     class Staging:
         VENV = "DocApprovalStaging"
         SITE_ROOT = '/home/enfortit/docapproval-staging/'
         DB = "docapproval-staging"
         BRANCH = "staging"
+        LOG_OWNER_USER = "enfortit"
+        LOG_OWNER_GROUP = "www-data"
 
     class Development:
         VENV = "DocApproval"
@@ -26,6 +30,8 @@ class Environments:
         SITE_ROOT = '/home/john/tmp/'
         DB = "docapproval"
         BRANCH = "production"
+        LOG_OWNER_USER = "john"
+        LOG_OWNER_GROUP = "www-data"
 
 
 @task

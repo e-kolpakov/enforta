@@ -1,11 +1,9 @@
 from fabric.context_managers import shell_env
 from fabric.decorators import task
 from fabric.operations import sudo, run
+from django.conf import settings
+
 from fabfile import get_environment
-
-
-def provisioned():
-    return False
 
 
 def install_packages():
@@ -27,8 +25,11 @@ def make_virtualenv(environment):
         run("source /usr/local/bin/virtualenvwrapper.sh && mkvirtualenv --no-site-packages %s" % environment.VENV)
 
 
-def grant_webserver_permissions():
-    pass
+def create_log_and_upload_folders(environment):
+    log_tpl = "mkdir -p {0} && chown -R {1}:{2} {0} && sudo chmod g+ws -R {0}"
+    upload_tpl = "sudo mkdir -p {0} && sudo chown {1}:{2} {0} && sudo chmod 775 {0}"
+    sudo(log_tpl.format(settings.LOGGING_DIRECTORY, environment.LOG_OWNER_USER, environment.LOG_OWNER_GROUP))
+    sudo(upload_tpl.format(settings.MEDIA_ROOT, environment.LOG_OWNER_USER, environment.LOG_OWNER_GROUP))
 
 #     LOG_PATH=/home/enfortit/docapproval/log
 # UPLOAD_PATH=/var/uploads/doc-approval
@@ -43,3 +44,4 @@ def provision():
     install_packages()
     install_virtualenv()
     make_virtualenv(environment)
+    create_log_and_upload_folders(environment)
