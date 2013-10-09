@@ -23,5 +23,8 @@ try:
 except ImportError:
     pass
 
+if os.environ.get('SuppressLogging', 'false') != 'false':
+    locals()['LOGGING'] = {}
+
 # a little fix to allow a slightly larger than limit files to still hit the form validations
 FILE_UPLOAD_MAX_MEMORY_SIZE = MAX_FILE_SIZE + 15 * 2 ** 20

@@ -1,0 +1,34 @@
+<VirtualHost *:80>
+   LogLevel warn
+	ErrorLog ${APACHE_LOG_DIR}/docapproval.error.log
+	CustomLog ${APACHE_LOG_DIR}/docapproval.access.log combined
+	ServerSignature Off
+
+    SetEnv  EnvironmentType staging
+
+    Alias /robots.txt /home/enfortit/docapproval-staging/portal/static/robots.txt
+    Alias /favicon.ico /home/enfortit/docapproval-staging/portal/static/favicon.ico
+
+    AliasMatch ^/([^/]*\.css) /home/enfortit/docapproval-staging/portal/static/styles/$1
+    Alias /static 		/home/enfortit/docapproval-staging/portal/static
+
+	WSGIScriptAlias / /home/enfortit/docapproval-staging/portal/wsgi.py
+	WSGIDaemonProcess docApproval processes=2 maximum-requests=1000 threads=25 \
+	python-path=/home/enfortit/docapproval-staging:/home/enfortit/.virtualenvs/DocApprovalStaging/lib/python2.7/site-packages \
+	lang='en_US.UTF-8' locale='en_US.UTF-8'
+    WSGIProcessGroup docApproval
+
+    # LimitRequestBody 10485760
+    DocumentRoot /var/www/docapproval-staging
+	<Directory /var/www/docapproval-staging>
+        <Files wsgi.py>
+            Order deny,allow
+            Allow from all
+        </Files>
+	</Directory>
+
+	<Directory /home/enfortit/docapproval-staging/portal/static>
+        Order deny,allow
+        Allow from all
+	</Directory>
+</VirtualHost>

@@ -1,13 +1,13 @@
 <VirtualHost *:80>
-	LogLevel error
+    LogLevel warn
 	ErrorLog ${APACHE_LOG_DIR}/docapproval.error.log
 	CustomLog ${APACHE_LOG_DIR}/docapproval.access.log combined
 	ServerSignature On
 
+	SetEnv  EnvironmentType development
+
 	Alias /robots.txt /home/john/GitRoot/Enforta/enforta/portal/static/robots.txt
     Alias /favicon.ico /home/john/GitRoot/Enforta/enforta/portal/static/favicon.ico
-
-	SetEnv  EnvironmentType development
 
 	WSGIScriptAlias / /home/john/GitRoot/Enforta/enforta/portal/wsgi_dev.py
 	WSGIDaemonProcess docApproval processes=1 maximum-requests=50 threads=10 \
@@ -15,13 +15,12 @@
 	lang='en_US.UTF-8' locale='en_US.UTF-8'
     WSGIProcessGroup docApproval
 
-    # LimitRequestBody 10240
+    # LimitRequestBody 10485760
     DocumentRoot /var/www/docapproval
-	<Directory /var/www/docapproval/>
-        <Files wsgi.py>
+	<Directory /var/www/docapproval>
+        <Files wsgi_dev.py>
             Order deny,allow
             Allow from all
         </Files>
 	</Directory>
-
 </VirtualHost>

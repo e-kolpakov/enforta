@@ -1,34 +1,34 @@
 <VirtualHost *:80>
-   LogLevel warn
+    LogLevel warn
 	ErrorLog ${APACHE_LOG_DIR}/docapproval.error.log
 	CustomLog ${APACHE_LOG_DIR}/docapproval.access.log combined
-	ServerSignature On
+	ServerSignature Off
 
-    SetEnv  EnvironmentType staging
+    SetEnv  EnvironmentType production
 
     Alias /robots.txt /home/enfortit/docapproval/portal/static/robots.txt
     Alias /favicon.ico /home/enfortit/docapproval/portal/static/favicon.ico
 
     AliasMatch ^/([^/]*\.css) /home/enfortit/docapproval/portal/static/styles/$1
-
     Alias /static 		/home/enfortit/docapproval/portal/static
 
-    <Directory /home/enfortit/docapproval/portal/static>
-    Order deny,allow
-    Allow from all
-    </Directory>
-
 	WSGIScriptAlias / /home/enfortit/docapproval/portal/wsgi.py
-	WSGIDaemonProcess docApproval processes=2 maximum-requests=0 threads=25 \
-	python-path=/home/john/GitRoot/Enforta/enforta:/home/john/.virtualenvs/DocApproval/lib/python2.7/site-packages \
+	WSGIDaemonProcess docApproval processes=2 maximum-requests=1000 threads=25 \
+	python-path=/home/enfortit/docapproval:/home/enfortit/.virtualenvs/DocApproval/lib/python2.7/site-packages \
 	lang='en_US.UTF-8' locale='en_US.UTF-8'
     WSGIProcessGroup docApproval
 
+    # LimitRequestBody 10485760
     DocumentRoot /var/www/docapproval
 	<Directory /var/www/docapproval>
-	<Files wsgi.py>
-	Order deny,allow
-	Allow from all
-	</Files>
+        <Files wsgi.py>
+            Order deny,allow
+            Allow from all
+        </Files>
 	</Directory>
+
+	<Directory /home/enfortit/docapproval/portal/static>
+        Order deny,allow
+        Allow from all
+    </Directory>
 </VirtualHost>
