@@ -8,7 +8,7 @@ from fabric.operations import sudo, os
 from django.conf import settings as django_settings
 
 from fabfile import get_environment, git_repo, virtualenv
-from fabfile.db import migrate
+from fabfile.db import migrate, create_db
 
 
 def prepare_django_conf(environment):
@@ -82,6 +82,12 @@ def init_south(environment):
         run("python ./manage.py migrate guardian --fake")
 
 
+def load_initial_fixtures(environment):
+    with virtualenv(environment.VENV), cd(environment.SITE_ROOT), \
+         shell_env(SuppressLogging='true', EnvironmentType=environment.NAME):
+        run("python ./manage.py loaddata start_data.yaml")
+
+
 def configure_apache(environment):
     with cd(environment.SITE_ROOT + "/deployment/apache-conf"):
         sudo("cp {0} /etc/apache2/sites-available/{1}".format(environment.APACHE_SITE_CONF, environment.SITE_NAME))
@@ -95,15 +101,16 @@ def configure_apache(environment):
 def provision():
     """ Provisions initial installation"""
     environment = get_environment()
-    # install_packages()
-    # install_virtualenv()
-    # create_virtualenv(environment)
-    # fetch_source_code(environment)
-    # update_requirements(environment)
+    install_packages()
+    install_virtualenv()
+    create_virtualenv(environment)
+    fetch_source_code(environment)
+    update_requirements(environment)
     prepare_django_conf(environment)
     create_log_and_upload_folders(environment)
-    # create_db(environment)
-    # init_south(environment)
+    create_db(environment)
+    load_initial_fixtures(environment)
+    init_south(environment)
     configure_apache(environment)
 
 
@@ -113,7 +120,7 @@ def deploy():
     # prepare_deploy()
     with cd(environment.SITE_ROOT):
         run("git pull")
-        migrate()
         with virtualenv(environment.VENV), shell_env(SuppressLogging='true', EnvironmentType=environment.NAME):
+            migrate()
             run("python ./manage.py collectstatic")
         run("touch portal/wsgi.py")

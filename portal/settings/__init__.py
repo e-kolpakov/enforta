@@ -6,9 +6,8 @@ from base import *
 
 
 local_settings_file = os.environ.get('EnvironmentType', 'development')
-
-if 'migrate' in sys.argv or 'syncdb' in sys.argv:
-    local_settings_file = 'database_migration'
+suppress_logging = ('migrate' in sys.argv or 'syncdb' in sys.argv) or \
+                   os.environ.get('SuppressLogging', 'false') != 'false'
 
 if 'test' in sys.argv:
     local_settings_file = 'testing'
@@ -23,7 +22,7 @@ try:
 except ImportError:
     pass
 
-if os.environ.get('SuppressLogging', 'false') != 'false':
+if suppress_logging:
     locals()['LOGGING'] = {}
 
 # a little fix to allow a slightly larger than limit files to still hit the form validations
