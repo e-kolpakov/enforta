@@ -52,7 +52,7 @@ LOGGING = {
         'sql': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(LOGGING_DIRECTORY, 'doc-approval/sql.log'),
+            'filename': os.path.join(LOGGING_DIRECTORY, 'sql.log'),
             'maxBytes': 102400,
             'backupCount': 0,
             'formatter': 'generic',

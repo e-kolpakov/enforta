@@ -8,7 +8,7 @@ from fabric.operations import sudo, os
 from django.conf import settings as django_settings
 
 from fabfile import get_environment, git_repo, virtualenv
-from fabfile.db import migrate, create_db
+from fabfile.db import migrate
 
 
 def prepare_django_conf(environment):
@@ -69,6 +69,17 @@ def create_log_and_upload_folders(environment):
     upload_tpl = "sudo mkdir -p {0} && sudo chown {1}:{2} {0} && sudo chmod 775 {0}"
     sudo(log_tpl.format(django_settings.LOGGING_DIRECTORY, environment.LOG_OWNER_USER, environment.LOG_OWNER_GROUP))
     sudo(upload_tpl.format(django_settings.MEDIA_ROOT, environment.LOG_OWNER_USER, environment.LOG_OWNER_GROUP))
+    sudo("touch {0}/django.log && chmod g+w {0}/django.log".format(django_settings.LOGGING_DIRECTORY),
+         user=environment.LOG_OWNER_USER)
+    sudo("touch {0}/sql.log && chmod g+w {0}/sql.log".format(django_settings.LOGGING_DIRECTORY),
+         user=environment.LOG_OWNER_USER)
+
+
+def init_south(environment):
+    with virtualenv(environment.VENV), cd(environment.SITE_ROOT):
+        run("python ./manage.py migrate DocApproval --fake")
+        run("python ./manage.py migrate reversion --fake")
+        run("python ./manage.py migrate guardian --fake")
 
 
 def configure_apache(environment):
@@ -85,13 +96,14 @@ def provision():
     """ Provisions initial installation"""
     environment = get_environment()
     # install_packages()
-    install_virtualenv()
-    create_virtualenv(environment)
-    fetch_source_code(environment)
-    update_requirements(environment)
+    # install_virtualenv()
+    # create_virtualenv(environment)
+    # fetch_source_code(environment)
+    # update_requirements(environment)
     prepare_django_conf(environment)
     create_log_and_upload_folders(environment)
-    create_db(environment)
+    # create_db(environment)
+    # init_south(environment)
     configure_apache(environment)
 
 
@@ -101,6 +113,7 @@ def deploy():
     # prepare_deploy()
     with cd(environment.SITE_ROOT):
         run("git pull")
-    migrate()
-    with cd(environment.SITE_ROOT):
+        migrate()
+        with virtualenv(environment.VENV), shell_env(SuppressLogging='true', EnvironmentType=environment.NAME):
+            run("python ./manage.py collectstatic")
         run("touch portal/wsgi.py")
