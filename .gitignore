@@ -1,7 +1,5 @@
 .idea
 .idea/*
-./static
-./static/*
 *.pyc
 portal/static
 portal/static/*
