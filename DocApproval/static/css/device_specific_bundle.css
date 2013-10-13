@@ -1,0 +1,6 @@
+@media all and (device-width: 768px) and (device-height: 1024px) {
+    div.date-range-item {
+        display: block;
+        width: 100%;
+    }
+}

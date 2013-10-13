@@ -6,4 +6,3 @@ portal/static/*
 log
 
 !DocApproval/static/css/normalize.css
-DocApproval/static/css

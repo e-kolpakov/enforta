@@ -1,0 +1,449 @@
+/*approval_editor.less*/
+div.approval-editor div.sidebar div#template-routes-pane td.apply-template-button-cell button.btn {
+    height: 30px;
+    width: 30px;
+    padding: 4px;
+    margin-right: 0px;
+}
+
+div.approval-editor div.sidebar div#template-routes-pane td.apply-template-button-cell button.btn img {
+    width: 16px;
+    height: 16px;
+}
+
+div.approval-editor div#editor-header {
+    margin-bottom: 10px;
+}
+
+div.approval-editor div#approval-steps-editor td.buttons-cell {
+    width: 70px;
+}
+
+div.approval-editor div#approval-steps-editor td.buttons-cell button.btn {
+    height: 30px;
+    width: 30px;
+    padding: 4px;
+    margin-right: 0px;
+}
+
+div.approval-editor div#approval-steps-editor td.buttons-cell button.btn img {
+    width: 16px;
+    height: 16px;
+}
+
+div.approval-editor div#approval-steps-editor td.buttons-cell,
+div.approval-editor div#approval-steps-editor td.step-label {
+    width: 65px;
+    vertical-align: baseline;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+div.approval-editor div#approval-steps-editor td.steps div.row-fluid span[class*=span] {
+    margin-left: 10px;
+}
+
+div.approval-editor div#approval-steps-editor td.steps div.row-fluid span.span-approver {
+    position: relative;
+    padding: 4px 2px;
+    margin-bottom: 5px;
+}
+
+div.approval-editor div#approval-steps-editor td.steps div.row-fluid span.span-approver select.approver-selector {
+    width: 100%;
+}
+
+div.approval-editor div#approval-steps-editor td.steps div.row-fluid span.span-approver span.approver-remove {
+    position: absolute;
+    top: -6px;
+    left: -3px;
+    cursor: pointer;
+}
+
+div.approval-editor div#approval-steps-editor td.steps div.row-fluid span.span-approver span.approver-remove img.remove-approver-button {
+    width: 12px;
+    height: 12px;
+}
+
+div.approval-editor div#approval-steps-editor td.steps div.row-fluid span.span-approver select {
+    margin-bottom: 0px;
+}
+
+div.approval-editor div#approval-steps-editor td.steps span.add-approver {
+    padding: 4px 2px;
+}
+
+div.approval-editor div#approval-steps-editor td.steps span.add-approver button.btn {
+    height: 30px;
+    width: 30px;
+    padding: 4px;
+    margin-right: 5px;
+}
+
+div.approval-editor div#approval-steps-editor td.steps span.add-approver button.btn img {
+    width: 16px;
+    height: 16px;
+}
+
+/*approval_editor.less end*/
+div.approval-process-viewer div.step {
+    padding: 5px;
+    border-bottom: 1px solid #cccccc;
+}
+
+div.approval-process-viewer div.step span.step-number {
+    padding: 4px 2px;
+}
+
+div.approval-process-viewer div.step span.span-approver {
+    position: relative;
+    padding: 4px;
+    margin-bottom: 5px;
+    border: 1px solid #cccccc;
+    text-align: center;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
+
+div.approval-process-viewer div.step span.success {
+    background-color: #dff0d8;
+}
+
+div.date-range-item {
+    width: 135px;
+    display: inline-block;
+}
+
+div.date-range-item span.date-range-start-label,
+div.date-range-item span.date-range-end-label {
+    display: inline-block;
+    zoom: 1;
+    width: 16px;
+}
+
+div.datepicker-wrapper {
+    width: auto;
+    display: inline;
+}
+
+div.datepicker-wrapper input {
+    width: 80px;
+}
+
+div.datepicker-wrapper button.ui-datepicker-trigger {
+    display: inline-block;
+    height: 30px;
+}
+
+div.datepicker-wrapper button.ui-datepicker-trigger img {
+    vertical-align: middle;
+}
+
+input.ui-pg-input {
+    width: auto;
+    padding: 0px;
+    margin: 0px;
+    line-height: normal;
+}
+
+select.ui-pg-selbox {
+    width: auto;
+    padding: 0px;
+    margin: 0px;
+    line-height: normal;
+}
+
+div.login-wrapper {
+    margin: auto auto;
+    border: 1px solid #cccccc;
+    padding: 10px 20px;
+    background-color: #fff;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 430px;
+    height: 180px;
+    margin: -90px -215px;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
+
+html.JS ul.menu {
+    display: none;
+}
+
+img.icon {
+    height: 16px;
+    width: 16px;
+}
+
+body.main-body {
+    padding: 5px 10px;
+}
+
+body.main-body div.container-wrapper {
+    width: auto;
+    padding: 0px 10px;
+}
+
+body.main-body div.main-content {
+    margin: 45px -11px 5px -11px;
+    padding: 10px 10px;
+    border: 1px solid #cccccc;
+    min-height: 400px;
+    background-color: #ffffff;
+    vertical-align: top;
+    position: relative;
+    overflow: auto;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
+
+body.main-body div.main-footer {
+    margin-top: 10px;
+    margin-left: 0px;
+    margin-right: 0px;
+    border-top: 2px inset #cccccc;
+    padding: 5px 0px;
+    bottom: 0px;
+}
+
+table.table {
+    /*overriding bootstrap*/
+
+}
+
+table.table.table-noborder th,
+table.table.table-noborder td {
+    border: none;
+}
+
+div.clear-float {
+    clear: both;
+}
+
+div.floating-layout {
+    position: relative;
+}
+
+div.floating-layout > div {
+    margin-left: 10px;
+}
+
+div.floating-layout.child-float-left > div {
+    float: left;
+}
+
+div.floating-layout.child-float-right > div {
+    float: right;
+}
+
+.edit-form th {
+    font-size: 14px;
+    color: #000000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    text-align: left;
+    padding-right: 15px;
+}
+
+.edit-form th label {
+    white-space: nowrap;
+}
+
+.edit-form .field_errors {
+    color: #ff3333;
+    cursor: pointer;
+}
+
+.edit-form .field_errors_list {
+    cursor: pointer;
+    color: #000000;
+    display: none;
+    padding: 10px;
+    border: 1px;
+    position: absolute;
+    border: 1px solid #cccccc;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    background-color: #eeee99;
+}
+
+div.sidebar {
+    border: 1px solid #cccccc;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    margin-bottom: -1px;
+    padding: 5px 10px;
+    background-color: #ffffff;
+}
+
+div.home-page-quick-nav ul {
+    margin-bottom: 0px;
+}
+
+div.home-page-quick-nav ul li .icon-chevron-right {
+    float: right;
+    vertical-align: text-top;
+}
+
+.btn {
+    width: 80px;
+}
+
+.popup-menu {
+    display: none;
+    position: absolute;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
+
+#main-menu {
+    margin: 5px -10px 5px -10px;
+}
+
+#main-menu .navbar-inner {
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
+
+#main-menu span.logo {
+    float: left;
+    width: 90px;
+}
+
+#main-menu span.logo img {
+    height: 40px;
+    width: 90px;
+}
+
+#main-menu img {
+    height: 16px;
+    margin: 0px 5px 0px 0px;
+    vertical-align: top;
+}
+
+#main-menu li.dropdown:hover > ul.dropdown-menu {
+    display: block;
+    margin-top: 0px;
+}
+
+#main-menu li > a {
+    font-size: 14px;
+    color: #ff7700;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: normal;
+}
+
+#main-menu li > a:focus,
+#main-menu li > a:hover {
+    font-size: 14px;
+    color: #ee6600;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: normal;
+}
+
+#main-menu li.dropdown li > a:focus,
+#main-menu li.dropdown li > a:hover {
+    font-size: 14px;
+    color: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: normal;
+}
+
+#main-menu .current-user-indicator {
+    float: right;
+    text-align: right;
+    margin-right: 10px;
+    font-size: 10px;
+    color: #000000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: normal;
+}
+
+/*request_actions.less*/
+table#action-panel tr.action-row {
+    cursor: pointer;
+}
+
+table#action-panel tr.action-row td.action-label img {
+    width: 16px;
+    height: 16px;
+    vertical-align: baseline;
+}
+
+/*request_actions.less end*/
+.collapsible-heading {
+    border-bottom: 1px solid #cccccc;
+    margin-bottom: 4px;
+}
+
+.collapsible-heading .collapsible-toggle {
+    cursor: pointer;
+}
+
+.collapsible-heading .collapsible-toggle span.ui-icon {
+    float: left;
+    margin-left: 10px;
+}
+
+form.search-form label.control-label {
+    width: 115px;
+}
+
+form.search-form div.control-group {
+    margin-bottom: 5px;
+}
+
+form.search-form div.control-group div.controls {
+    margin-left: 125px;
+}
+
+form.search-form input {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    height: 30px;
+}
+
+form.search-form select {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
+
+form.search-form select.uneditable-input {
+    height: 30px;
+}
+
+table.table tr.no-data {
+    border-bottom: 1px solid #cccccc;
+}
+
+table.table tr.no-data td {
+    text-align: center;
+    font-size: 14px;
+    color: #000000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: normal;
+}
+
+table.table tr td.document-file a {
+    word-wrap: break-word;
+    display: block;
+    width: 250px;
+}
