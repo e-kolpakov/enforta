@@ -1,5 +1,6 @@
 from contextlib import contextmanager
-from fabric.context_managers import prefix
+import os
+from fabric.context_managers import prefix, shell_env, cd
 from fabric.decorators import task
 from fabric.state import env
 
@@ -80,6 +81,14 @@ def staging_local():
 @contextmanager
 def virtualenv(environment_name):
     with prefix("source /usr/local/bin/virtualenvwrapper.sh && workon {0}".format(environment_name)):
+        yield
+
+
+@contextmanager
+def set_environment(environment, local_dir=None):
+    directory = os.path.join(environment.SITE_ROOT, local_dir) if local_dir else environment.SITE_ROOT
+    with virtualenv(environment.VENV), cd(directory), \
+         shell_env(SuppressLogging='true', EnvironmentType=environment.NAME):
         yield
 
 

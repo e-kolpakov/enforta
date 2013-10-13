@@ -7,7 +7,7 @@ from fabric.contrib import django
 from fabric.operations import sudo, os
 from django.conf import settings as django_settings
 
-from fabfile import get_environment, git_repo, virtualenv
+from fabfile import get_environment, git_repo, set_environment
 from fabfile.db import migrate, create_db
 
 
@@ -61,7 +61,7 @@ def fetch_source_code(environment):
 
 
 def update_requirements(environment):
-    with virtualenv(environment.VENV), cd(environment.SITE_ROOT + "/deployment"):
+    with set_environment(environment, local_dir="deployment"):
         run("pip install -r requirements.txt")
 
 
@@ -77,21 +77,19 @@ def create_log_and_upload_folders(environment):
 
 
 def init_south(environment):
-    with virtualenv(environment.VENV), cd(environment.SITE_ROOT), \
-         shell_env(SuppressLogging='true', EnvironmentType=environment.NAME):
-        run("python ./manage.py migrate DocApproval --fake")
-        run("python ./manage.py migrate reversion --fake")
-        run("python ./manage.py migrate guardian --fake")
+    with set_environment(environment):
+        run("python ./manage.py migrate DocApproval")
+        run("python ./manage.py migrate reversion")
+        run("python ./manage.py migrate guardian")
 
 
 def load_initial_fixtures(environment):
-    with virtualenv(environment.VENV), cd(environment.SITE_ROOT), \
-         shell_env(SuppressLogging='true', EnvironmentType=environment.NAME):
+    with set_environment(environment):
         run("python ./manage.py loaddata start_data.yaml")
 
 
 def configure_apache(environment):
-    with cd(environment.SITE_ROOT + "/deployment/apache-conf"):
+    with set_environment(environment, local_dir="deployment/apache-conf"):
         sudo("cp {0} /etc/apache2/sites-available/{1}".format(environment.APACHE_SITE_CONF, environment.SITE_NAME))
         deactivate_site(environment.SITE_NAME)
         activate_site(environment.SITE_NAME)
@@ -120,9 +118,8 @@ def provision():
 def deploy():
     environment = get_environment()
     # prepare_deploy()
-    with cd(environment.SITE_ROOT):
+    with shell_env(WORKON_HOME='.virtualenvs'), set_environment(environment):
         run("git pull")
-        with virtualenv(environment.VENV), shell_env(SuppressLogging='true', EnvironmentType=environment.NAME):
-            migrate()
-            run("python ./manage.py collectstatic")
+        migrate()
+        run("python ./manage.py collectstatic")
         run("touch portal/wsgi.py")
