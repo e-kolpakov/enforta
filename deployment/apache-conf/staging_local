@@ -1,7 +1,7 @@
-<VirtualHost *:80>
+<VirtualHost *:8080>
    LogLevel warn
-	ErrorLog ${APACHE_LOG_DIR}/docapproval.error.log
-	CustomLog ${APACHE_LOG_DIR}/docapproval.access.log combined
+	ErrorLog ${APACHE_LOG_DIR}/docapproval-staging.error.log
+	CustomLog ${APACHE_LOG_DIR}/docapproval-staging.access.log combined
 	ServerSignature Off
 
     SetEnv  EnvironmentType staging_local
@@ -13,10 +13,10 @@
     Alias /static 		/home/john/docapproval-staging/portal/static
 
 	WSGIScriptAlias / /home/john/docapproval-staging/portal/wsgi.py
-	WSGIDaemonProcess docApproval processes=2 maximum-requests=1000 threads=25 \
+	WSGIDaemonProcess docApprovalStaging processes=2 maximum-requests=1000 threads=25 \
 	python-path=/home/john/docapproval-staging:/home/john/.virtualenvs/DocApprovalStaging/lib/python2.7/site-packages \
 	lang='en_US.UTF-8' locale='en_US.UTF-8'
-    WSGIProcessGroup docApproval
+    WSGIProcessGroup docApprovalStaging
 
     # LimitRequestBody 10485760
     DocumentRoot /var/www/docapproval-staging

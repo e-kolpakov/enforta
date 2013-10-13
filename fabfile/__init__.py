@@ -35,7 +35,7 @@ class Environments:
         NAME = "staging_local"
         VENV = "DocApprovalStaging"
         SITE_ROOT = '/home/john/docapproval-staging/'
-        SITE_NAME = "doc-approval"
+        SITE_NAME = "doc-approval-staging"
         DB = "docapproval_staging"
         BRANCH = "staging"
         LOG_OWNER_USER = "john"
