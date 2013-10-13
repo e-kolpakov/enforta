@@ -1,4 +1,4 @@
-<VirtualHost *:80>
+<VirtualHost *:8080>
    LogLevel warn
 	ErrorLog ${APACHE_LOG_DIR}/docapproval.error.log
 	CustomLog ${APACHE_LOG_DIR}/docapproval.access.log combined
