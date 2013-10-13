@@ -55,8 +55,9 @@ def fetch_source_code(environment):
     if result.failed:
         run("mkdir {0}".format(environment.SITE_ROOT))
         run("git clone {0} -b {1} {2}".format(git_repo, environment.BRANCH, environment.SITE_ROOT))
-    with cd(environment.SITE_ROOT):
-        run("git pull")
+    else:
+        with cd(environment.SITE_ROOT):
+            run("git pull")
 
 
 def update_requirements(environment):
@@ -76,7 +77,8 @@ def create_log_and_upload_folders(environment):
 
 
 def init_south(environment):
-    with virtualenv(environment.VENV), cd(environment.SITE_ROOT):
+    with virtualenv(environment.VENV), cd(environment.SITE_ROOT), \
+         shell_env(SuppressLogging='true', EnvironmentType=environment.NAME):
         run("python ./manage.py migrate DocApproval --fake")
         run("python ./manage.py migrate reversion --fake")
         run("python ./manage.py migrate guardian --fake")
@@ -109,8 +111,8 @@ def provision():
     prepare_django_conf(environment)
     create_log_and_upload_folders(environment)
     create_db(environment)
-    load_initial_fixtures(environment)
     init_south(environment)
+    load_initial_fixtures(environment)
     configure_apache(environment)
 
 

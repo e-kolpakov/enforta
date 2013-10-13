@@ -27,19 +27,19 @@
     city: 1
 
 - model: auth.Group
-  pk: null
+  pk: 1
   fields:
     name: Администраторы
 - model: auth.Group
-  pk: null
+  pk: 2
   fields:
     name: Пользователи
 - model: auth.Group
-  pk: null
+  pk: 3
   fields:
     name: Бухгалтера
 - model: auth.Group
-  pk: null
+  pk: 4
   fields:
     name: Утверждающие
 
