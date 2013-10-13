@@ -5,14 +5,16 @@ from fabric.api import cd, run
 from fabric.context_managers import shell_env, settings
 from fabric.contrib import django
 from fabric.operations import sudo, os
-from django.conf import settings as django_settings
+# from django.conf import settings as django_settings
 
 from fabfile import get_environment, git_repo, set_environment
 from fabfile.db import migrate, create_db
 
 
 def prepare_django_conf(environment):
+    local_project_path = '/'.join(os.path.dirname(__file__).split('/')[0:-1])
     sys.path.append(environment.SITE_ROOT)
+    sys.path.append(local_project_path)
     os.environ['SuppressLogging'] = 'true'  # only key existense is checked
     os.environ['EnvironmentType'] = environment.NAME
     django.project('portal')
@@ -68,11 +70,11 @@ def update_requirements(environment):
 def create_log_and_upload_folders(environment):
     log_tpl = "mkdir -p {0} && chown -R {1}:{2} {0} && sudo chmod g+ws -R {0}"
     upload_tpl = "sudo mkdir -p {0} && sudo chown {1}:{2} {0} && sudo chmod 775 {0}"
-    sudo(log_tpl.format(django_settings.LOGGING_DIRECTORY, environment.LOG_OWNER_USER, environment.LOG_OWNER_GROUP))
-    sudo(upload_tpl.format(django_settings.MEDIA_ROOT, environment.LOG_OWNER_USER, environment.LOG_OWNER_GROUP))
-    sudo("touch {0}/django.log && chmod g+w {0}/django.log".format(django_settings.LOGGING_DIRECTORY),
+    sudo(log_tpl.format(environment.LOGGING_DIRECTORY, environment.LOG_OWNER_USER, environment.LOG_OWNER_GROUP))
+    sudo(upload_tpl.format(environment.MEDIA_ROOT, environment.LOG_OWNER_USER, environment.LOG_OWNER_GROUP))
+    sudo("touch {0}/django.log && chmod g+w {0}/django.log".format(environment.LOGGING_DIRECTORY),
          user=environment.LOG_OWNER_USER)
-    sudo("touch {0}/sql.log && chmod g+w {0}/sql.log".format(django_settings.LOGGING_DIRECTORY),
+    sudo("touch {0}/sql.log && chmod g+w {0}/sql.log".format(environment.LOGGING_DIRECTORY),
          user=environment.LOG_OWNER_USER)
 
 
@@ -106,7 +108,7 @@ def provision():
     create_virtualenv(environment)
     fetch_source_code(environment)
     update_requirements(environment)
-    prepare_django_conf(environment)
+    # prepare_django_conf(environment)
     create_log_and_upload_folders(environment)
     create_db(environment)
     init_south(environment)
