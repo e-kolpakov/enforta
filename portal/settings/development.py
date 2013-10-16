@@ -85,6 +85,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False
         },
+        'DocApprovalNotifications': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
         'django.request': {
             'handlers': ['mail_admins', 'file'],
             'level': 'ERROR',

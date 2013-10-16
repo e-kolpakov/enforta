@@ -15,9 +15,6 @@ framework.
 """
 import os
 from django.core.handlers.wsgi import WSGIHandler
-import djcelery
-
-djcelery.setup_loader()
 
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 #sys.path.insert(0, PROJECT_PATH)
@@ -34,6 +31,7 @@ def monitor_file(arg, dirname, names):
 monitor.start(interval=1.0)
 os.path.walk(PROJECT_PATH, monitor_file, None)
 os.path.walk(os.path.join(PROJECT_PATH, '../DocApproval'), monitor_file, None)
+os.path.walk(os.path.join(PROJECT_PATH, '../DocApprovalNotifications'), monitor_file, None)
 
 # This application object is used by any WSGI server configured to use this
 # file. This includes Django's development server, if the WSGI_APPLICATION
@@ -50,3 +48,6 @@ def application(environ, start_response):
 # Apply WSGI middleware here.
 # from helloworld.wsgi import HelloWorldApplication
 # application = HelloWorldApplication(application)
+import djcelery
+
+djcelery.setup_loader()

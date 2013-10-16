@@ -202,6 +202,11 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False
         },
+        'DocApprovalNotifications': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': False
+        },
         'django.request': {
             'handlers': ['mail_admins', 'file'],
             'level': 'ERROR',
