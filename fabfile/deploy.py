@@ -80,11 +80,13 @@ def create_log_and_upload_folders(environment):
          user=environment.LOG_OWNER_USER)
 
 
-def init_south(environment):
+@task
+def init_south(environment=None):
+    environment = environment if environment else get_environment()
+    apps_to_migrate = ('DocApproval', 'reversion', 'guardian', 'djcelery')
     with set_environment(environment):
-        run("python ./manage.py migrate DocApproval")
-        run("python ./manage.py migrate reversion")
-        run("python ./manage.py migrate guardian")
+        for app in apps_to_migrate:
+            run("python ./manage.py migrate {0}".format(app))
 
 
 def load_initial_fixtures(environment):

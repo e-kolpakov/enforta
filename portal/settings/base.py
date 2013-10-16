@@ -1,6 +1,7 @@
 # Django settings for portal project.
 import os
 import django
+import djcelery
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -139,16 +140,13 @@ TEMPLATE_DIRS = (
     os.path.join(PROJECT_PATH, 'DocApproval/templates')
 )
 
+# installed apps are added at bottom
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'reversion',
-    'south',
-    'guardian',
-    'DocApproval',
 
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
@@ -213,7 +211,15 @@ LOGGING = {
 }
 
 # Application specific settings
+
+#reversion
+INSTALLED_APPS += ('reversion',)
+
+#south
+INSTALLED_APPS += ('south',)
+
 # guardian
+INSTALLED_APPS += ('guardian',)
 ANONYMOUS_USER_ID = -1
 
 AUTHENTICATION_BACKENDS = (
@@ -223,7 +229,15 @@ AUTHENTICATION_BACKENDS = (
 
 GUARDIAN_RENDER_403 = True
 
+#djcelery
+INSTALLED_APPS += ('djcelery', 'kombu.transport.django')
+BROKER_URL = 'django://'
+djcelery.setup_loader()
+
+
 #DocApproval
+INSTALLED_APPS += ('DocApproval',)
+
 # nothing funny. Governs usage of python-magic for checking filetypes.
 # If set to true, python-magic is used, which is more secure, but might be more resource cosuming as well
 USE_MAGIC = True

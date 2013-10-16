@@ -15,6 +15,9 @@ framework.
 """
 import os
 from django.core.handlers.wsgi import WSGIHandler
+import djcelery
+
+djcelery.setup_loader()
 
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 #sys.path.insert(0, PROJECT_PATH)
