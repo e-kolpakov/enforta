@@ -22,6 +22,10 @@ try:
 except ImportError:
     pass
 
+if 'migrate' in sys.argv or 'syncdb' in sys.argv:
+    locals()['DATABASES']['default']['USER'] = 'sa'
+    locals()['DATABASES']['default']['PASSWORD'] = 'sa!v3ry_str0ng_p@ssw0rd#!'
+
 if suppress_logging:
     locals()['LOGGING'] = {}
 

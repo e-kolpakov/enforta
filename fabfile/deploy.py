@@ -83,7 +83,7 @@ def create_log_and_upload_folders(environment):
 @task
 def init_south(environment=None):
     environment = environment if environment else get_environment()
-    apps_to_migrate = ('DocApproval', 'reversion', 'guardian', 'djcelery')
+    apps_to_migrate = ('DocApproval', 'DocApprovalNotifications', 'reversion', 'guardian', 'djcelery')
     with set_environment(environment):
         for app in apps_to_migrate:
             run("python ./manage.py migrate {0}".format(app))
