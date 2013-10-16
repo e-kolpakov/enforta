@@ -62,7 +62,9 @@ def fetch_source_code(environment):
             run("git pull")
 
 
-def update_requirements(environment):
+@task
+def update_requirements(environment=None):
+    environment = environment if environment else get_environment()
     with set_environment(environment, local_dir="deployment"):
         run("pip install -r requirements.txt")
 
@@ -90,7 +92,9 @@ def load_initial_fixtures(environment):
         run("python ./manage.py loaddata start_data.yaml")
 
 
-def configure_apache(environment):
+@task
+def configure_apache(environment=None):
+    environment = environment if environment else get_environment()
     with set_environment(environment, local_dir="deployment/apache-conf"):
         sudo("cp {0} /etc/apache2/sites-available/{1}".format(environment.APACHE_SITE_CONF, environment.SITE_NAME))
         deactivate_site(environment.SITE_NAME)
