@@ -242,12 +242,6 @@ INSTALLED_APPS += ('DocApproval',)
 # If set to true, python-magic is used, which is more secure, but might be more resource cosuming as well
 USE_MAGIC = True
 
-NOTIFICATIONS_TIMEOUT = '2 days'
-
-NOTIFICATIONS_FREQUENCY = '1 day'
-
-ACCOUNTING_EMAIL = 'accounting@enforta.ru'
-
 MAX_FILE_SIZE = 5120
 
 ALLOWED_MIME_TYPES = (
@@ -274,3 +268,12 @@ SKIP_MAGIC_FILE_TYPES = (
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 )
+
+# DocApprovalNotifications
+INSTALLED_APPS += ('DocApprovalNotifications',)
+
+NOTIFICATIONS_TIMEOUT = '2 days'
+
+NOTIFICATIONS_FREQUENCY = '1 day'
+
+ACCOUNTING_EMAIL = 'accounting@enforta.ru'

@@ -40,16 +40,16 @@ MEDIA_ROOT = "/var/uploads/doc-approval"
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 TIME_ZONE = 'Europe/Moscow'
 
-#Максимальный размер загружаемого файла (в Кб)
+#Максимальный размер загружаемого файла (в Кб) - ниже приведено значение по умолчанию
 # MAX_FILE_SIZE = 5120
 
-# Разрешенные к загрузке типы файлов
+# Разрешенные к загрузке типы файлов - ниже приведены значения по умолчанию
 # ALLOWED_MIME_TYPES = (
 #     'application/pdf',
 #     'application/x-pdf',
-#     'Image/tiff',
+#     'image/tiff',
 #     'image/x-tiff',
-#     'Image/jpeg',
+#     'image/jpeg',
 #     'image/pjpeg',
 #     'application/msword',
 #     'application/excel',
