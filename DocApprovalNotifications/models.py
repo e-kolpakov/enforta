@@ -3,7 +3,8 @@ from jsonfield import JSONField
 
 from django.db import models
 from django.utils.translation import ugettext as _
-from notification_strategies.repository import repository as notification_strategies_repository
+
+from DocApprovalNotifications.notification_strategies.repository import NotificationStrategiesRepository
 
 
 class ModelConstants:
@@ -53,15 +54,17 @@ class Event(models.Model):
     timestamp = models.DateTimeField(verbose_name=_(u"Дата и время"), auto_now_add=True, null=False, blank=False)
 
     def process_notifications(self):
-        for notification_strategy in notification_strategies_repository[self.event_type]:
-            notification_strategy.execute(self)
+        repo = NotificationStrategiesRepository.get_instance()
+        for notification_strategy_class in repo[self.event_type]:
+            strategy = notification_strategy_class()
+            strategy.execute(self)
 
 
 class Notification(models.Model):
     UI_SHOW_LIMIT = 5
     event = models.ForeignKey(Event, verbose_name=_(u"Событие"))
     notification_recipient = models.ForeignKey("DocApproval.UserProfile", verbose_name=_(u"Получптель"), null=True)
-    repeating = models.BooleanField(verbose_name=_(u"Повторяющееся"))
-    processed = models.BooleanField(verbose_name=_(u"Погашено"))
-    times_shown_in_ui = models.IntegerField(verbose_name=_(u"Показано в интерфейсе"))
+    repeating = models.BooleanField(verbose_name=_(u"Повторяющееся"), default=False)
+    processed = models.BooleanField(verbose_name=_(u"Погашено"), default=False)
+    times_shown_in_ui = models.IntegerField(verbose_name=_(u"Показано в интерфейсе"), default=0)
 
