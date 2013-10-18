@@ -55,7 +55,6 @@ def get_approval_signal_params(**kwargs):
 @receiver(approve_action_signal, sender=ApprovalProcess)
 def approve_action_handler(sender, **kwargs):
     request, user, on_behalf_of, comment, action_type = get_approval_signal_params(**kwargs)
-    need_save = True
     _logger.info("Handling {1} on request {0}", request, action_type)
     # need to save approval action in history first
     if on_behalf_of != user:

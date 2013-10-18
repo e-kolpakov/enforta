@@ -295,29 +295,27 @@ class ApprovalProcess(models.Model):
     @transaction.commit_on_success
     def step_approved(self, user_profile, approver, comment=None):
         self._process_action(user_profile, ApprovalProcessAction.ACTION_APPROVE, comment, approver)
-        approve_action_signal.send(
-            ApprovalProcess,
-            request=self.route.request, user=user_profile, comment=comment, on_behalf_of=approver,
-            action_type=ApprovalProcessAction.ACTION_APPROVE)
+        self.send_action_signal(ApprovalProcessAction.ACTION_APPROVE, user_profile, approver, comment)
+
         if self.current_step_number != self.route.get_steps_count():
             self.current_step_number += 1
             self.save()
         else:
             self.is_successful = True
             self.save()
+            self.send_action_signal(ApprovalProcessAction.ACTION_FINAL_APPROVE, user_profile, approver, comment)
             _logger.info(LoggerMessages.REQUEST_APPROVED.format(user_profile, self.route.request, approver))
-            approve_action_signal.send(
-                ApprovalProcess,
-                request=self.route.request, user=user_profile, comment=comment, on_behalf_of=approver,
-                action_type=ApprovalProcessAction.ACTION_FINAL_APPROVE)
 
     @transaction.commit_on_success
     def step_rejected(self, user_profile, approver, comment=None):
         _logger.info(LoggerMessages.REQUEST_REJECTED.format(user_profile, self.route.request, approver))
         self._process_action(user_profile, ApprovalProcessAction.ACTION_REJECT, comment, approver)
+        self.send_action_signal(ApprovalProcessAction.ACTION_REJECT, user_profile, approver, comment)
+
+    def send_action_signal(self, action_type, user_profile, approver, comment):
         approve_action_signal.send(
-            ApprovalProcess, request=self.route.request, user=user_profile, comment=comment, on_behalf_of=approver,
-            action_type=ApprovalProcessAction.ACTION_REJECT)
+            ApprovalProcess, request=self.route.request, user=user_profile, on_behalf_of=approver, comment=comment,
+            action_type=action_type, step_number=self.current_step_number)
 
     def _process_action(self, user_profile, action_code, comment, approver):
         current_step = self.current_step_number
@@ -359,5 +357,7 @@ class ApprovalProcessAction(models.Model):
         app_label = "DocApproval"
 
 
-approve_action_signal = Signal(providing_args=(['request', 'user', 'on_behalf_of', 'comment', 'action_type']))
+approve_action_signal = Signal(
+    providing_args=(['request', 'user', 'on_behalf_of', 'comment', 'action_type', 'step_number'])
+)
 approval_route_changed_signal = Signal(providing_args=(['request', 'user']))
