@@ -1,13 +1,9 @@
 import logging
 
-from django.dispatch import receiver
-
 from models import Event
 
-from DocApproval.models.approval import approve_action_signal
-from DocApproval.models.request import request_status_change
 from DocApproval.models import (
-    ApprovalProcess, ApprovalProcessAction, Request, RequestStatus, get_approval_signal_params
+    ApprovalProcessAction, RequestStatus, get_approval_signal_params
     )
 
 logger = logging.getLogger(__name__)
@@ -28,7 +24,6 @@ status_change_mapping = {
 }
 
 
-@receiver(approve_action_signal, sender=ApprovalProcess)
 def handle_approve_action_signal(sender, **kwargs):
     request, user, on_behalf_of, comment, action_type = get_approval_signal_params(**kwargs)
     event_type = action_type_mapping.get(action_type, Event.EventType.UNKNOWN)
@@ -39,7 +34,6 @@ def handle_approve_action_signal(sender, **kwargs):
     event.process_notifications()
 
 
-@receiver(request_status_change, sender=Request)
 def handle_request_status_change(sender, **kwargs):
     request, new_status, old_status = kwargs['request'], kwargs['new_status'], kwargs['old_status']
     event_type = status_change_mapping.get(new_status.code, Event.EventType.UNKNOWN)
