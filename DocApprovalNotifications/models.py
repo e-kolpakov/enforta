@@ -12,10 +12,9 @@ class ModelConstants:
 
 class Event(models.Model):
     class EventType:
-        APPROVAL_REQUIRED = "APPROVAL_REQUIRED"
         REQUEST_APPROVAL_STARTED = "REQUEST_APPROVAL_STARTED"
         REQUEST_APPROVAL_CANCELLED = "REQUEST_APPROVAL_CANCELLED"
-        REQUEST_APPROVE = "REQUEST_APPROVE"
+        REQUEST_APPROVED = "REQUEST_APPROVED"
         REQUEST_REJECTED = "REQUEST_REJECTED"
         REQUEST_FINAL_APPROVE = "REQUEST_FINAL_APPROVE"
         CONTRACT_PAYMENT_REQUIRED = "CONTRACT_PAYMENT_REQUIRED"
@@ -25,11 +24,14 @@ class Event(models.Model):
         UNKNOWN = "UNKNOWN"
 
     event_type = models.CharField(_(u"Тип события"), max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH, choices=(
-        (EventType.APPROVAL_REQUIRED, _(u"Требуется утверждение")),
-        (EventType.REQUEST_APPROVE, _(u"Заявка утверждена")),
-        (EventType.REQUEST_FINAL_APPROVE, _(u"Заявка полностью утверждена")),
+        (EventType.REQUEST_APPROVAL_STARTED, _(u"Начат процесс утверждения")),
+        (EventType.REQUEST_APPROVAL_CANCELLED, _(u"Процесс утверждения отменен")),
+        (EventType.REQUEST_APPROVED, _(u"Заявка утверждена")),
         (EventType.REQUEST_REJECTED, _(u"Заявка отклонена")),
+        (EventType.REQUEST_FINAL_APPROVE, _(u"Заявка полностью утверждена")),
+        (EventType.CONTRACT_PAYMENT_REQUIRED, _(u"Требуется оплата договора")),
         (EventType.CONTRACT_PAID, _(u"Договор оплачен")),
+        (EventType.CONTRACT_ACTIVATED, _(u"Договор начал действие")),
         (EventType.CONTRACT_EXPIRED, _(u"Истек срок действия договора")),
     ))
     entity = models.CharField(verbose_name=_(u"Сущность"), null=False, blank=False,

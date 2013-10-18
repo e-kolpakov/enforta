@@ -9,7 +9,7 @@ from DocApproval.models import (
 logger = logging.getLogger(__name__)
 
 action_type_mapping = {
-    ApprovalProcessAction.ACTION_APPROVE: Event.EventType.REQUEST_APPROVE,
+    ApprovalProcessAction.ACTION_APPROVE: Event.EventType.REQUEST_APPROVED,
     ApprovalProcessAction.ACTION_FINAL_APPROVE: Event.EventType.REQUEST_FINAL_APPROVE,
     ApprovalProcessAction.ACTION_REJECT: Event.EventType.REQUEST_REJECTED
 }
