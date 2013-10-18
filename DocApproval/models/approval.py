@@ -180,19 +180,20 @@ class ApprovalRoute(models.Model):
     def get_steps_count(self):
         return self.steps.all().aggregate(models.Max('step_number')).get('step_number__max')
 
+    def get_approvers(self, step_number):
+        return [step.approver for step in self.steps.filter(step_number=step_number)]
+
     def get_current_approvers(self):
-        try:
-            active_step_number = self.processes.get(is_current=True).current_step_number
-        except ApprovalProcess.DoesNotExist:
-            active_step_number = ApprovalProcess.STARTING_STEP_NUMBER
-        return [step.approver for step in self.steps.filter(step_number=active_step_number)]
+        current_process = self.processes.get(is_current=True)
+        step_number = current_process.current_step_number if current_process else ApprovalProcess.STARTING_STEP_NUMBER
+        return self.get_approvers(step_number)
 
     def get_current_process(self):
         try:
             return self.processes.get(is_current=True)
         except ApprovalProcess.DoesNotExist:
             _logger.warning(
-                "Tried to get current approval process for route {0} no current approval process exist".format(self))
+                "Tried to get current approval process for route {0}, no current approval process exist".format(self))
             return None
 
     def get_successful_process(self):
@@ -249,7 +250,7 @@ class TemplateApprovalRoute(ApprovalRoute):
     def process_request_permissions(self, to_remove=None, to_add=None):
         raise UnavailableInTemplate(_(u"Установка прав доступа к заявке"))
 
-    def get_current_approvers(self):
+    def get_approvers(self):
         raise UnavailableInTemplate(_(u"Текущие утверждающие"))
 
     def get_current_process(self):
