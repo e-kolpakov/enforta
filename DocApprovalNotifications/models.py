@@ -1,6 +1,9 @@
 # -*- coding=utf-8 -*-
+from jsonfield import JSONField
+
 from django.db import models
 from django.utils.translation import ugettext as _
+from notification_strategies.repository import repository as notification_strategies_repository
 
 
 class ModelConstants:
@@ -11,6 +14,14 @@ class ModelConstants:
 
 
 class Event(models.Model):
+    class ParamKeys:
+        STEP_NUMBER = 'step_number'
+        COMMENT = 'comment'
+        ON_BEHALF_OF = 'on_behalf_of'
+
+        OLD_STATUS_CODE = 'old_status'
+        NEW_STATUS_CODE = 'new_status'
+
     class EventType:
         REQUEST_APPROVAL_STARTED = "REQUEST_APPROVAL_STARTED"
         REQUEST_APPROVAL_CANCELLED = "REQUEST_APPROVAL_CANCELLED"
@@ -38,10 +49,12 @@ class Event(models.Model):
                               max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH)
     entity_id = models.IntegerField(verbose_name=_(u"Первичный ключ сущности"), null=False, blank=False)
     sender = models.ForeignKey("DocApproval.UserProfile", verbose_name=_(u"Пользователь"), null=True)
+    params = JSONField(verbose_name=_(u"Дополнительные параметры"), null=True)
     timestamp = models.DateTimeField(verbose_name=_(u"Дата и время"), auto_now_add=True, null=False, blank=False)
 
     def process_notifications(self):
-        pass
+        for notification_strategy in notification_strategies_repository[self.event_type]:
+            notification_strategy.execute(self)
 
 
 class Notification(models.Model):

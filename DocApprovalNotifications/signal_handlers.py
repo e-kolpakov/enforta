@@ -1,10 +1,7 @@
 import logging
 
 from models import Event
-
-from DocApproval.models import (
-    ApprovalProcessAction, RequestStatus, get_approval_signal_params
-    )
+from DocApproval.models import (ApprovalProcessAction, RequestStatus)
 
 logger = logging.getLogger(__name__)
 
@@ -25,10 +22,21 @@ status_change_mapping = {
 
 
 def handle_approve_action_signal(sender, **kwargs):
-    request, user, on_behalf_of, comment, action_type = get_approval_signal_params(**kwargs)
+    request, user, on_behalf_of = kwargs['request'], kwargs['user'], kwargs['on_behalf_of']
+    action_type, step_number, comment = kwargs['action_type'], kwargs['step_number'], kwargs['comment']
     event_type = action_type_mapping.get(action_type, Event.EventType.UNKNOWN)
 
-    event = Event.objects.create(event_type=event_type, entity="DocApproval.Request", entity_id=request.id, sender=user)
+    params = {
+        Event.ParamKeys.STEP_NUMBER: step_number,
+        Event.ParamKeys.COMMENT: comment
+    }
+    if on_behalf_of != user:
+        params[Event.ParamKeys.ON_BEHALF_OF] = on_behalf_of
+
+    event = Event.objects.create(
+        event_type=event_type, sender=user, params=params,
+        entity="DocApproval.Request", entity_id=request.id,
+    )
     logger.info("Approve action signal of type {action_type} as {event_type} for request {request}".format(
         action_type=action_type, event_type=event_type, request=request))
     event.process_notifications()
@@ -37,7 +45,14 @@ def handle_approve_action_signal(sender, **kwargs):
 def handle_request_status_change(sender, **kwargs):
     request, new_status, old_status = kwargs['request'], kwargs['new_status'], kwargs['old_status']
     event_type = status_change_mapping.get(new_status.code, Event.EventType.UNKNOWN)
-    event = Event.objects.create(event_type=event_type, entity="DocApproval.Request", entity_id=request.id)
+    event = Event.objects.create(
+        event_type=event_type,
+        entity="DocApproval.Request", entity_id=request.id,
+        params={
+            Event.ParamKeys.OLD_STATUS_CODE: old_status.code,
+            Event.ParamKeys.NEW_STATUS_CODE: new_status.code
+        }
+    )
     logger.info(
         "Request status change {old_status} => {new_status} signal as {event_type} for request {request}".format(
             old_status=old_status, new_status=new_status, event_type=event_type, request=request))
