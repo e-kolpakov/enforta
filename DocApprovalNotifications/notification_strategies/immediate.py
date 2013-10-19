@@ -1,3 +1,4 @@
+from DocApproval.models import UserProfile
 from DocApprovalNotifications.models import Notification
 from DocApprovalNotifications.notification_strategies.base import BaseStrategy, ApproversInStepStrategyMixin
 
@@ -31,3 +32,14 @@ class NotifyApproverRequestRejectedStrategy(NotifyCreatorStrategy):
 
 class NotifyApproverRequestApprovalCompleteStrategy(NotifyCreatorStrategy):
     notification_type = NotificationType.REQUEST_FINAL_APPROVE
+
+
+class NotifyAllUsersStrategy(BaseStrategy):
+    def execute(self, event):
+        request = self._get_event_entity(event)
+        recipients = UserProfile.objects.get_active_users()
+
+        for recipient in recipients:
+            if recipient != request.creator:  # creator gets it's own email
+                self._create_notification(event=event, notification_recipient=recipient, recurring=False,
+                                          notification_type=NotificationType.REQUEST_FINAL_APPROVE)

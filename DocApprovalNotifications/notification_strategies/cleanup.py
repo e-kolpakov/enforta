@@ -40,10 +40,8 @@ class BaseCleanApproversStrategy(BaseCleanStrategy):
             # as REQUEST_APPROVAL_CANCELLED event is handled first
             if recipient != event.sender and recipient not in no_longer_required_sent:
                 no_longer_required_sent.add(recipient)  # prevent double sending
-                self._create_notification(
-                    event=event, notification_recipient=recipient, repeating=False,
-                    notification_type=NotificationType.APPROVE_NO_LONGER_REQUIRED
-                )
+                self._create_notification(event=event, notification_recipient=recipient, recurring=False,
+                                          notification_type=NotificationType.APPROVE_NO_LONGER_REQUIRED)
 
     def get_approver_ids(self, event):
         return set()

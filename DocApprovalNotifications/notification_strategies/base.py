@@ -19,9 +19,9 @@ class BaseStrategy(object):
             event__entity=event.entity, event__entity_id=event.entity_id
         )
 
-    def _create_notification(self, event, notification_recipient, repeating, notification_type):
+    def _create_notification(self, event, notification_recipient, recurring, notification_type):
         Notification.objects.create(event=event, notification_recipient=notification_recipient,
-                                    repeating=repeating, notification_type=notification_type)
+                                    recurring=recurring, notification_type=notification_type)
 
     def execute(self, event):
         raise NotImplementedError("Execute called on strategy class")

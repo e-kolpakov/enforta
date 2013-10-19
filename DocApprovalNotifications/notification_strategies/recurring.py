@@ -7,6 +7,5 @@ class RecurringApproversInNextStepStrategy(BaseStrategy, ApproversInStepStrategy
         approvers = self.get_approvers_in_next_step(event)
 
         for approver in approvers:
-            self._create_notification(
-                event=event, notification_recipient=approver, repeating=True,
-                notification_type=Notification.NotificationType.APPROVE_REQUIRED_REMINDER)
+            self._create_notification(event=event, notification_recipient=approver, recurring=True,
+                                      notification_type=Notification.NotificationType.APPROVE_REQUIRED_REMINDER)

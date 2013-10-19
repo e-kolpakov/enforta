@@ -73,7 +73,7 @@ class Notification(models.Model):
 
     event = models.ForeignKey(Event, verbose_name=_(u"Событие"))
     notification_recipient = models.ForeignKey("DocApproval.UserProfile", verbose_name=_(u"Получптель"), null=True)
-    repeating = models.BooleanField(verbose_name=_(u"Повторяющееся"), default=False)
+    recurring = models.BooleanField(verbose_name=_(u"Повторяющееся"), default=False)
     dismissed = models.BooleanField(verbose_name=_(u"Погашено"), default=False)
     ui_dismissed = models.BooleanField(verbose_name=_(u"Показано в интерфейсе"), default=False)
     notification_type = models.CharField(
