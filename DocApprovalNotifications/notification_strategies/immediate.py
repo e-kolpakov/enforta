@@ -35,11 +35,24 @@ class NotifyApproverRequestApprovalCompleteStrategy(NotifyCreatorStrategy):
 
 
 class NotifyAllUsersStrategy(BaseStrategy):
+    include_creator = True
+    notification_type = None
+
     def execute(self, event):
         request = self._get_event_entity(event)
         recipients = UserProfile.objects.get_active_users()
 
         for recipient in recipients:
-            if recipient != request.creator:  # creator gets it's own email
+            if self.include_creator or recipient != request.creator:  # creator gets it's own email
                 self._create_notification(event=event, notification_recipient=recipient, recurring=False,
-                                          notification_type=NotificationType.REQUEST_FINAL_APPROVE)
+                                          notification_type=notification_type)
+
+
+class NotifyAllUsersFinalApproveStrategy(NotifyAllUsersStrategy):
+    include_creator = False
+    notification_type = NotificationType.REQUEST_FINAL_APPROVE
+
+
+class NotifyAllUsersContractExpiredStrategy(NotifyAllUsersStrategy):
+    include_creator = True
+    notification_type = NotificationType.CONTRACT_EXPIRED
