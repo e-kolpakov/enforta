@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from DocApproval.constants import Groups
 from DocApproval.messages import ProfileMessages
 
-from .menu import MenuManager
+from DocApproval.menu import MenuManager
 
 
 #taken from http://stackoverflow.com/questions/2164069/best-way-to-make-djangos-login-required-the-default

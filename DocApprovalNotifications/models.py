@@ -2,8 +2,9 @@
 from jsonfield import JSONField
 
 from django.db import models
-from django.dispatch.dispatcher import Signal
+from django.dispatch.dispatcher import Signal, receiver
 from django.utils.translation import ugettext as _
+from DocApproval.models import ApprovalProcess, approve_action_signal, request_status_change, Request
 
 
 class ModelConstants:
@@ -68,3 +69,22 @@ class Notification(models.Model):
 
 
 event_signal = Signal(providing_args=["event"])
+
+from DocApprovalNotifications.signal_handlers import (
+    handle_approve_action_signal, handle_request_status_change, handle_event_signal
+    )
+
+
+@receiver(approve_action_signal, sender=ApprovalProcess)
+def approve_signal_handler(sender, **kwargs):
+    handle_approve_action_signal(sender, **kwargs)
+
+
+@receiver(request_status_change, sender=Request)
+def request_status__signal_handler(sender, **kwargs):
+    handle_request_status_change(sender, **kwargs)
+
+
+@receiver(event_signal, sender=Event)
+def event_signal_handler(sender, **kwargs):
+    handle_event_signal(sender, **kwargs)

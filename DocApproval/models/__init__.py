@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*import logging
+#-*- coding: utf-8 -*
 import datetime
 import logging
 

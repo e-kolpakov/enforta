@@ -1,4 +1,5 @@
 from collections import defaultdict
+from DocApprovalNotifications.notification_strategies.cleanup import CleanAllApproversStrategy
 from DocApprovalNotifications.notification_strategies.immediate import NotifyCreatorStrategy
 
 
@@ -19,7 +20,7 @@ class NotificationStrategiesRepository(object):
         from DocApprovalNotifications.models import Event
 
         self.register_strategy(Event.EventType.REQUEST_APPROVAL_STARTED, NotifyApproversInNextStepStrategy)
-        # repository.register_notifier(Event.EventType.REQUEST_APPROVAL_CANCELLED, CleanAllApproversStrategy)
+        self.register_strategy(Event.EventType.REQUEST_APPROVAL_CANCELLED, CleanAllApproversStrategy)
 
         self.register_strategy(Event.EventType.REQUEST_APPROVED, NotifyApproversInNextStepStrategy)
         self.register_strategy(Event.EventType.REQUEST_APPROVED, NotifyCreatorStrategy)
@@ -27,7 +28,7 @@ class NotificationStrategiesRepository(object):
         # self.register_strategy(Event.EventType.REQUEST_APPROVED, CleanApproversInCurrentStepStrategy)
 
         self.register_strategy(Event.EventType.REQUEST_REJECTED, NotifyCreatorStrategy)
-        # self.register_strategy(Event.EventType.REQUEST_REJECTED, CleanAllApproversStrategy)
+        self.register_strategy(Event.EventType.REQUEST_REJECTED, CleanAllApproversStrategy)
 
         self.register_strategy(Event.EventType.REQUEST_FINAL_APPROVE, NotifyCreatorStrategy)
         # self.register_strategy(Event.EventType.REQUEST_FINAL_APPROVE, NotifyAllUsersStrategy)
