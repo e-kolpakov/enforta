@@ -17,12 +17,14 @@ from django.contrib import messages
 from DocApproval.utilities.datatables import LinkColumnDefinition, ColumnDefinition
 from DocApproval.utilities.utility import wrap_permission
 
-from ..menu import MenuModifierViewMixin, RequestContextMenuManagerExtension
-from ..models import ApprovalRoute, TemplateApprovalRoute, ApprovalRouteStep, Permissions, ApprovalRouteExceptionBase, UserProfile
-from ..messages import ApprovalRouteMessages
-from ..url_naming.names import ApprovalRoute as ApprovalRouteUrls, Request as RequestUrls
-from ..utilities.utility import get_url_base
-from ..utilities.datatables import JsonConfigurableDatatablesBaseView
+from DocApproval.menu import MenuModifierViewMixin, RequestContextMenuManagerExtension
+from DocApproval.models import (
+    ApprovalRoute, TemplateApprovalRoute, ApprovalRouteStep, Permissions, ApprovalRouteExceptionBase, UserProfile
+    )
+from DocApproval.messages import ApprovalRouteMessages
+from DocApproval.url_naming.names import ApprovalRoute as ApprovalRouteUrls, Request as RequestUrls
+from DocApproval.utilities.utility import get_url_base
+from DocApproval.utilities.datatables import JsonConfigurableDatatablesBaseView
 
 
 _logger = logging.getLogger(__name__)

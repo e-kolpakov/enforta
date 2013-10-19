@@ -9,9 +9,9 @@ from django.utils.translation import ugettext as _
 from guardian.shortcuts import assign_perm, remove_perm
 from DocApproval.utilities.utility import wrap_permission
 
-from .user import UserProfile
-from .common import ModelConstants, Permissions
-from ..messages import ApprovalRouteMessages
+from DocApproval.models.user import UserProfile
+from DocApproval.models.common import ModelConstants, Permissions
+from DocApproval.messages import ApprovalRouteMessages
 
 from DocApproval.url_naming.names import ApprovalRoute as ApprovalRouteUrls
 
@@ -198,6 +198,9 @@ class ApprovalRoute(models.Model):
 
     def get_successful_process(self):
         return self.processes.get(is_successful=True)
+
+    def get_all_steps(self):
+        return self.steps.all().select_related('approver')
 
 
 class TemplateApprovalRoute(ApprovalRoute):
