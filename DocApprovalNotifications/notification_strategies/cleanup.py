@@ -1,5 +1,8 @@
+import collections
 from DocApprovalNotifications.models import Notification
 from DocApprovalNotifications.notification_strategies.base import BaseStrategy, ApproversInStepStrategyMixin
+
+NotificationType = Notification.NotificationType
 
 
 class BaseCleanStrategy(BaseStrategy):
@@ -8,7 +11,11 @@ class BaseCleanStrategy(BaseStrategy):
             notification_recipient__in=user_ids
         )
         if notification_type:
-            queryset = queryset.filter(notification_type=notification_type)
+            if isinstance(notification_type, collections.Iterable):
+                target_types = notification_type
+            else:
+                target_types = [notification_type]
+            queryset = queryset.filter(notification_type__in=target_types)
 
         return queryset
 
@@ -18,19 +25,24 @@ class BaseCleanApproversStrategy(BaseCleanStrategy):
         approver_ids = self.get_approver_ids(event)
 
         all_requests = self._get_notifications_of_same_entity_for_users(
-            event, approver_ids, Notification.NotificationType.APPROVE_REQUIRED
+            event, approver_ids,
+            notification_type=(NotificationType.APPROVE_REQUIRED, NotificationType.APPROVE_REQUIRED_REMINDER)
         )
         active_requests = list(all_requests.filter(dismissed=False))
 
         all_requests.update(dismissed=True)
 
+        no_longer_required_sent = set()
+
         for request in active_requests:
-            # TODO: a little bug here - upon rejecting notification is still sent to rejector
+            recipient = request.notification_recipient
+            # TODO: a little bug here - upon rejecting notification is still sent to rejecter
             # as REQUEST_APPROVAL_CANCELLED event is handled first
-            if request.notification_recipient != event.sender:
+            if recipient != event.sender and recipient not in no_longer_required_sent:
+                no_longer_required_sent.add(recipient)  # prevent double sending
                 self._create_notification(
-                    event=event, notification_recipient=request.notification_recipient, repeating=False,
-                    notification_type=Notification.NotificationType.APPROVE_NO_LONGER_REQUIRED
+                    event=event, notification_recipient=recipient, repeating=False,
+                    notification_type=NotificationType.APPROVE_NO_LONGER_REQUIRED
                 )
 
     def get_approver_ids(self, event):

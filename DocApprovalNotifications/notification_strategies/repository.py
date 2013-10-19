@@ -1,6 +1,7 @@
 from collections import defaultdict
 from DocApprovalNotifications.notification_strategies.cleanup import *
 from DocApprovalNotifications.notification_strategies.immediate import *
+from DocApprovalNotifications.notification_strategies.recurring import *
 
 
 class NotificationStrategiesRepository(object):
@@ -21,13 +22,14 @@ class NotificationStrategiesRepository(object):
 
         # order is important here - cleanup always BEFORE creating notifications for same strategy
         self.register_strategy(Event.EventType.REQUEST_APPROVAL_STARTED, NotifyApproversInNextStepStrategy)
+        self.register_strategy(Event.EventType.REQUEST_APPROVAL_STARTED, RecurringApproversInNextStepStrategy)
 
         self.register_strategy(Event.EventType.REQUEST_APPROVAL_CANCELLED, CleanAllApproversStrategy)
 
         self.register_strategy(Event.EventType.REQUEST_APPROVED, CleanApproversInCurrentStepStrategy)
         self.register_strategy(Event.EventType.REQUEST_APPROVED, NotifyApproversInNextStepStrategy)
         self.register_strategy(Event.EventType.REQUEST_APPROVED, NotifyApproverRequestApprovedStrategy)
-        # self.register_strategy(Event.EventType.REQUEST_APPROVED, RecurringNotificationApproversInNextStepStrategy)
+        self.register_strategy(Event.EventType.REQUEST_APPROVED, RecurringApproversInNextStepStrategy)
 
         self.register_strategy(Event.EventType.REQUEST_REJECTED, CleanAllApproversStrategy)
         self.register_strategy(Event.EventType.REQUEST_REJECTED, NotifyApproverRequestRejectedStrategy)
