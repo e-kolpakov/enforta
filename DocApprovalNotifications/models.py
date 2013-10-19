@@ -60,12 +60,34 @@ class Event(models.Model):
 
 
 class Notification(models.Model):
-    UI_SHOW_LIMIT = 5
+    class NotificationType:
+        APPROVE_REQUIRED = "APPROVE_REQUIRED"
+        APPROVE_NO_LONGER_REQUIRED = "APPROVE_NO_LONGER_REQUIRED"
+        REQUEST_APPROVED = "REQUEST_APPROVED"
+        REQUEST_REJECTED = "REQUEST_REJECTED"
+        REQUEST_FINAL_APPROVE = "REQUEST_FINAL_APPROVE"
+        CONTRACT_EXPIRED = "CONTRACT_EXPIRED"
+
+        APPROVE_REQUIRED_REMINDER = "APPROVE_REQUIRED_REMINDER"
+        CONTRACT_PAYMENT_REQUIRED_REMINDER = "CONTRACT_PAYMENT_REQUIRED_REMINDER"
+
     event = models.ForeignKey(Event, verbose_name=_(u"Событие"))
     notification_recipient = models.ForeignKey("DocApproval.UserProfile", verbose_name=_(u"Получптель"), null=True)
     repeating = models.BooleanField(verbose_name=_(u"Повторяющееся"), default=False)
-    processed = models.BooleanField(verbose_name=_(u"Погашено"), default=False)
-    times_shown_in_ui = models.IntegerField(verbose_name=_(u"Показано в интерфейсе"), default=0)
+    dismissed = models.BooleanField(verbose_name=_(u"Погашено"), default=False)
+    ui_dismissed = models.BooleanField(verbose_name=_(u"Показано в интерфейсе"), default=False)
+    notification_type = models.CharField(
+        verbose_name=_(u"Тип оповещения"), max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH, null=False, choices=(
+            (NotificationType.APPROVE_REQUIRED, _(u"Требуется утверждение заявки")),
+            (NotificationType.APPROVE_NO_LONGER_REQUIRED, _(u"Утверждение более не требуется")),
+            (NotificationType.REQUEST_APPROVED, _(u"Заявка утверждена")),
+            (NotificationType.REQUEST_REJECTED, _(u"Заявка отклонена")),
+            (NotificationType.REQUEST_FINAL_APPROVE, _(u"Заявка полностью утверждена")),
+            (NotificationType.CONTRACT_EXPIRED, _(u"Истек срок действия договора")),
+
+            (NotificationType.APPROVE_REQUIRED_REMINDER, _(u"Напоминание о необходимости утверждения")),
+            (NotificationType.CONTRACT_PAYMENT_REQUIRED_REMINDER, _(u"Напоминание о неоплаченных договорах")),
+        ))
 
 
 event_signal = Signal(providing_args=["event"])
