@@ -13,7 +13,7 @@ class BaseImmediateStrategy(BaseStrategy):
         Notification.objects.create(event=event, notification_recipient=recipient, repeating=False)
 
 
-class NotifyNextApproversStrategy(BaseImmediateStrategy):
+class NotifyApproversInNextStepStrategy(BaseImmediateStrategy):
     def execute(self, event):
         request = self._get_event_entity(event)
         next_approval_step = event.params.get(Event.ParamKeys.STEP_NUMBER, 0) + 1
@@ -21,3 +21,10 @@ class NotifyNextApproversStrategy(BaseImmediateStrategy):
 
         for approver in next_approvers:
             self._create_notification(event, approver)
+
+
+class NotifyCreatorStrategy(BaseImmediateStrategy):
+    def execute(self, event):
+        request = self._get_event_entity(event)
+        creator = request.creator
+        self._create_notification(event, creator)
