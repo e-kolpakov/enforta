@@ -22,7 +22,9 @@ try:
 except ImportError:
     pass
 
-if 'migrate' in sys.argv or 'syncdb' in sys.argv:
+privileged_db_commands = ('schemamigration', 'migrate', 'syncdb')
+
+if any([command in sys.argv for command in privileged_db_commands]):
     locals()['DATABASES']['default']['USER'] = 'sa'
     locals()['DATABASES']['default']['PASSWORD'] = 'sa!v3ry_str0ng_p@ssw0rd#!'
 
