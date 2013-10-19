@@ -2,9 +2,8 @@
 from jsonfield import JSONField
 
 from django.db import models
+from django.dispatch.dispatcher import Signal
 from django.utils.translation import ugettext as _
-
-from DocApprovalNotifications.notification_strategies.repository import NotificationStrategiesRepository
 
 
 class ModelConstants:
@@ -53,11 +52,10 @@ class Event(models.Model):
     params = JSONField(verbose_name=_(u"Дополнительные параметры"), null=True)
     timestamp = models.DateTimeField(verbose_name=_(u"Дата и время"), auto_now_add=True, null=False, blank=False)
 
-    def process_notifications(self):
-        repo = NotificationStrategiesRepository.get_instance()
-        for notification_strategy_class in repo[self.event_type]:
-            strategy = notification_strategy_class()
-            strategy.execute(self)
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        super(Event, self).save(force_insert, force_update, using, update_fields)
+        event_signal.send(self.__class__, event=self)
 
 
 class Notification(models.Model):
@@ -68,3 +66,5 @@ class Notification(models.Model):
     processed = models.BooleanField(verbose_name=_(u"Погашено"), default=False)
     times_shown_in_ui = models.IntegerField(verbose_name=_(u"Показано в интерфейсе"), default=0)
 
+
+event_signal = Signal(providing_args=["event"])

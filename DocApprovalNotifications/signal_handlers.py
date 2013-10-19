@@ -1,4 +1,5 @@
 import logging
+from DocApprovalNotifications.notification_strategies.repository import NotificationStrategiesRepository
 
 from models import Event
 from DocApproval.models import (ApprovalProcessAction, RequestStatus)
@@ -39,7 +40,6 @@ def handle_approve_action_signal(sender, **kwargs):
     )
     logger.info("Approve action signal of type {action_type} as {event_type} for request {request}".format(
         action_type=action_type, event_type=event_type, request=request))
-    event.process_notifications()
 
 
 def handle_request_status_change(sender, **kwargs):
@@ -56,5 +56,12 @@ def handle_request_status_change(sender, **kwargs):
     logger.info(
         "Request status change {old_status} => {new_status} signal as {event_type} for request {request}".format(
             old_status=old_status, new_status=new_status, event_type=event_type, request=request))
-    event.process_notifications()
 
+
+def handle_event_signal(sender, **kwargs):
+    repo = NotificationStrategiesRepository.get_instance()
+    event = kwargs['event']
+
+    for strategy_cls in repo[event.event_type]:
+        strategy = strategy_cls()
+        strategy.execute(event)

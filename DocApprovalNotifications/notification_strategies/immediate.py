@@ -16,7 +16,7 @@ class BaseImmediateStrategy(BaseStrategy):
 class NotifyNextApproversStrategy(BaseImmediateStrategy):
     def execute(self, event):
         request = self._get_event_entity(event)
-        next_approval_step = event.params.get(Event.ParamKeys.STEP_NUMBER) + 1
+        next_approval_step = event.params.get(Event.ParamKeys.STEP_NUMBER, 0) + 1
         next_approvers = request.approval_route.get_approvers(next_approval_step)
 
         for approver in next_approvers:

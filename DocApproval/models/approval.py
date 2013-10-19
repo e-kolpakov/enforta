@@ -250,7 +250,7 @@ class TemplateApprovalRoute(ApprovalRoute):
     def process_request_permissions(self, to_remove=None, to_add=None):
         raise UnavailableInTemplate(_(u"Установка прав доступа к заявке"))
 
-    def get_approvers(self):
+    def get_approvers(self, step_number):
         raise UnavailableInTemplate(_(u"Текущие утверждающие"))
 
     def get_current_process(self):
@@ -333,7 +333,7 @@ class ApprovalProcess(models.Model):
             all_actions = self.actions.filter(step__approver=user) \
                 .order_by('-step__step_number').select_related('step__approver__profile')
             last_action = all_actions[0]
-        except IndexError: # no actions taken
+        except IndexError:  # no actions taken
             last_action = None
         return last_action
 
