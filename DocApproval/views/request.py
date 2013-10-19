@@ -272,8 +272,8 @@ class ListRequestView(TemplateView):
         return {
             'cities': City.objects.all(),
             'statuses': RequestStatus.objects.all(),
-            'users': UserProfile.get_users_in_group(Groups.USERS),
-            'approvers': UserProfile.get_users_in_group(Groups.APPROVERS)
+            'users': UserProfile.objects.get_users_in_group(Groups.USERS),
+            'approvers': UserProfile.objects.get_users_in_group(Groups.APPROVERS)
         }
 
     def get(self, request, *args, **kwargs):

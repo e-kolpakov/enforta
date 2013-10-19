@@ -18,7 +18,17 @@ class CanNotImpersonateUser(Exception):
             format(profile, impersonated_profile)
 
 
+class UserManager(models.Manager):
+    def get_users_in_group(self, group_name):
+        return self.filter(user__groups__name=group_name)
+
+    def get_active_users(self):
+        return self.filter(user__is_active=True)
+
+
 class UserProfile(models.Model):
+    objects = UserManager()
+
     def upload_to(self, filename):
         fname, fext = os.path.splitext(filename)
         return u'signs/{0}/sign{1}'.format(self.pk, fext)
@@ -42,24 +52,11 @@ class UserProfile(models.Model):
     manager = models.ForeignKey('self', verbose_name=_(u'Руководитель'), blank=True, null=True)
     city = models.ForeignKey(City, verbose_name=_(u"Город"), blank=False, null=False)
 
+    # not a db field
+    _replacements = None
+
     def get_absolute_url(self):
         return reverse(ProfileUrls.PROFILE, kwargs={'pk': self.pk})
-
-    @property
-    def short_name(self):
-        return u"{0} {1}".format(self.last_name, self.first_name)
-
-    @property
-    def full_name(self):
-        return u"{0} {1} {2}".format(self.last_name, self.first_name, self.middle_name)
-
-    @property
-    def full_name_accusative(self):
-        #gets accusative full name, falls back to using subjective case if accusatives is empty
-        eff_first_accusative = self.first_name_accusative if self.first_name_accusative else self.first_name
-        eff_last_accusative = self.last_name_accusative if self.last_name_accusative else self.last_name
-        eff_middle_accusative = self.middle_name_accusative if self.middle_name_accusative else self.middle_name
-        return u"{0} {1} {2}".format(eff_last_accusative, eff_first_accusative, eff_middle_accusative)
 
     def __unicode__(self):
         return u"{0} ({1})".format(self.full_name, self.position)
@@ -76,17 +73,21 @@ class UserProfile(models.Model):
             (Permissions.UserProfile.CAN_CHANGE_ANY_MANAGER, _(u"Может изменять руководителя других пользователей")),
         )
 
-    @classmethod
-    def get_users_in_group(cls, group_name):
-        return cls.objects.filter(user__groups__name=group_name)
+    @property
+    def short_name(self):
+        return u"{0} {1}".format(self.last_name, self.first_name)
 
-    def can_approve(self, request):
-        current_approvers = request.get_current_approvers()
-        replacements = [replacement.replaced_user for replacement in self.active_replacements]
-        check_against = {self} | set(replacements)
-        return any(user in current_approvers for user in check_against)
+    @property
+    def full_name(self):
+        return u"{0} {1} {2}".format(self.last_name, self.first_name, self.middle_name)
 
-    _replacements = None
+    @property
+    def full_name_accusative(self):
+        #gets accusative full name, falls back to using subjective case if accusatives is empty
+        eff_first_accusative = self.first_name_accusative if self.first_name_accusative else self.first_name
+        eff_last_accusative = self.last_name_accusative if self.last_name_accusative else self.last_name
+        eff_middle_accusative = self.middle_name_accusative if self.middle_name_accusative else self.middle_name
+        return u"{0} {1} {2}".format(eff_last_accusative, eff_first_accusative, eff_middle_accusative)
 
     @property
     def active_replacements(self):
@@ -119,6 +120,12 @@ class UserProfile(models.Model):
 
     def can_impersonate(self, other_profile):
         return other_profile in self.effective_profiles
+
+    def can_approve(self, request):
+        current_approvers = request.get_current_approvers()
+        replacements = [replacement.replaced_user for replacement in self.active_replacements]
+        check_against = {self} | set(replacements)
+        return any(user in current_approvers for user in check_against)
 
 
 class TemporaryUserImpersonation(models.Model):
