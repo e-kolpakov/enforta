@@ -1,5 +1,5 @@
-from DocApprovalNotifications.models import Notification, Event
-from DocApprovalNotifications.notification_strategies.base import BaseStrategy
+from DocApprovalNotifications.models import Notification
+from DocApprovalNotifications.notification_strategies.base import BaseStrategy, ApproversInStepStrategyMixin
 
 
 class BaseCleanStrategy(BaseStrategy):
@@ -28,7 +28,7 @@ class BaseCleanApproversStrategy(BaseCleanStrategy):
             # TODO: a little bug here - upon rejecting notification is still sent to rejector
             # as REQUEST_APPROVAL_CANCELLED event is handled first
             if request.notification_recipient != event.sender:
-                Notification.objects.create(
+                self._create_notification(
                     event=event, notification_recipient=request.notification_recipient, repeating=False,
                     notification_type=Notification.NotificationType.APPROVE_NO_LONGER_REQUIRED
                 )
@@ -43,8 +43,6 @@ class CleanAllApproversStrategy(BaseCleanApproversStrategy):
         return set(step.approver.pk for step in request.approval_route.get_all_steps())
 
 
-class CleanApproversInCurrentStepStrategy(BaseCleanApproversStrategy):
+class CleanApproversInCurrentStepStrategy(BaseCleanApproversStrategy, ApproversInStepStrategyMixin):
     def get_approver_ids(self, event):
-        request = self._get_event_entity(event)
-        step_number = event.params.get(Event.ParamKeys.STEP_NUMBER, 1)
-        return set(approver.pk for approver in request.approval_route.get_approvers(step_number))
+        return set(approver.pk for approver in self.get_approvers_in_current_step(event))

@@ -1,5 +1,5 @@
 from django.db.models.loading import get_model
-from DocApprovalNotifications.models import Notification
+from DocApprovalNotifications.models import Notification, Event
 
 
 class BaseStrategy(object):
@@ -19,5 +19,24 @@ class BaseStrategy(object):
             event__entity=event.entity, event__entity_id=event.entity_id
         )
 
+    def _create_notification(self, event, notification_recipient, repeating, notification_type):
+        Notification.objects.create(event=event, notification_recipient=notification_recipient,
+                                    repeating=repeating, notification_type=notification_type)
+
     def execute(self, event):
         raise NotImplementedError("Execute called on strategy class")
+
+
+class ApproversInStepStrategyMixin(object):
+    def get_approvers_in_step(self, event, step):
+        request = self._get_event_entity(event)
+        return request.approval_route.get_approvers(step)
+
+    def _get_current_approval_step(self, event):
+        return event.params.get(Event.ParamKeys.STEP_NUMBER, 0)
+
+    def get_approvers_in_current_step(self, event):
+        return self.get_approvers_in_step(event, self._get_current_approval_step(event))
+
+    def get_approvers_in_next_step(self, event):
+        return self.get_approvers_in_step(event, self._get_current_approval_step(event) + 1)
