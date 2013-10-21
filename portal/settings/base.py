@@ -280,5 +280,3 @@ INSTALLED_APPS += ('DocApprovalNotifications',)
 NOTIFICATIONS_TIMEOUT = '2 days'
 
 NOTIFICATIONS_FREQUENCY = '1 day'
-
-ACCOUNTING_EMAIL = 'accounting@enforta.ru'

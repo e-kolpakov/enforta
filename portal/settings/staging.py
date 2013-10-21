@@ -27,9 +27,6 @@ NOTIFICATIONS_TIMEOUT = '2 days'
 #Частота отправки напоминаний
 NOTIFICATIONS_FREQUENCY = '1 day'
 
-#Основной e-mail адрес для оповощения бухгалтерии
-ACCOUNTING_EMAIL = 'accounting@enforta.ru'
-
 # Изменения в следующих параметрах могут потребовать реконфигурации сервера.
 # См. инструкцию по настройке приложения
 
