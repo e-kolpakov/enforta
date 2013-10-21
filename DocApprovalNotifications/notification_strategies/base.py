@@ -1,4 +1,6 @@
 from django.db.models.loading import get_model
+from DocApproval.constants import Groups
+from DocApproval.models import UserProfile
 from DocApprovalNotifications.models import Notification, Event
 
 
@@ -40,3 +42,8 @@ class ApproversInStepStrategyMixin(object):
 
     def get_approvers_in_next_step(self, event):
         return self.get_approvers_in_step(event, self._get_current_approval_step(event) + 1)
+
+
+class BaseAccountingStrategyMixin(object):
+    def _get_accounting_members(self):
+        return UserProfile.objects.get_users_in_group(Groups.ACCOUNTANTS)

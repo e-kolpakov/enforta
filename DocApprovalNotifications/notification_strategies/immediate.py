@@ -1,6 +1,6 @@
 from DocApproval.models import UserProfile
 from DocApprovalNotifications.models import Notification
-from DocApprovalNotifications.notification_strategies.base import BaseStrategy, ApproversInStepStrategyMixin
+from DocApprovalNotifications.notification_strategies.base import BaseStrategy, ApproversInStepStrategyMixin, BaseAccountingStrategyMixin
 
 NotificationType = Notification.NotificationType
 
@@ -45,7 +45,7 @@ class NotifyAllUsersStrategy(BaseStrategy):
         for recipient in recipients:
             if self.include_creator or recipient != request.creator:  # creator gets it's own email
                 self._create_notification(event=event, notification_recipient=recipient, recurring=False,
-                                          notification_type=notification_type)
+                                          notification_type=self.notification_type)
 
 
 class NotifyAllUsersFinalApproveStrategy(NotifyAllUsersStrategy):
@@ -56,3 +56,10 @@ class NotifyAllUsersFinalApproveStrategy(NotifyAllUsersStrategy):
 class NotifyAllUsersContractExpiredStrategy(NotifyAllUsersStrategy):
     include_creator = True
     notification_type = NotificationType.CONTRACT_EXPIRED
+
+
+class NotifyAccountingStrategy(BaseStrategy, BaseAccountingStrategyMixin):
+    def execute(self, event):
+        for accountant in self._get_accounting_members():
+            self._create_notification(event=event, notification_recipient=accountant, recurring=False,
+                                      notification_type=NotificationType.CONTRACT_PAYMENT_REQUIRED)
