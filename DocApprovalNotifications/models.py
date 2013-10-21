@@ -1,4 +1,5 @@
 # -*- coding=utf-8 -*-
+from django.db.models import get_model
 from jsonfield import JSONField
 
 from django.db import models
@@ -58,6 +59,11 @@ class Event(models.Model):
         super(Event, self).save(force_insert, force_update, using, update_fields)
         event_signal.send(self.__class__, event=self)
 
+    def get_entity(self):
+        app_label, model_name = self.entity.split(".")
+        model = get_model(app_label, model_name, seed_cache=False)
+        return model.objects.get(pk=self.entity_id)
+
 
 class Notification(models.Model):
     class NotificationType:
@@ -81,10 +87,12 @@ class Notification(models.Model):
     notification_type = models.CharField(
         verbose_name=_(u"Тип оповещения"), max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH, null=False, choices=(
             (NotificationType.APPROVE_REQUIRED, _(u"Требуется утверждение заявки")),
-            (NotificationType.APPROVE_NO_LONGER_REQUIRED, _(u"Утверждение более не требуется")),
+            (NotificationType.APPROVE_NO_LONGER_REQUIRED, _(u"Утверждение заявки более не требуется")),
             (NotificationType.REQUEST_APPROVED, _(u"Заявка утверждена")),
             (NotificationType.REQUEST_REJECTED, _(u"Заявка отклонена")),
             (NotificationType.REQUEST_FINAL_APPROVE, _(u"Заявка полностью утверждена")),
+            (NotificationType.CONTRACT_PAYMENT_REQUIRED, _(u"Требуется оплата")),
+            (NotificationType.CONTRACT_PAID, _(u"Договор начал действие")),
             (NotificationType.CONTRACT_EXPIRED, _(u"Истек срок действия договора")),
 
             (NotificationType.APPROVE_REQUIRED_REMINDER, _(u"Напоминание о необходимости утверждения")),

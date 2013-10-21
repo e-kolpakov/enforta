@@ -7,9 +7,7 @@ NotificationType = Notification.NotificationType
 
 class BaseCleanStrategy(BaseStrategy):
     def _get_notifications_of_same_entity_for_users(self, event, user_ids, notification_type=None):
-        queryset = self._get_notifications_of_same_entity(event).filter(
-            notification_recipient__in=user_ids
-        )
+        queryset = self._get_notifications_of_same_entity(event).filter(notification_recipient__in=user_ids)
         if notification_type:
             queryset = queryset.filter(notification_type__in=as_collection(notification_type))
 
