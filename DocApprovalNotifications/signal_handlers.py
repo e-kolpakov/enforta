@@ -1,4 +1,5 @@
 import logging
+from DocApprovalNotifications.utils import as_collection
 
 from models import Event
 from DocApproval.models import (ApprovalProcessAction, RequestStatus)
@@ -15,9 +16,8 @@ status_change_mapping = {
     RequestStatus.PROJECT: Event.EventType.REQUEST_APPROVAL_CANCELLED,
     RequestStatus.NEGOTIATION: Event.EventType.REQUEST_APPROVAL_STARTED,
     RequestStatus.NEGOTIATED_NO_PAYMENT: Event.EventType.CONTRACT_PAYMENT_REQUIRED,
-    RequestStatus.BILL_REQUIRED: Event.EventType.CONTRACT_PAYMENT_REQUIRED,
-    RequestStatus.ACTIVE: Event.EventType.CONTRACT_ACTIVATED,
-    RequestStatus.OUTDATED: Event.EventType.CONTRACT_EXPIRED
+    RequestStatus.ACTIVE: (Event.EventType.CONTRACT_ACTIVATED, Event.EventType.CONTRACT_PAID),
+    RequestStatus.EXPIRED: Event.EventType.CONTRACT_EXPIRED
 }
 
 
@@ -33,7 +33,7 @@ def handle_approve_action_signal(sender, **kwargs):
     if on_behalf_of != user:
         params[Event.ParamKeys.ON_BEHALF_OF] = on_behalf_of
 
-    event = Event.objects.create(
+    Event.objects.create(
         event_type=event_type, sender=user, params=params,
         entity="DocApproval.Request", entity_id=request.id,
     )
@@ -43,18 +43,20 @@ def handle_approve_action_signal(sender, **kwargs):
 
 def handle_request_status_change(sender, **kwargs):
     request, new_status, old_status = kwargs['request'], kwargs['new_status'], kwargs['old_status']
-    event_type = status_change_mapping.get(new_status.code, Event.EventType.UNKNOWN)
-    event = Event.objects.create(
-        event_type=event_type,
-        entity="DocApproval.Request", entity_id=request.id,
-        params={
-            Event.ParamKeys.OLD_STATUS_CODE: old_status.code,
-            Event.ParamKeys.NEW_STATUS_CODE: new_status.code
-        }
-    )
-    logger.info(
-        "Request status change {old_status} => {new_status} signal as {event_type} for request {request}".format(
-            old_status=old_status, new_status=new_status, event_type=event_type, request=request))
+    event_types = status_change_mapping.get(new_status.code, Event.EventType.UNKNOWN)
+    for event_type in as_collection(event_types):
+        Event.objects.create(
+            event_type=event_type,
+            entity="DocApproval.Request", entity_id=request.id,
+            params={
+                Event.ParamKeys.OLD_STATUS_CODE: old_status.code,
+                Event.ParamKeys.NEW_STATUS_CODE: new_status.code
+            }
+        )
+        logger.info(
+            "Request status change {old_status} => {new_status} signal as {event_type} for request {request}".format(
+                old_status=old_status, new_status=new_status, event_type=event_type, request=request)
+        )
 
 
 def handle_event_signal(sender, **kwargs):

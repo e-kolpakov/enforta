@@ -32,8 +32,7 @@ class RequestStatus(models.Model):
     NEGOTIATION = "negotiation"
     NEGOTIATED_NO_PAYMENT = "negotiated_no_payment"
     ACTIVE = "active"
-    OUTDATED = "outdated"
-    BILL_REQUIRED = "bill_required"
+    EXPIRED = "expired"
 
     code = models.CharField(_(u'Код'), max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH, primary_key=True,
                             editable=False)
@@ -186,8 +185,8 @@ class Request(models.Model):
 
     def is_approved(self):
         return self.status.code in (
-            RequestStatus.NEGOTIATED_NO_PAYMENT, RequestStatus.ACTIVE, RequestStatus.BILL_REQUIRED,
-            RequestStatus.OUTDATED)
+            RequestStatus.NEGOTIATED_NO_PAYMENT, RequestStatus.ACTIVE,
+            RequestStatus.EXPIRED)
 
     @property
     def successful_approval(self):
@@ -226,9 +225,8 @@ class RequestHistory(models.Model):
         RequestStatus.PROJECT: "request_status/project.png",
         RequestStatus.NEGOTIATION: "request_status/negotiation.png",
         RequestStatus.NEGOTIATED_NO_PAYMENT: "request_status/negotiated_no_payment.png",
-        RequestStatus.BILL_REQUIRED: "request_status/bill_required.png",
         RequestStatus.ACTIVE: "request_status/active.png",
-        RequestStatus.OUTDATED: "request_status/outdated.png",
+        RequestStatus.EXPIRED: "request_status/outdated.png",
     }
 
     _action_type_icons = {

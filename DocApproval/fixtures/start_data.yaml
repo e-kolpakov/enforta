@@ -65,10 +65,6 @@
   fields:
     name: "В работе"
 - model: DocApproval.RequestStatus
-  pk: "outdated"
+  pk: "expired"
   fields:
     name: "Истек срок действия"
-- model: DocApproval.RequestStatus
-  pk: "bill_required"
-  fields:
-    name: "Требуется счет"
