@@ -64,6 +64,10 @@ class Event(models.Model):
         model = get_model(app_label, model_name, seed_cache=False)
         return model.objects.get(pk=self.entity_id)
 
+    @property
+    def full_name(self):
+        return self.get_event_type_display()
+
 
 class Notification(models.Model):
     class NotificationType:
@@ -98,6 +102,10 @@ class Notification(models.Model):
             (NotificationType.APPROVE_REQUIRED_REMINDER, _(u"Напоминание о необходимости утверждения")),
             (NotificationType.CONTRACT_PAYMENT_REQUIRED_REMINDER, _(u"Напоминание о неоплаченных договорах")),
         ))
+
+    @property
+    def full_name(self):
+        return self.get_notification_type_display()
 
 
 event_signal = Signal(providing_args=["event"])

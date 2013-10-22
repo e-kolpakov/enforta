@@ -1,0 +1,10 @@
+{% extends "default.html" %}
+{% load i18n %}
+
+{% block additional_rows %}
+    {{ block.super }}
+    <tr>
+        <td class="label-cell text-right">{% trans "Время ожидания" %}</td>
+        <td class="item">{{ time_elapsed }}</td>
+    </tr>
+{% endblock %}

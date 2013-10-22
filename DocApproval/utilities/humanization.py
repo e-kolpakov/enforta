@@ -32,7 +32,9 @@ class EnumerableGrammarFrom:
 
 class Humanizer(object):
     DATE_PRECISION_DAY = 0
-    DATE_PRECISION_SECOND = 1
+    DATE_PRECISION_HOUR = 1
+    DATE_PRECISION_MINUTE = 2
+    DATE_PRECISION_SECOND = 3
     _period_names = OrderedDict([
         ('years', {
             EnumerableGrammarFrom.SINGULAR: _(u"год"),
@@ -69,13 +71,14 @@ class Humanizer(object):
     def get_period_name(self, name, form):
         return self._period_names.get(name, {}).get(form, "")
 
-    def humanize_period(self, quantity, precision=DATE_PRECISION_DAY, unit=Periods.DAYS):
-        delta = relativedelta(**{unit: quantity})
+    def _humanize(self, delta, precision):
         attributes = self._period_names.keys()
-        if precision == self.DATE_PRECISION_DAY:
-            attributes.remove('hours')
-            attributes.remove('minutes')
+        if precision <= self.DATE_PRECISION_MINUTE:
             attributes.remove('seconds')
+        if precision <= self.DATE_PRECISION_HOUR:
+            attributes.remove('minutes')
+        if precision <= self.DATE_PRECISION_DAY:
+            attributes.remove('hours')
 
         values = [(getattr(delta, attr), attr, EnumerableGrammarFrom.get_enumerable_form(getattr(delta, attr)))
                   for attr in attributes if getattr(delta, attr)]
@@ -84,3 +87,11 @@ class Humanizer(object):
                     for value, attr, grammar_form in values)
 
         return u" ".join(readable)
+
+    def humanize_timedelta(self, timedelta, precision=DATE_PRECISION_DAY):
+        delta = relativedelta(days=timedelta.days, seconds=timedelta.seconds, microseconds=timedelta.microseconds)
+        return self._humanize(delta, precision)
+
+    def humanize_period(self, quantity, precision=DATE_PRECISION_DAY, unit=Periods.DAYS):
+        delta = relativedelta(**{unit: quantity})
+        return self._humanize(delta)

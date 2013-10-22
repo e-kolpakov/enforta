@@ -1,9 +1,42 @@
+{% load i18n %}
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/2.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 10px;
+        }
+
+        .label-cell {
+            font-weight: bold;
+            width: 150px;
+        }
+    </style>
 </head>
 <body>
-
+<h3>{{ notification.full_name }}</h3>
+<table class='table table-bordered'>
+    <tr>
+        <td class="label-cell text-right">{% trans "Заявка" %}</td>
+        <td class="item"><a href="{{ request.get_absolute_url }}">{{ request.name }}</a></td>
+    </tr>
+    <tr>
+        <td class="label-cell text-right">{% trans "Событие" %}</td>
+        <td class="item">{{ event.full_name }}</td>
+    </tr>
+    <tr>
+        <td class="label-cell text-right">{% trans "Дата наступления события" %}</td>
+        <td class="item">{{ event.timestamp }}</td>
+    </tr>
+    {% if event.sender %}
+        <tr>
+            <td class="label-cell text-right">{% trans "Пользователь, осуществивший действие" %}</td>
+            <td class="item">{{ event.sender.full_name }}</td>
+        </tr>
+    {% endif %}
+    {% block additional_rows %}
+    {% endblock additional_rows %}
+</table>
 </body>
 </html>
