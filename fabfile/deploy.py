@@ -32,6 +32,7 @@ def restart_server():
     sudo("apache2ctl restart")
 
 
+@task
 def install_packages():
     """Installs required OS packages"""
     sudo("apt-get -y install git")
@@ -39,6 +40,7 @@ def install_packages():
     sudo("apt-get -y install postgresql postgresql-client postgresql-server-dev-9.1")
     sudo("apt-get -y install python-pip python2.7-dev")
     sudo("apt-get -y install libffi-dev libxml2-dev libxslt-dev")
+    sudo("apt-get -y install rabbitmq-server")
 
 
 def install_virtualenv():
@@ -106,6 +108,15 @@ def configure_apache(environment=None):
 
 
 @task
+def configure_rabbitmq():
+    rabbitmq_user = 'rabbit_notifier'
+    rabbitmq_pass = 'rabbit_notifier_pass'
+    vhost = "docapprovalnotifications"
+    command = 'rabbitmqctl add_user {user} {password} && rabbitmqctl add_vhost {host} && rabbitmqctl set_permissions -p {host} {user} ".*" ".*" ".*"'
+    sudo(command.format(user=rabbitmq_user, password=rabbitmq_pass, host=vhost))
+
+
+@task
 def provision():
     """ Provisions initial installation"""
     environment = get_environment()
@@ -120,6 +131,7 @@ def provision():
     init_south(environment)
     load_initial_fixtures(environment)
     configure_apache(environment)
+    configure_rabbitmq()
 
 
 @task

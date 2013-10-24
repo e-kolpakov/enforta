@@ -235,8 +235,8 @@ AUTHENTICATION_BACKENDS = (
 GUARDIAN_RENDER_403 = True
 
 #djcelery
-INSTALLED_APPS += ('djcelery', 'kombu.transport.django')
-BROKER_URL = 'django://'
+INSTALLED_APPS += ('djcelery',)
+BROKER_URL = 'amqp://rabbit_notifier:rabbit_notifier_pass@localhost:5672/docapprovalnotifications'
 djcelery.setup_loader()
 
 
