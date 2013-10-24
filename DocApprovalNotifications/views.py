@@ -1,5 +1,6 @@
 import json
 import logging
+from django.core import serializers
 from django.http import HttpResponse
 from django.utils.timezone import now
 from django.shortcuts import render
@@ -9,15 +10,11 @@ from DocApprovalNotifications.models import Notification
 
 
 class BaseNotificationView(View):
-    def _get_notification_data(self, notification_id):
-        notification = Notification.objects.get(pk=notification_id)
-        elapsed = Humanizer().humanize_timedelta(now() - notification.event.timestamp, Humanizer.DATE_PRECISION_DAY)
-        return {
-            'notification': notification,
-            'event': notification.event,
-            'request': notification.event.get_entity(),
-            'time_elapsed': elapsed
-        }
+    def _get_notification(self, notification_id):
+        return Notification.objects.get(pk=notification_id)
+
+    def _get_elapsed_human(self, notification):
+        return Humanizer().humanize_timedelta(now() - notification.event.timestamp, Humanizer.DATE_PRECISION_DAY)
 
 
 class TemplateDebugView(BaseNotificationView):
@@ -25,7 +22,15 @@ class TemplateDebugView(BaseNotificationView):
         template = kwargs['template'] if kwargs['template'] else 'default'
         notification_id = kwargs.get('notification_id')
 
-        data = self._get_notification_data(notification_id)
+        notification = self._get_notification(notification_id)
+        time_elapsed = self._get_elapsed_human(notification)
+
+        data = {
+            'notification': notification,
+            'event': notification.event,
+            'request': notification.event.get_entity(),
+            'time_elapsed': time_elapsed
+        }
 
         return render(request, template + ".html", data)
 
@@ -33,10 +38,22 @@ class TemplateDebugView(BaseNotificationView):
 class NotificationsView(BaseNotificationView):
     _logger = logging.getLogger(__name__)
 
+    def _prepare_for_json(self, notification, time_elapsed):
+        return {
+            'notification': serializers.serialize('json', [notification]),
+            'event': serializers.serialize('json', [notification.event]),
+            'request': serializers.serialize('json', [notification.event.get_entity()]),
+            'time_elapsed': time_elapsed
+        }
+
     def get(self, request, *args, **kwargs):
         notification_id = kwargs.get('notification_id')
         try:
-            data = self._get_notification_data(notification_id)
+            notification = self._get_notification(notification_id)
+            time_elapsed = self._get_elapsed_human(notification)
+
+            data = self._prepare_for_json(notification, time_elapsed)
+
             wrapped_data = {
                 'success': True,
                 'notification_data': data
