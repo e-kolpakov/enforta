@@ -21,6 +21,9 @@ ADMINS = (
 
 LOGGING_DIRECTORY = os.path.join(PROJECT_PATH, "../log")
 
+# If you set this to False, Django will not use timezone-aware datetimes.
+USE_TZ = True
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -47,9 +50,6 @@ USE_I18N = True
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale.
 USE_L10N = True
-
-# If you set this to False, Django will not use timezone-aware datetimes.
-USE_TZ = True
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -237,6 +237,8 @@ GUARDIAN_RENDER_403 = True
 #djcelery
 INSTALLED_APPS += ('djcelery',)
 BROKER_URL = 'amqp://rabbit_notifier:rabbit_notifier_pass@localhost:5672/docapprovalnotifications'
+CELERY_RESULT_BACKEND = 'amqp'
+CELERY_TASK_RESULT_EXPIRES = 3600
 djcelery.setup_loader()
 
 
