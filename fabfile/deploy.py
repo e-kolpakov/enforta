@@ -1,14 +1,18 @@
 import sys
+import logging
+from django.core.exceptions import ImproperlyConfigured
 
 from fabric.decorators import task
 from fabric.api import cd, run
 from fabric.context_managers import shell_env, settings
 from fabric.contrib import django
 from fabric.operations import sudo, os
-# from django.conf import settings as django_settings
+from django.conf import settings as django_settings
 
 from fabfile import get_environment, git_repo, set_environment
 from fabfile.db import migrate, create_db
+
+logger = logging.getLogger(__name__)
 
 
 def prepare_django_conf(environment):
@@ -108,12 +112,16 @@ def configure_apache(environment=None):
 
 
 @task
-def configure_rabbitmq():
-    rabbitmq_user = 'rabbit_notifier'
-    rabbitmq_pass = 'rabbit_notifier_pass'
-    vhost = "docapprovalnotifications"
+def configure_rabbitmq(environment=None):
+    environment = environment if environment else get_environment()
+    try:
+        user, password, host = django_settings.AMQP_USER, django_settings.AMQP_PASS, django_settings.AMQP_HOST
+    except ImproperlyConfigured:
+        logger.warning("Django settings were not configured, configuring using {environment}", environment.NAME)
+        prepare_django_conf(environment)
+        user, password, host = django_settings.AMQP_USER, django_settings.AMQP_PASS, django_settings.AMQP_VHOST
     command = 'rabbitmqctl add_user {user} {password} && rabbitmqctl add_vhost {host} && rabbitmqctl set_permissions -p {host} {user} ".*" ".*" ".*"'
-    sudo(command.format(user=rabbitmq_user, password=rabbitmq_pass, host=vhost))
+    sudo(command.format(user=user, password=password, host=host))
 
 
 @task
@@ -125,7 +133,7 @@ def provision():
     create_virtualenv(environment)
     fetch_source_code(environment)
     update_requirements(environment)
-    # prepare_django_conf(environment)
+    prepare_django_conf(environment)
     create_log_and_upload_folders(environment)
     create_db(environment)
     init_south(environment)

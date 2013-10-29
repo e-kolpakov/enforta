@@ -6,9 +6,6 @@ import djcelery
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
-PROJECT_PATH = '/'.join(os.path.dirname(__file__).split('/')[0:-1])
-DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
-
 # Administrator defined settings - feel free to customize as needed
 # Mandatory settings
 # FQDN or IP required here
@@ -18,8 +15,7 @@ ALLOWED_HOSTS = '*'
 ADMINS = (
 # ('Your Name', 'your_email@example.com'),
 )
-
-LOGGING_DIRECTORY = os.path.join(PROJECT_PATH, "../log")
+MANAGERS = ADMINS
 
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
@@ -39,7 +35,8 @@ LANGUAGE_CODE = 'ru-ru'
 MEDIA_ROOT = "/var/uploads/doc-approval"
 # End of administrator defined options
 
-MANAGERS = ADMINS
+PROJECT_PATH = '/'.join(os.path.dirname(__file__).split('/')[0:-1])
+DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
 
 SITE_ID = 1
 
@@ -154,6 +151,8 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
 )
 
+LOGGING_DIRECTORY = os.path.join(PROJECT_PATH, "../log")
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -235,8 +234,20 @@ AUTHENTICATION_BACKENDS = (
 GUARDIAN_RENDER_403 = True
 
 #djcelery
+def format_broker(user, password, host, port, queue):
+    return 'amqp://{user}:{password}@{host}:{port}/{vhost}'.format(
+        user=user, password=password, host=host, port=port, vhost=AMQP_VHOST
+    )
+
+
+AMQP_USER = 'rabbit_notifier'
+AMQP_PASS = 'rabbit_notifier_pass'
+AMQP_HOST = 'localhost'
+AMQP_PORT = '5672'
+AMQP_VHOST = 'docapprovalnotifications'
+
 INSTALLED_APPS += ('djcelery',)
-BROKER_URL = 'amqp://rabbit_notifier:rabbit_notifier_pass@localhost:5672/docapprovalnotifications'
+BROKER_URL = format_broker(AMQP_USER, AMQP_PASS, AMQP_HOST, AMQP_PORT, AMQP_VHOST)
 CELERY_RESULT_BACKEND = 'amqp'
 CELERY_TASK_RESULT_EXPIRES = 3600
 djcelery.setup_loader()
