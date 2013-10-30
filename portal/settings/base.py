@@ -11,6 +11,15 @@ TEMPLATE_DEBUG = DEBUG
 # FQDN or IP required here
 ALLOWED_HOSTS = '*'
 
+ROOT_URL = "http://docapproval.ru"
+
+# email settings
+EMAIL_HOST = 'localhost'
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_PORT = '25'
+EMAIL_USE_TLS = False
+
 # Optional settings
 ADMINS = (
 # ('Your Name', 'your_email@example.com'),
@@ -179,11 +188,29 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(LOGGING_DIRECTORY, 'django.log'),
-            'maxBytes': 102400,
-            'backupCount': 1,
+            'maxBytes': 1024000,
+            'backupCount': 4,
             'formatter': 'generic',
             'encoding': 'UTF-8'
         },
+        'sql': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOGGING_DIRECTORY, 'sql.log'),
+            'maxBytes': 102400,
+            'backupCount': 0,
+            'formatter': 'generic',
+            'encoding': 'UTF-8'
+        },
+        'celery_tasks': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOGGING_DIRECTORY, 'celery.log'),
+            'maxBytes': 1024000,
+            'backupCount': 4,
+            'formatter': 'generic',
+            'encoding': 'UTF-8'
+        }
     },
     'loggers': {
         '': {
@@ -193,7 +220,7 @@ LOGGING = {
         },
         'weasyprint': {
             'handlers': ['file'],
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'propagate': False
         },
         'DocApproval': {
@@ -203,6 +230,11 @@ LOGGING = {
         },
         'DocApprovalNotifications': {
             'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': False
+        },
+        'DocApprovalNotifications.tasks': {
+            'handlers': ['celery_tasks'],
             'level': 'INFO',
             'propagate': False
         },
@@ -232,6 +264,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 GUARDIAN_RENDER_403 = True
+
 
 #djcelery
 def format_broker(user, password, host, port, queue):

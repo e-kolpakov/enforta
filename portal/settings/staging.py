@@ -21,6 +21,13 @@ ADMINS = (
 # ('Your Name', 'your_email@example.com'),
 )
 
+# Настройки сервера исходящей почты
+EMAIL_HOST = 'localhost'
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_PORT = '25'
+EMAIL_USE_TLS = 'False'
+
 #Период времени по истечении которого пользователям будут высылаться напоминания о необходимых действиях
 NOTIFICATIONS_TIMEOUT = '2 days'
 

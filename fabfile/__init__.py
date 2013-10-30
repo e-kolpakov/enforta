@@ -55,7 +55,7 @@ class Environments:
         SITE_NAME = "doc-approval"
         DB = "docapproval"
         BRANCH = "production"
-        LOGGING_DIRECTORY = "/home/john/docapproval/log"
+        LOGGING_DIRECTORY = "/home/john/GitRoot/Enforta/enforta/log"
         MEDIA_ROOT = "/var/uploads/doc-approval"
         LOG_OWNER_USER = "john"
         LOG_OWNER_GROUP = "www-data"

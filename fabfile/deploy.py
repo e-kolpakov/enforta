@@ -75,15 +75,18 @@ def update_requirements(environment=None):
         run("pip install -r requirements.txt")
 
 
-def create_log_and_upload_folders(environment):
+@task
+def create_log_and_upload_folders(environment=None):
+    environment = environment if environment else get_environment()
+    log_files = ('django.log', 'sql.log', 'celery.log')
     log_tpl = "mkdir -p {0} && chown -R {1}:{2} {0} && sudo chmod g+ws -R {0}"
     upload_tpl = "sudo mkdir -p {0} && sudo chown {1}:{2} {0} && sudo chmod 775 {0}"
     sudo(log_tpl.format(environment.LOGGING_DIRECTORY, environment.LOG_OWNER_USER, environment.LOG_OWNER_GROUP))
     sudo(upload_tpl.format(environment.MEDIA_ROOT, environment.LOG_OWNER_USER, environment.LOG_OWNER_GROUP))
-    sudo("touch {0}/django.log && chmod g+w {0}/django.log".format(environment.LOGGING_DIRECTORY),
-         user=environment.LOG_OWNER_USER)
-    sudo("touch {0}/sql.log && chmod g+w {0}/sql.log".format(environment.LOGGING_DIRECTORY),
-         user=environment.LOG_OWNER_USER)
+
+    tpl = "touch {0}/{1} && chmod g+w {0}/{1}"
+    for log_file in log_files:
+        sudo(tpl.format(environment.LOGGING_DIRECTORY, log_file), user=environment.LOG_OWNER_USER)
 
 
 @task

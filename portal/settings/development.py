@@ -5,6 +5,8 @@ ADMINS = ()
 
 DEBUG = True
 
+EMAIL_PORT = '1025'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -58,11 +60,25 @@ LOGGING = {
             'formatter': 'generic',
             'encoding': 'UTF-8'
         },
+        'celery_tasks': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOGGING_DIRECTORY, 'celery.log'),
+            'maxBytes': 1024000,
+            'backupCount': 4,
+            'formatter': 'generic',
+            'encoding': 'UTF-8'
+        }
     },
     'loggers': {
         '': {
             'handlers': ['file'],
             'level': 'DEBUG',
+            'propagate': False
+        },
+        'weasyprint': {
+            'handlers': ['file'],
+            'level': 'WARNING',
             'propagate': False
         },
         'django.db.backends': {
@@ -71,11 +87,6 @@ LOGGING = {
             'propagate': False
         },
         'DocApproval.middleware': {
-            'handlers': ['file'],
-            'level': 'WARNING',
-            'propagate': False
-        },
-        'DocApproval.middleware.RequireLoginMiddleware': {
             'handlers': ['file'],
             'level': 'WARNING',
             'propagate': False
@@ -90,6 +101,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False
         },
+        'DocApprovalNotifications.tasks': {
+            'handlers': ['celery_tasks'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
         'django.request': {
             'handlers': ['mail_admins', 'file'],
             'level': 'ERROR',
@@ -97,7 +113,6 @@ LOGGING = {
         }
     }
 }
-
 
 # class InvalidVarException(object):
 #     def __mod__(self, missing):
