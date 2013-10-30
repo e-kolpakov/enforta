@@ -69,7 +69,14 @@ class Event(models.Model):
         return self.get_event_type_display()
 
 
+class NotificationManager(models.Manager):
+    def get_active_immediate(self):
+        return self.filter(recurring=False, dismissed=False)
+
+
 class Notification(models.Model):
+    objects = NotificationManager()
+
     class NotificationType:
         APPROVE_REQUIRED = "APPROVE_REQUIRED"
         APPROVE_NO_LONGER_REQUIRED = "APPROVE_NO_LONGER_REQUIRED"
@@ -84,7 +91,7 @@ class Notification(models.Model):
         CONTRACT_PAYMENT_REQUIRED_REMINDER = "CONTRACT_PAYMENT_REQUIRED_REMINDER"
 
     event = models.ForeignKey(Event, verbose_name=_(u"Событие"))
-    notification_recipient = models.ForeignKey("DocApproval.UserProfile", verbose_name=_(u"Получптель"), null=True)
+    notification_recipient = models.ForeignKey("DocApproval.UserProfile", verbose_name=_(u"Получатель"), null=True)
     recurring = models.BooleanField(verbose_name=_(u"Повторяющееся"), default=False)
     dismissed = models.BooleanField(verbose_name=_(u"Погашено"), default=False)
     ui_dismissed = models.BooleanField(verbose_name=_(u"Показано в интерфейсе"), default=False)

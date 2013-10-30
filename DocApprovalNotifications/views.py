@@ -1,5 +1,6 @@
 import json
 import logging
+from django.conf import settings
 from django.core import serializers
 from django.http import HttpResponse
 from django.utils.timezone import now
@@ -28,8 +29,9 @@ class TemplateDebugView(BaseNotificationView):
         data = {
             'notification': notification,
             'event': notification.event,
-            'request': notification.event.get_entity(),
-            'time_elapsed': time_elapsed
+            'req': notification.event.get_entity(),
+            'time_elapsed': time_elapsed,
+            'root_url': settings.ROOT_URL
         }
 
         return render(request, template + ".html", data)
@@ -42,8 +44,9 @@ class NotificationsView(BaseNotificationView):
         return {
             'notification': serializers.serialize('json', [notification]),
             'event': serializers.serialize('json', [notification.event]),
-            'request': serializers.serialize('json', [notification.event.get_entity()]),
-            'time_elapsed': time_elapsed
+            'req': serializers.serialize('json', [notification.event.get_entity()]),
+            'time_elapsed': time_elapsed,
+            'root_url': settings.ROOT_URL
         }
 
     def get(self, request, *args, **kwargs):
