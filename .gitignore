@@ -4,5 +4,11 @@
 portal/static
 portal/static/*
 log
+log/*
+
+config/*
+!config/*_tpl.conf
+
+celerybeat.pid
 
 !DocApproval/static/css/normalize.css

@@ -22,11 +22,12 @@ ADMINS = (
 )
 
 # Настройки сервера исходящей почты
-EMAIL_HOST = 'localhost'
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
+EMAIL_HOST = 'enforta.com'
+EMAIL_HOST_USER = 'infoservice@enforta.com'
+EMAIL_HOST_PASSWORD = 'ctlueess'
 EMAIL_PORT = '25'
 EMAIL_USE_TLS = 'False'
+EMAIL_REDIRECT = ''
 
 #Период времени по истечении которого пользователям будут высылаться напоминания о необходимых действиях
 NOTIFICATIONS_TIMEOUT = '2 days'

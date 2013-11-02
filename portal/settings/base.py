@@ -19,6 +19,7 @@ EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 EMAIL_PORT = '25'
 EMAIL_USE_TLS = False
+EMAIL_REDIRECT = ''  # if not empty redirects all emails to specified address
 
 # Optional settings
 ADMINS = (
@@ -44,7 +45,7 @@ LANGUAGE_CODE = 'ru-ru'
 MEDIA_ROOT = "/var/uploads/doc-approval"
 # End of administrator defined options
 
-PROJECT_PATH = '/'.join(os.path.dirname(__file__).split('/')[0:-1])
+PROJECT_PATH = '/'.join(os.path.dirname(__file__).split(os.path.sep)[0:-1])
 DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
 
 SITE_ID = 1
@@ -283,6 +284,15 @@ INSTALLED_APPS += ('djcelery',)
 BROKER_URL = format_broker(AMQP_USER, AMQP_PASS, AMQP_HOST, AMQP_PORT, AMQP_VHOST)
 CELERY_RESULT_BACKEND = 'amqp'
 CELERY_TASK_RESULT_EXPIRES = 3600
+from datetime import timedelta
+from celery.schedules import crontab
+
+CELERYBEAT_SCHEDULE = {
+    'immediate-notifications': {
+        'task': 'DocApprovalNotifications.tasks.send_immediate_notifications',
+        'schedule': timedelta(minutes=1),
+    },
+}
 djcelery.setup_loader()
 
 

@@ -1,3 +1,4 @@
+from datetime import timedelta
 import os
 from base import LOGGING_DIRECTORY
 
@@ -5,7 +6,12 @@ ADMINS = ()
 
 DEBUG = True
 
-EMAIL_PORT = '1025'
+EMAIL_HOST = 'mailtrap.io'
+EMAIL_HOST_USER = 'docapproval-9be468b6c99f0863'
+EMAIL_HOST_PASSWORD = '1e2e916fef05dfad'
+EMAIL_PORT = '25'
+EMAIL_USE_TLS = False
+EMAIL_REDIRECT = 'redirect@localhost'
 
 DATABASES = {
     'default': {
@@ -112,6 +118,14 @@ LOGGING = {
             'propagate': True,
         }
     }
+}
+
+
+CELERYBEAT_SCHEDULE = {
+    'immediate-notifications': {
+        'task': 'DocApprovalNotifications.tasks.send_immediate_notifications',
+        'schedule': timedelta(seconds=5),
+    },
 }
 
 # class InvalidVarException(object):
