@@ -15,10 +15,10 @@ class Environments:
         USER_NAME = "enfortit"
         VENV = "DocApproval"
         SITE_NAME = "doc-approval"
-        SITE_ROOT = os.path.join('/home', USER_NAME, SITE_NAME)
         DB = "docapproval"
         BRANCH = "production"
-        LOGGING_DIRECTORY = "/home/enfortit/docapproval/log"
+        SITE_ROOT = os.path.join('/home', USER_NAME, SITE_NAME)
+        LOGGING_DIRECTORY = os.path.join(SITE_ROOT, "log")
         MEDIA_ROOT = "/var/uploads/" + SITE_NAME
         LOG_OWNER_GROUP = "www-data"
 
@@ -27,10 +27,10 @@ class Environments:
         USER_NAME = "enfortit"
         VENV = "DocApprovalStaging"
         SITE_NAME = "doc-approval-staging"
-        SITE_ROOT = os.path.join('/home', USER_NAME, SITE_NAME)
         DB = "docapproval_staging"
         BRANCH = "staging"
-        LOGGING_DIRECTORY = "/home/enfortit/docapproval-staging/log"
+        SITE_ROOT = os.path.join('/home', USER_NAME, SITE_NAME)
+        LOGGING_DIRECTORY = os.path.join(SITE_ROOT, "log")
         MEDIA_ROOT = "/var/uploads/" + SITE_NAME
         LOG_OWNER_GROUP = "www-data"
 
@@ -39,10 +39,10 @@ class Environments:
         USER_NAME = "john"
         VENV = "DocApprovalStaging"
         SITE_NAME = "doc-approval-staging"
-        SITE_ROOT = os.path.join('/home', USER_NAME, SITE_NAME)
         DB = "docapproval_staging"
         BRANCH = "staging"
-        LOGGING_DIRECTORY = "/home/john/docapproval-staging/log"
+        SITE_ROOT = os.path.join('/home', USER_NAME, SITE_NAME)
+        LOGGING_DIRECTORY = os.path.join(SITE_ROOT, "log")
         MEDIA_ROOT = "/var/uploads/" + SITE_NAME
         LOG_OWNER_GROUP = "www-data"
 
@@ -50,11 +50,11 @@ class Environments:
         NAME = "development"
         USER_NAME = "john"
         VENV = "DocApproval"
-        SITE_ROOT = '/home/john/GitRoot/Enforta/enforta/'
         SITE_NAME = "doc-approval"
         DB = "docapproval"
         BRANCH = "master"
-        LOGGING_DIRECTORY = "/home/john/GitRoot/Enforta/enforta/log"
+        SITE_ROOT = '/home/john/GitRoot/Enforta/enforta'
+        LOGGING_DIRECTORY = os.path.join(SITE_ROOT, "log")
         MEDIA_ROOT = "/var/uploads/" + SITE_NAME
         LOG_OWNER_GROUP = "www-data"
 
