@@ -6,60 +6,57 @@ from fabric.state import env
 
 __author__ = 'john'
 git_repo = 'https://e_kolpakov@bitbucket.org/e_kolpakov/enforta.git'
+virtualenv_location = '.virtualenvs'
 
 
 class Environments:
     class Production:
         NAME = "production"
+        USER_NAME = "enfortit"
         VENV = "DocApproval"
-        SITE_ROOT = '/home/enfortit/docapproval/'
         SITE_NAME = "doc-approval"
+        SITE_ROOT = os.path.join('/home', USER_NAME, SITE_NAME)
         DB = "docapproval"
         BRANCH = "production"
         LOGGING_DIRECTORY = "/home/enfortit/docapproval/log"
-        MEDIA_ROOT = "/var/uploads/doc-approval"
-        LOG_OWNER_USER = "enfortit"
+        MEDIA_ROOT = "/var/uploads/" + SITE_NAME
         LOG_OWNER_GROUP = "www-data"
-        APACHE_SITE_CONF = "production"
 
     class Staging:
         NAME = "staging"
+        USER_NAME = "enfortit"
         VENV = "DocApprovalStaging"
-        SITE_ROOT = '/home/enfortit/docapproval-staging/'
         SITE_NAME = "doc-approval-staging"
+        SITE_ROOT = os.path.join('/home', USER_NAME, SITE_NAME)
         DB = "docapproval_staging"
         BRANCH = "staging"
         LOGGING_DIRECTORY = "/home/enfortit/docapproval-staging/log"
-        MEDIA_ROOT = "/var/uploads/doc-approval-staging"
-        LOG_OWNER_USER = "enfortit"
+        MEDIA_ROOT = "/var/uploads/" + SITE_NAME
         LOG_OWNER_GROUP = "www-data"
-        APACHE_SITE_CONF = "staging"
 
     class StagingLocal:
         NAME = "staging_local"
+        USER_NAME = "john"
         VENV = "DocApprovalStaging"
-        SITE_ROOT = '/home/john/docapproval-staging/'
         SITE_NAME = "doc-approval-staging"
+        SITE_ROOT = os.path.join('/home', USER_NAME, SITE_NAME)
         DB = "docapproval_staging"
         BRANCH = "staging"
         LOGGING_DIRECTORY = "/home/john/docapproval-staging/log"
-        MEDIA_ROOT = "/var/uploads/doc-approval-staging"
-        LOG_OWNER_USER = "john"
+        MEDIA_ROOT = "/var/uploads/" + SITE_NAME
         LOG_OWNER_GROUP = "www-data"
-        APACHE_SITE_CONF = "staging_local"
 
     class Development:
         NAME = "development"
+        USER_NAME = "john"
         VENV = "DocApproval"
         SITE_ROOT = '/home/john/GitRoot/Enforta/enforta/'
         SITE_NAME = "doc-approval"
         DB = "docapproval"
-        BRANCH = "production"
+        BRANCH = "master"
         LOGGING_DIRECTORY = "/home/john/GitRoot/Enforta/enforta/log"
-        MEDIA_ROOT = "/var/uploads/doc-approval"
-        LOG_OWNER_USER = "john"
+        MEDIA_ROOT = "/var/uploads/" + SITE_NAME
         LOG_OWNER_GROUP = "www-data"
-        APACHE_SITE_CONF = "development"
 
 
 @task
@@ -110,5 +107,5 @@ def get_environment():
 
 
 import db
-import deploy
+import provision
 import prepare_deployment

@@ -114,6 +114,11 @@ class Notification(models.Model):
     def full_name(self):
         return self.get_notification_type_display()
 
+    def __unicode__(self):
+        return _(u"Оповещение {type} пользователю {user}").format(
+            self.get_notification_type_display(),
+            self.notification_recipient.email)
+
 
 event_signal = Signal(providing_args=["event"])
 
