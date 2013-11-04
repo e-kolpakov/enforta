@@ -1,20 +1,20 @@
 <VirtualHost *:8080>
    LogLevel warn
-	ErrorLog ${APACHE_LOG_DIR}/docapproval-staging.error.log
-	CustomLog ${APACHE_LOG_DIR}/docapproval-staging.access.log combined
+	ErrorLog ${APACHE_LOG_DIR}/doc-approval-staging.error.log
+	CustomLog ${APACHE_LOG_DIR}/doc-approval-staging.access.log combined
 	ServerSignature Off
 
     SetEnv  EnvironmentType staging_local
 
-    Alias /robots.txt /home/john/docapproval-staging/portal/static/robots.txt
-    Alias /favicon.ico /home/john/docapproval-staging/portal/static/favicon.ico
+    Alias /robots.txt /home/john/doc-approval-staging/portal/static/robots.txt
+    Alias /favicon.ico /home/john/doc-approval-staging/portal/static/favicon.ico
 
-    AliasMatch ^/([^/]*\.css) /home/john/docapproval-staging/portal/static/styles/$1
-    Alias /static 		/home/john/docapproval-staging/portal/static
+    AliasMatch ^/([^/]*\.css) /home/john/doc-approval-staging/portal/static/styles/$1
+    Alias /static 		/home/john/doc-approval-staging/portal/static
 
-	WSGIScriptAlias / /home/john/docapproval-staging/portal/wsgi.py
+	WSGIScriptAlias / /home/john/doc-approval-staging/portal/wsgi.py
 	WSGIDaemonProcess docApprovalStaging processes=2 maximum-requests=1000 threads=25 \
-	python-path=/home/john/docapproval-staging:/home/john/.virtualenvs/DocApprovalStaging/lib/python2.7/site-packages \
+	python-path=/home/john/doc-approval-staging:/home/john/.virtualenvs/DocApprovalStaging/lib/python2.7/site-packages \
 	lang='en_US.UTF-8' locale='en_US.UTF-8'
     WSGIProcessGroup docApprovalStaging
 
@@ -27,7 +27,7 @@
         </Files>
 	</Directory>
 
-	<Directory /home/john/docapproval-staging/portal/static>
+	<Directory /home/john/doc-approval-staging/portal/static>
         Order deny,allow
         Allow from all
 	</Directory>

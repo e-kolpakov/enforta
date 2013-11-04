@@ -1,8 +1,7 @@
 import sys
 import logging
 from django.core.exceptions import ImproperlyConfigured
-
-from fabric.decorators import task
+from fabric.decorators import task, with_settings
 from fabric.api import cd, run
 from fabric.context_managers import shell_env, settings
 from fabric.contrib import django
@@ -117,6 +116,7 @@ def configure_apache(environment=None):
 
 
 @task
+@with_settings(warn_only=True)
 def configure_rabbitmq(environment=None):
     environment = environment if environment else get_environment()
     try:

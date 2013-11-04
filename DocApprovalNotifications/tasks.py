@@ -1,9 +1,7 @@
 from celery import task
 from celery.utils.log import get_task_logger
-from django.core.mail import get_connection, EmailMultiAlternatives
 from DocApprovalNotifications.emailing import Mailer
 from DocApprovalNotifications.models import Notification
-from DocApprovalNotifications.render import EmailNotificationRender
 
 logger = get_task_logger(__name__)
 
@@ -21,3 +19,4 @@ def send_immediate_notifications():
             notification.dismissed = True
             notification.save()
             logger.debug("Notification %d marked as processed", notification.pk)
+    logger.info("send_immediate_notifications complete")

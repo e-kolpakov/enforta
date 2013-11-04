@@ -7,7 +7,12 @@ from fabfile import get_environment, virtualenv_location
 
 def build_config(tpl, environment):
     python_exec = os.path.join("/home", environment.USER_NAME, virtualenv_location, environment.VENV, "bin/python")
-    return StringIO(tpl.format(site_root=environment.SITE_ROOT, python_exec=python_exec, user=environment.USER_NAME))
+    return StringIO(tpl.format(
+        site_root=environment.SITE_ROOT,
+        python_exec=python_exec,
+        user=environment.USER_NAME,
+        env_type=environment.NAME
+    ))
 
 
 @task(alias='svdconf')
@@ -18,8 +23,8 @@ def configure(environment=None):
     print(local_tpl_location)
     with cd(os.path.join(environment.SITE_ROOT, "config")):
         for config in configs:
-            remote_file = config+".conf"
-            with open(os.path.join(local_tpl_location, config+"_tpl.conf"), "r") as template_file:
+            remote_file = config + ".conf"
+            with open(os.path.join(local_tpl_location, config + "_tpl.conf"), "r") as template_file:
                 tpl = template_file.read()
             put(build_config(tpl, environment), remote_file)
             sudo("cp {filename} /etc/supervisor/conf.d/{filename}".format(filename=remote_file))

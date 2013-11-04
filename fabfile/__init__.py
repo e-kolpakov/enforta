@@ -109,3 +109,4 @@ def get_environment():
 import db
 import provision
 import prepare_deployment
+import deploy
