@@ -84,7 +84,7 @@ def update_requirements(environment=None):
 def create_log_and_upload_folders(environment=None):
     environment = environment if environment else get_environment()
     log_files = ('django.log', 'sql.log', 'celery.log')
-    log_tpl = "mkdir -p {0} && chown -R {1}:{2} {0} && sudo chmod 777 -R {0}"
+    log_tpl = "mkdir -p {0} && chown -R {1}:{2} {0} && sudo chmod 775 -R {0}"
     upload_tpl = "sudo mkdir -p {0} && sudo chown {1}:{2} {0} && sudo chmod 775 {0}"
     sudo(log_tpl.format(environment.LOGGING_DIRECTORY, environment.USER_NAME, environment.LOG_OWNER_GROUP))
     sudo(upload_tpl.format(environment.MEDIA_ROOT, environment.USER_NAME, environment.LOG_OWNER_GROUP))
