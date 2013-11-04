@@ -173,7 +173,7 @@ LOGGING = {
     },
     'formatters': {
         'verbose': {
-            'format': '%(asctime)s %(module)s [%(levelname)s] %(process)d %(thread)d %(message)s'
+            'format': '%(asctime)s %(module)s [%(levelname)s] %(process)d %(thread)d (%(lineno)d): %(message)s'
         },
         'generic': {
             'format': '%(asctime)s %(name)s->%(funcName)s:%(lineno)d [%(levelname)s]: %(message)s'
@@ -209,7 +209,7 @@ LOGGING = {
             'filename': os.path.join(LOGGING_DIRECTORY, 'celery.log'),
             'maxBytes': 1024000,
             'backupCount': 4,
-            'formatter': 'generic',
+            'formatter': 'verbose',
             'encoding': 'UTF-8'
         }
     },
@@ -229,13 +229,18 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False
         },
+        'DocApproval.middleware': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': False
+        },
         'DocApprovalNotifications': {
             'handlers': ['file'],
             'level': 'INFO',
             'propagate': False
         },
         'DocApprovalNotifications.tasks': {
-            'handlers': ['celery_tasks'],
+            'handlers': ['celery_tasks', 'file'],
             'level': 'INFO',
             'propagate': False
         },
@@ -243,6 +248,11 @@ LOGGING = {
             'handlers': ['mail_admins', 'file'],
             'level': 'ERROR',
             'propagate': True,
+        },
+        'django.db.backends': {
+            'handlers': ['sql'],
+            'level': 'DEBUG',
+            'propagate': False
         }
     }
 }
@@ -284,13 +294,12 @@ INSTALLED_APPS += ('djcelery',)
 BROKER_URL = format_broker(AMQP_USER, AMQP_PASS, AMQP_HOST, AMQP_PORT, AMQP_VHOST)
 CELERY_RESULT_BACKEND = 'amqp'
 CELERY_TASK_RESULT_EXPIRES = 3600
-from datetime import timedelta
 from celery.schedules import crontab
 
 CELERYBEAT_SCHEDULE = {
-    'immediate-notifications': {
-        'task': 'DocApprovalNotifications.tasks.send_immediate_notifications',
-        'schedule': timedelta(minutes=1),
+    'repeating-notifications': {
+        'task': 'DocApprovalNotifications.tasks.send_repeating_notifications',
+        'schedule': crontab(hour=3),
     },
 }
 djcelery.setup_loader()
