@@ -4,6 +4,9 @@ from DocApprovalNotifications.models import Notification, Event
 
 
 class BaseStrategy(object):
+    def __init__(self):
+        self._notifications = []
+
     def _get_event_entity(self, event):
         return event.get_entity()
 
@@ -13,11 +16,16 @@ class BaseStrategy(object):
         )
 
     def _create_notification(self, event, notification_recipient, recurring, notification_type):
-        Notification.objects.create(event=event, notification_recipient=notification_recipient,
-                                    recurring=recurring, notification_type=notification_type)
+        notification = Notification.objects.create(event=event, notification_recipient=notification_recipient,
+                                                   recurring=recurring, notification_type=notification_type)
+        self._notifications.append(notification)
 
     def execute(self, event):
         raise NotImplementedError("Execute called on strategy class")
+
+    @property
+    def created_notifications(self):
+        return self._notifications
 
 
 class ApproversInStepStrategyMixin(object):

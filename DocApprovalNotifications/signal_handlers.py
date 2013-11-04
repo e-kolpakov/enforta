@@ -61,6 +61,7 @@ def handle_request_status_change(sender, **kwargs):
 
 def handle_event_signal(sender, **kwargs):
     from DocApprovalNotifications.notification_strategies.repository import NotificationStrategiesRepository
+    from DocApprovalNotifications.tasks import send_notifications
 
     repo = NotificationStrategiesRepository.get_instance()
     event = kwargs['event']
@@ -68,3 +69,6 @@ def handle_event_signal(sender, **kwargs):
     for strategy_cls in repo[event.event_type]:
         strategy = strategy_cls()
         strategy.execute(event)
+        created_notifications_ids = [notification.pk for notification in strategy.created_notifications]
+        send_notifications.delay(created_notifications_ids)
+
