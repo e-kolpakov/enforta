@@ -13,7 +13,7 @@
     Alias /static 		/home/john/doc-approval-staging/portal/static
 
 	WSGIScriptAlias / /home/john/doc-approval-staging/portal/wsgi.py
-	WSGIDaemonProcess docApprovalStaging processes=2 maximum-requests=1000 threads=25 \
+	WSGIDaemonProcess docApprovalStaging processes=2 maximum-requests=1000 threads=25 user=john \
 	python-path=/home/john/doc-approval-staging:/home/john/.virtualenvs/DocApprovalStaging/lib/python2.7/site-packages \
 	lang='en_US.UTF-8' locale='en_US.UTF-8'
     WSGIProcessGroup docApprovalStaging

@@ -1,33 +1,33 @@
 <VirtualHost *:8080>
    LogLevel warn
-	ErrorLog ${APACHE_LOG_DIR}/docapproval-staging.error.log
-	CustomLog ${APACHE_LOG_DIR}/docapproval-staging.access.log combined
+	ErrorLog ${APACHE_LOG_DIR}/doc-approval-staging.error.log
+	CustomLog ${APACHE_LOG_DIR}/doc-approval-staging.access.log combined
 	ServerSignature Off
 
     SetEnv  EnvironmentType staging
 
-    Alias /robots.txt /home/enfortit/docapproval-staging/portal/static/robots.txt
-    Alias /favicon.ico /home/enfortit/docapproval-staging/portal/static/favicon.ico
+    Alias /robots.txt /home/enfortit/doc-approval-staging/portal/static/robots.txt
+    Alias /favicon.ico /home/enfortit/doc-approval-staging/portal/static/favicon.ico
 
-    AliasMatch ^/([^/]*\.css) /home/enfortit/docapproval-staging/portal/static/styles/$1
-    Alias /static 		/home/enfortit/docapproval-staging/portal/static
+    AliasMatch ^/([^/]*\.css) /home/enfortit/doc-approval-staging/portal/static/styles/$1
+    Alias /static 		/home/enfortit/doc-approval-staging/portal/static
 
-	WSGIScriptAlias / /home/enfortit/docapproval-staging/portal/wsgi.py
-	WSGIDaemonProcess docApprovalStaging processes=2 maximum-requests=1000 threads=25 \
-	python-path=/home/enfortit/docapproval-staging:/home/enfortit/.virtualenvs/DocApprovalStaging/lib/python2.7/site-packages \
+	WSGIScriptAlias / /home/enfortit/doc-approval-staging/portal/wsgi.py
+	WSGIDaemonProcess doc-approvalStaging processes=2 maximum-requests=1000 threads=25 user=enfortit \
+	python-path=/home/enfortit/doc-approval-staging:/home/enfortit/.virtualenvs/doc-approvalStaging/lib/python2.7/site-packages \
 	lang='en_US.UTF-8' locale='en_US.UTF-8'
-    WSGIProcessGroup docApprovalStaging
+    WSGIProcessGroup doc-approvalStaging
 
     # LimitRequestBody 10485760
-    DocumentRoot /var/www/docapproval-staging
-	<Directory /var/www/docapproval-staging>
+    DocumentRoot /var/www/doc-approval-staging
+	<Directory /var/www/doc-approval-staging>
         <Files wsgi.py>
             Order deny,allow
             Allow from all
         </Files>
 	</Directory>
 
-	<Directory /home/enfortit/docapproval-staging/portal/static>
+	<Directory /home/enfortit/doc-approval-staging/portal/static>
         Order deny,allow
         Allow from all
 	</Directory>

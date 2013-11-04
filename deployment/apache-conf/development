@@ -10,7 +10,7 @@
     Alias /favicon.ico /home/john/GitRoot/Enforta/enforta/portal/static/favicon.ico
 
 	WSGIScriptAlias / /home/john/GitRoot/Enforta/enforta/portal/wsgi_dev.py
-	WSGIDaemonProcess docApproval processes=1 maximum-requests=50 threads=10 \
+	WSGIDaemonProcess docApproval processes=1 maximum-requests=50 threads=10 user=john \
 	python-path=/home/john/GitRoot/Enforta/enforta:/home/john/.virtualenvs/DocApproval/lib/python2.7/site-packages \
 	lang='en_US.UTF-8' locale='en_US.UTF-8'
     WSGIProcessGroup docApproval
