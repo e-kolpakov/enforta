@@ -4,6 +4,15 @@ from fabric.operations import run
 from fabfile import get_environment, virtualenv_location, set_environment
 from fabfile.db import migrate
 from fabfile.provision import update_requirements, fetch_source_code
+from fabfile.supervisor import restart_supervisor
+
+
+def collectstatic():
+    run("python ./manage.py collectstatic")
+
+
+def recycle_http_worker():
+    run("touch portal/wsgi.py")
 
 
 @task
@@ -12,8 +21,8 @@ def deploy():
     # prepare_deploy()
     with shell_env(WORKON_HOME=virtualenv_location), set_environment(environment):
         fetch_source_code(environment)
-        run("git pull")
         update_requirements(environment)
         migrate()
-        run("python ./manage.py collectstatic")
-        run("touch portal/wsgi.py")
+        collectstatic()
+        recycle_http_worker()
+        restart_supervisor()

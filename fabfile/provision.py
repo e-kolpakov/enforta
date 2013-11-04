@@ -54,8 +54,12 @@ def install_virtualenv():
 
 
 def create_virtualenv(environment):
-    with shell_env(WORKON_HOME=virtualenv_location):
-        run("source /usr/local/bin/virtualenvwrapper.sh && mkvirtualenv %s" % environment.VENV)
+    with settings(warn_only=True):
+        venv_location = os.path.join("/home", environment.USER_NAME, virtualenv_location, environment.VENV)
+        result = run("test -d {0}".format(venv_location))
+    if result.failed:
+        with shell_env(WORKON_HOME=virtualenv_location):
+            run("source /usr/local/bin/virtualenvwrapper.sh && mkvirtualenv %s" % environment.VENV)
 
 
 def fetch_source_code(environment):

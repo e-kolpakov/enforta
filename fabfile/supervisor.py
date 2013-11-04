@@ -15,7 +15,7 @@ def build_config(tpl, environment):
     ))
 
 
-@task(alias='svdconf')
+@task()
 def configure(environment=None):
     configs = ("celery", 'celerybeat')
     local_tpl_location = os.path.join(os.path.dirname(__file__), "../config")
@@ -29,4 +29,8 @@ def configure(environment=None):
             put(build_config(tpl, environment), remote_file)
             sudo("cp {filename} /etc/supervisor/conf.d/{filename}".format(filename=remote_file))
 
+    restart_supervisor()
+
+
+def restart_supervisor():
     sudo("service supervisor stop && sleep 2s && service supervisor start")
