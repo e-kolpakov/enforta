@@ -14,7 +14,7 @@
 
 	WSGIScriptAlias / /home/enfortit/doc-approval-staging/portal/wsgi.py
 	WSGIDaemonProcess doc-approvalStaging processes=2 maximum-requests=1000 threads=25 user=enfortit \
-	python-path=/home/enfortit/doc-approval-staging:/home/enfortit/.virtualenvs/doc-approvalStaging/lib/python2.7/site-packages \
+	python-path=/home/enfortit/doc-approval-staging:/home/enfortit/.virtualenvs/DocApprovalStaging/lib/python2.7/site-packages \
 	lang='en_US.UTF-8' locale='en_US.UTF-8'
     WSGIProcessGroup doc-approvalStaging
 
