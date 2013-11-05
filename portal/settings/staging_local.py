@@ -1,4 +1,3 @@
-import os
 from base import LOGGING
 
 DATABASES = {
@@ -23,3 +22,5 @@ ROOT_URL = "http://docapproval.ru:8080"
 for key in LOGGING['loggers'].keys():
     if key not in ('weasyprint', 'django.request', 'DocApproval.middleware'):
         LOGGING['loggers'][key]['level'] = 'DEBUG'
+
+MEDIA_ROOT = "/var/uploads/doc-approval-staging"

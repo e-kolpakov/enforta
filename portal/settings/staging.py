@@ -39,7 +39,7 @@ NOTIFICATIONS_FREQUENCY = '1 day'
 # См. инструкцию по настройке приложения
 
 #Путь в файловой системе сервера для долговременного хранения загружаемых файлов.
-MEDIA_ROOT = "/var/uploads/doc-approval"
+MEDIA_ROOT = "/var/uploads/doc-approval-staging"
 
 # Временная зона сервера. Список временных зон доступен по адресу
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name

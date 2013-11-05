@@ -89,7 +89,7 @@ def create_log_and_upload_folders(environment=None):
     sudo(log_tpl.format(environment.LOGGING_DIRECTORY, environment.USER_NAME, environment.LOG_OWNER_GROUP))
     sudo(upload_tpl.format(environment.MEDIA_ROOT, environment.USER_NAME, environment.LOG_OWNER_GROUP))
 
-    tpl = "touch {0}/{1} && chmod 666 {0}/{1}"
+    tpl = "touch {0}/{1} && chmod 664 {0}/{1}"
     for log_file in log_files:
         sudo(tpl.format(environment.LOGGING_DIRECTORY, log_file), user=environment.USER_NAME)
 
