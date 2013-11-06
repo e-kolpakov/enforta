@@ -62,7 +62,7 @@ def create_virtualenv(environment):
             run("source /usr/local/bin/virtualenvwrapper.sh && mkvirtualenv %s" % environment.VENV)
 
 @task
-def fetch_source_code(environment):
+def fetch_source_code(environment=None):
     environment = environment if environment else get_environment()
     with settings(warn_only=True):
         result = run("test -d {0}".format(environment.SITE_ROOT))

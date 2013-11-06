@@ -28,7 +28,7 @@ EMAIL_HOST_PASSWORD = 'kappa514'
 EMAIL_PORT = '25'
 EMAIL_USE_TLS = 'False'
 EMAIL_REDIRECT = ''
-SERVER_EMAIL = EMAIL_HOST_USER
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 #Период времени по истечении которого пользователям будут высылаться напоминания о необходимых действиях
 NOTIFICATIONS_TIMEOUT = '2 days'
