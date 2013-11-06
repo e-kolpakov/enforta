@@ -48,6 +48,15 @@ def install_packages():
     sudo("apt-get -y install supervisor")
 
 
+def install_mod_wsgi3_4():
+    """
+     mod_wsgi 3.4 required for this application, Ubuntu 12.04 have 3.3 in repositories.
+     That's why in order to run it on Ubuntu 12.04 manual upgrade to 3.4 is required.
+     At production server this was done long before fabric was introduced, that's why this method is only a stub.
+    """
+    pass
+
+
 def install_virtualenv():
     sudo("pip install virtualenv")
     sudo("pip install virtualenvwrapper")
@@ -139,6 +148,7 @@ def provision():
     """ Provisions initial installation"""
     environment = get_environment()
     install_packages()
+    install_mod_wsgi3_4()
     install_virtualenv()
     create_virtualenv(environment)
     fetch_source_code(environment)
@@ -149,5 +159,5 @@ def provision():
     init_south(environment)
     load_initial_fixtures(environment)
     configure_apache(environment)
-    configure_rabbitmq()
+    configure_rabbitmq(environment)
     configure_supervisor(environment)
