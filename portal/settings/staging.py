@@ -22,9 +22,9 @@ ADMINS = (
 )
 
 # Настройки сервера исходящей почты
-EMAIL_HOST = 'smtp.bk.ru'
-EMAIL_HOST_USER = '_john_@bk.ru'
-EMAIL_HOST_PASSWORD = 'kappa514'
+EMAIL_HOST = 'enforta.com'
+EMAIL_HOST_USER = 'infoservice@enforta.com'
+EMAIL_HOST_PASSWORD = 'ctlueess'
 EMAIL_PORT = '25'
 EMAIL_USE_TLS = 'False'
 EMAIL_REDIRECT = ''
