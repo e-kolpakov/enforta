@@ -18,6 +18,7 @@ EMAIL_PORT = '25'
 EMAIL_USE_TLS = False
 EMAIL_REDIRECT = 'redirect@localhost'
 ROOT_URL = "http://docapproval.ru:8080"
+SERVER_EMAIL = EMAIL_HOST_USER
 
 for key in LOGGING['loggers'].keys():
     if key not in ('weasyprint', 'django.request', 'DocApproval.middleware'):

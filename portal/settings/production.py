@@ -22,6 +22,7 @@ EMAIL_HOST_USER = 'infoservice@enforta.com'
 EMAIL_HOST_PASSWORD = 'ctlueess'
 EMAIL_PORT = '25'
 EMAIL_USE_TLS = 'False'
+SERVER_EMAIL = EMAIL_HOST_USER
 
 # Почтовые адреса для уведомлений о критических ошибках
 ADMINS = (
