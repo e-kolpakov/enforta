@@ -61,8 +61,9 @@ def create_virtualenv(environment):
         with shell_env(WORKON_HOME=virtualenv_location):
             run("source /usr/local/bin/virtualenvwrapper.sh && mkvirtualenv %s" % environment.VENV)
 
-
+@task
 def fetch_source_code(environment):
+    environment = environment if environment else get_environment()
     with settings(warn_only=True):
         result = run("test -d {0}".format(environment.SITE_ROOT))
     if result.failed:
