@@ -21,6 +21,9 @@ ADMINS = (
 # ('Your Name', 'your_email@example.com'),
 )
 
+# Адрес сервера (используется для создания ссылок в почтовых сообщениях)
+ROOT_URL = "http://87.241.226.36:8080"
+
 # Настройки сервера исходящей почты
 EMAIL_HOST = 'enforta.com'
 EMAIL_HOST_USER = 'infoservice@enforta.com'

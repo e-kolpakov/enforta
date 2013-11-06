@@ -16,6 +16,9 @@ DATABASES = {
 # FQDN или IP-адрес сервера
 ALLOWED_HOSTS = '*'
 
+# Адрес сервера (используется для создания ссылок в почтовых сообщениях)
+ROOT_URL = "http://87.241.226.36"
+
 # Настройки сервера исходящей почты
 EMAIL_HOST = 'enforta.com'
 EMAIL_HOST_USER = 'infoservice@enforta.com'
