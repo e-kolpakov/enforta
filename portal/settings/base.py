@@ -299,7 +299,7 @@ from celery.schedules import crontab
 CELERYBEAT_SCHEDULE = {
     'repeating-notifications': {
         'task': 'DocApprovalNotifications.tasks.send_repeating_notifications',
-        'schedule': crontab(hour=3),
+        'schedule': crontab(hour=3, minute=0),
     },
 }
 djcelery.setup_loader()

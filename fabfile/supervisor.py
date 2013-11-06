@@ -20,14 +20,14 @@ def configure(environment=None):
     configs = ("celery", 'celerybeat')
     local_tpl_location = os.path.join(os.path.dirname(__file__), "../config")
     environment = environment if environment else get_environment()
-    print(local_tpl_location)
     with cd(os.path.join(environment.SITE_ROOT, "config")):
         for config in configs:
             remote_file = config + ".conf"
             with open(os.path.join(local_tpl_location, config + "_tpl.conf"), "r") as template_file:
                 tpl = template_file.read()
             put(build_config(tpl, environment), remote_file)
-            sudo("cp {filename} /etc/supervisor/conf.d/{filename}".format(filename=remote_file))
+            sudo("cp {filename} /etc/supervisor/conf.d/{filename}-{site_name}".format(filename=remote_file,
+                                                                                      site_name=environment.NAME))
 
     restart_supervisor()
 

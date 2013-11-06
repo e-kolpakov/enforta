@@ -1,3 +1,4 @@
+import smtplib
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.template.loader import render_to_string
@@ -20,7 +21,10 @@ class Mailer(object):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_val:
-            logger.exception("Exception while emailing notifications\n%s", exc_val)
+            if exc_type == smtplib.SMTPException:
+                logger.exception("SMTP of type %s exception while emailing notifications\n%s", exc_type, exc_val)
+            else:
+                logger.exception("Unknown exception while emailing notifications\n%s", exc_val)
         self.connection.close()
         logger.info("Connection closed")
         return True

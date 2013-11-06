@@ -61,14 +61,15 @@ def send_notifications(notification_ids):
     logger.debug("Fetched target notifications")
 
     success = 0
-    with Mailer() as mailer:
-        for notification in target_notifications:
-            mailer.email(notification)
-            logger.debug("Notification %d emailed", notification.pk)
-            notification.dismissed = True
-            notification.save()
-            logger.debug("Notification %d marked as processed", notification.pk)
-            success += 1
+    if len(target_notifications) > 0:
+        with Mailer() as mailer:
+            for notification in target_notifications:
+                mailer.email(notification)
+                logger.debug("Notification %d emailed", notification.pk)
+                notification.dismissed = True
+                notification.save()
+                logger.debug("Notification %d marked as processed", notification.pk)
+                success += 1
     logger.info(
         "Completed send_notifications, got {0} notifications, sent {1}".format(len(target_notifications), success))
 
