@@ -6,6 +6,7 @@ from celery import task
 from celery.utils.log import get_task_logger
 
 from django.core.cache import cache
+from django.utils.timezone import now
 
 from DocApprovalNotifications.emailing import Mailer
 from DocApprovalNotifications.models import Notification
@@ -58,23 +59,42 @@ def unique_task(func):
 def send_notifications(notification_ids):
     logger.info("Starting send_notifications")
     target_notifications = Notification.objects.get_active_immediate().filter(pk__in=notification_ids)
-    logger.debug("Fetched target notifications")
+    logger.debug("Fetched target notifications for ids %s", len(target_notifications), notification_ids)
 
-    success = 0
-    if len(target_notifications) > 0:
-        with Mailer() as mailer:
-            for notification in target_notifications:
-                mailer.email(notification)
-                logger.debug("Notification %d emailed", notification.pk)
-                notification.dismissed = True
-                notification.save()
-                logger.debug("Notification %d marked as processed", notification.pk)
-                success += 1
-    logger.info(
-        "Completed send_notifications, got {0} notifications, sent {1}".format(len(target_notifications), success))
+    def callback(notification):
+        notification.dismissed = True
+        notification.save()
+        logger.debug("Notification %d marked as processed", notification.pk)
+
+    total, success = do_send_notifications(target_notifications, notification_processing_callback=callback)
+    logger.info("Completed send_notifications, got {0} notifications, sent {1}".format(total, success))
 
 
 @task(ignore_result=True)
 def send_repeating_notifications():
     logger.info("Starting send_repeating_notifications")
-    logger.info("Completed send_repeating_notifications")
+    target_notifications = Notification.objects.get_recurring_to_send()
+    logger.debug("Fetched target notifications")
+
+    def callback(notification):
+        time = now()
+        notification.last_sent = time
+        notification.save()
+        logger.debug("Notification %d most_recent_sent set to %s", notification.pk, time)
+
+    total, success = do_send_notifications(target_notifications, notification_processing_callback=callback)
+    logger.info("Completed send_repeating_notifications, got {0} notifications, sent {1}".format(total, success))
+
+
+def do_send_notifications(target_notifications, notification_processing_callback=None):
+    notifications = list(target_notifications)
+    total, success = len(notifications), 0
+    if total > 0:
+        with Mailer() as mailer:
+            for notification in notifications:
+                mailer.email(notification)
+                logger.debug("Notification %d emailed", notification.pk)
+                if notification_processing_callback:
+                    notification_processing_callback(notification)
+                success += 1
+    return total, success

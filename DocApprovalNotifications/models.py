@@ -1,11 +1,19 @@
 # -*- coding=utf-8 -*-
-from django.db.models import get_model
+import logging
 from jsonfield import JSONField
 
 from django.db import models
+from django.db.models import get_model, Q
+from django.conf import settings
 from django.dispatch.dispatcher import Signal, receiver
 from django.utils.translation import ugettext as _
+from django.utils.timezone import now
+
 from DocApproval.models import ApprovalProcess, approve_action_signal, request_status_change, Request
+from Utilities.date import parse_string_to_timedelta
+
+
+logger = logging.getLogger(__name__)
 
 
 class ModelConstants:
@@ -70,12 +78,24 @@ class Event(models.Model):
 
 
 class NotificationManager(models.Manager):
+    _log_recurring_to_send_tpl = \
+        "Fetching active recurring notifications created before {created_before}, last sent before {sent_before}"
+
     def get_active_immediate(self):
         return self.filter(recurring=False, dismissed=False)
 
-    def get_active_recurring(self, target_date):
-        effective_date = target_date + timedelta()
-        return self.filter(recurring=True, dismissed=False, event__timestamp__gte=target_date)
+    def get_active_recurring(self):
+        return self.filter(recurring=True, dismissed=False)
+
+    def get_recurring_to_send(self, target_date=None):
+        target_date = target_date if target_date else now()
+        created_before = target_date - parse_string_to_timedelta(settings.NOTIFICATIONS_TIMEOUT)
+        sent_before = target_date - parse_string_to_timedelta(settings.NOTIFICATIONS_FREQUENCY)
+
+        logger.debug(self._log_recurring_to_send_tpl.format(created_before=created_before, sent_before=sent_before))
+        return self.get_active_recurring().filter(
+            Q(last_sent__lte=sent_before) | Q(last_sent__isnull=True),
+            Q(event__timestamp__lte=created_before))
 
 
 class Notification(models.Model):
@@ -99,8 +119,8 @@ class Notification(models.Model):
     recurring = models.BooleanField(verbose_name=_(u"Повторяющееся"), default=False)
     dismissed = models.BooleanField(verbose_name=_(u"Погашено"), default=False)
     ui_dismissed = models.BooleanField(verbose_name=_(u"Показано в интерфейсе"), default=False)
-    most_recent_sent = models.DateTimeField(verbose_name=_(u"Отправлено последний раз"), null=True, blank=True,
-                                            default=None)
+    last_sent = models.DateTimeField(verbose_name=_(u"Отправлено последний раз"), null=True, blank=True, default=None)
+
     notification_type = models.CharField(
         verbose_name=_(u"Тип оповещения"), max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH, null=False, choices=(
             (NotificationType.APPROVE_REQUIRED, _(u"Требуется утверждение заявки")),

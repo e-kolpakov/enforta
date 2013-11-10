@@ -11,10 +11,10 @@ def yes_no(bool_var):
     return _(u"Да") if bool_var else _(u"Нет")
 
 
-class EnumerableGrammarFrom:
-    SINGULAR = 0 #val % 10 == 1 and not val in [11;19]
-    PLURAL_ONE = 1 #val % 10 in [2;4] and not val in [11;19]
-    PLURAL_TWO = 2 #val %10 in 0,[5;9] or val in [11;19]
+class EnumerableGrammarForm:
+    SINGULAR = 0    # val % 10 == 1 and not val in [11;19]
+    PLURAL_ONE = 1  # val % 10 in [2;4] and not val in [11;19]
+    PLURAL_TWO = 2  # val %10 in 0,[5;9] or val in [11;19]
 
     @classmethod
     def get_enumerable_form(cls, number):
@@ -37,36 +37,43 @@ class Humanizer(object):
     DATE_PRECISION_SECOND = 3
     _period_names = OrderedDict([
         ('years', {
-            EnumerableGrammarFrom.SINGULAR: _(u"год"),
-            EnumerableGrammarFrom.PLURAL_ONE: _(u"года"),
-            EnumerableGrammarFrom.PLURAL_TWO: _(u"лет"),
+            EnumerableGrammarForm.SINGULAR: _(u"год"),
+            EnumerableGrammarForm.PLURAL_ONE: _(u"года"),
+            EnumerableGrammarForm.PLURAL_TWO: _(u"лет"),
         }),
         ('months', {
-            EnumerableGrammarFrom.SINGULAR: _(u"месяц"),
-            EnumerableGrammarFrom.PLURAL_ONE: _(u"месяца"),
-            EnumerableGrammarFrom.PLURAL_TWO: _(u"месяцев"),
+            EnumerableGrammarForm.SINGULAR: _(u"месяц"),
+            EnumerableGrammarForm.PLURAL_ONE: _(u"месяца"),
+            EnumerableGrammarForm.PLURAL_TWO: _(u"месяцев"),
         }),
         ('days', {
-            EnumerableGrammarFrom.SINGULAR: _(u"день"),
-            EnumerableGrammarFrom.PLURAL_ONE: _(u"дня"),
-            EnumerableGrammarFrom.PLURAL_TWO: _(u"дней"),
+            EnumerableGrammarForm.SINGULAR: _(u"день"),
+            EnumerableGrammarForm.PLURAL_ONE: _(u"дня"),
+            EnumerableGrammarForm.PLURAL_TWO: _(u"дней"),
         }),
         ('hours', {
-            EnumerableGrammarFrom.SINGULAR: _(u"час"),
-            EnumerableGrammarFrom.PLURAL_ONE: _(u"часа"),
-            EnumerableGrammarFrom.PLURAL_TWO: _(u"часов"),
+            EnumerableGrammarForm.SINGULAR: _(u"час"),
+            EnumerableGrammarForm.PLURAL_ONE: _(u"часа"),
+            EnumerableGrammarForm.PLURAL_TWO: _(u"часов"),
         }),
         ('minutes', {
-            EnumerableGrammarFrom.SINGULAR: _(u"минута"),
-            EnumerableGrammarFrom.PLURAL_ONE: _(u"минуты"),
-            EnumerableGrammarFrom.PLURAL_TWO: _(u"минут"),
+            EnumerableGrammarForm.SINGULAR: _(u"минута"),
+            EnumerableGrammarForm.PLURAL_ONE: _(u"минуты"),
+            EnumerableGrammarForm.PLURAL_TWO: _(u"минут"),
         }),
         ('seconds', {
-            EnumerableGrammarFrom.SINGULAR: _(u"секунда"),
-            EnumerableGrammarFrom.PLURAL_ONE: _(u"секунды"),
-            EnumerableGrammarFrom.PLURAL_TWO: _(u"секунд"),
+            EnumerableGrammarForm.SINGULAR: _(u"секунда"),
+            EnumerableGrammarForm.PLURAL_ONE: _(u"секунды"),
+            EnumerableGrammarForm.PLURAL_TWO: _(u"секунд"),
         })
     ])
+
+    _default_period_for_precision = {
+        DATE_PRECISION_DAY: 'days',
+        DATE_PRECISION_HOUR: 'hours',
+        DATE_PRECISION_MINUTE: 'minutes',
+        DATE_PRECISION_SECOND: 'seconds',
+    }
 
     def get_period_name(self, name, form):
         return self._period_names.get(name, {}).get(form, "")
@@ -80,11 +87,16 @@ class Humanizer(object):
         if precision <= self.DATE_PRECISION_DAY:
             attributes.remove('hours')
 
-        values = [(getattr(delta, attr), attr, EnumerableGrammarFrom.get_enumerable_form(getattr(delta, attr)))
+        values = [(getattr(delta, attr), attr, EnumerableGrammarForm.get_enumerable_form(getattr(delta, attr)))
                   for attr in attributes if getattr(delta, attr)]
 
-        readable = (u"{0} {1}".format(value, self.get_period_name(attr, grammar_form))
-                    for value, attr, grammar_form in values)
+        readable = [u"{quantity} {unit}".format(quantity=value, unit=self.get_period_name(attr, grammar_form))
+                    for value, attr, grammar_form in values]
+
+        if not readable:
+            period = self.get_period_name(self._default_period_for_precision.get(precision, 'days'),
+                                          EnumerableGrammarForm.PLURAL_TWO)
+            readable.append(u"{quantity} {unit}".format(quantity=0, unit=period))
 
         return u" ".join(readable)
 
@@ -92,6 +104,6 @@ class Humanizer(object):
         delta = relativedelta(days=timedelta.days, seconds=timedelta.seconds, microseconds=timedelta.microseconds)
         return self._humanize(delta, precision)
 
-    def humanize_period(self, quantity, precision=DATE_PRECISION_DAY, unit=Periods.DAYS):
+    def humanize_period(self, quantity, unit=Periods.DAYS, precision=DATE_PRECISION_DAY):
         delta = relativedelta(**{unit: quantity})
-        return self._humanize(delta)
+        return self._humanize(delta, precision)

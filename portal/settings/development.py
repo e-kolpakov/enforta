@@ -1,3 +1,4 @@
+from datetime import timedelta
 from base import LOGGING
 
 ADMINS = ()
@@ -26,9 +27,15 @@ EMAIL_PORT = '25'
 EMAIL_USE_TLS = False
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+NOTIFICATIONS_TIMEOUT = '00:05:00'
+NOTIFICATIONS_FREQUENCY = '00:10:00'
 
-
-CELERYBEAT_SCHEDULE = {}
+CELERYBEAT_SCHEDULE = {
+    'repeating-notifications': {
+        'task': 'DocApprovalNotifications.tasks.send_repeating_notifications',
+        'schedule': timedelta(minutes=1),
+    }
+}
 
 # class InvalidVarException(object):
 #     def __mod__(self, missing):

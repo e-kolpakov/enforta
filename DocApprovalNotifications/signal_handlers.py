@@ -1,4 +1,5 @@
 import logging
+from django.db import transaction
 from DocApprovalNotifications.utils import as_collection
 
 from models import Event
@@ -58,7 +59,7 @@ def handle_request_status_change(sender, **kwargs):
                 old_status=old_status, new_status=new_status, event_type=event_type, request=request)
         )
 
-
+@transaction.commit_manually
 def handle_event_signal(sender, **kwargs):
     from DocApprovalNotifications.notification_strategies.repository import NotificationStrategiesRepository
     from DocApprovalNotifications.tasks import send_notifications
@@ -66,9 +67,17 @@ def handle_event_signal(sender, **kwargs):
     repo = NotificationStrategiesRepository.get_instance()
     event = kwargs['event']
 
-    for strategy_cls in repo[event.event_type]:
-        strategy = strategy_cls()
-        strategy.execute(event)
-        created_notifications_ids = [notification.pk for notification in strategy.created_notifications]
-        send_notifications.delay(created_notifications_ids)
+    notification_ids = []
+
+    try:
+        for strategy_cls in repo[event.event_type]:
+            strategy = strategy_cls()
+            strategy.execute(event)
+            notification_ids.extend([notification.pk for notification in strategy.created_notifications])
+    except Exception as e:
+        transaction.rollback()
+        logger.exception("Exception while creating notifications")
+    else:
+        transaction.commit()
+        send_notifications.delay(notification_ids)
 

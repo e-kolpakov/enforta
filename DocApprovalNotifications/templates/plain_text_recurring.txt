@@ -1,4 +1,5 @@
-{% extends "plain_text_default" %}
+{% extends "plain_text_default.txt" %}
+{% load i18n %}
 
 {% trans "Заявка" %}                                {{ req.name }}
 {% trans "Событие" %}                               {{ event.full_name }}

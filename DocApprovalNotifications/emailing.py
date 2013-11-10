@@ -59,7 +59,7 @@ class Mailer(object):
 
     def _get_templates(self, notification):
         if notification.recurring:
-            return "html_recurring_default.html", "plain_text_recurring_default.txt"
+            return "html_recurring.html", "plain_text_recurring.txt"
         else:
             return "html_default.html", "plain_text_default.txt"
 
