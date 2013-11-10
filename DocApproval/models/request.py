@@ -19,7 +19,7 @@ from .approval import ApprovalRoute, ApprovalProcessAction
 from DocApproval.constants import Periods
 
 from DocApproval.url_naming.names import Request as RequestUrls
-from DocApproval.utilities.humanization import Humanizer
+from Utilities.humanization import Humanizer
 from DocApproval.utilities.permission_checker import PermissionChecker
 from DocApproval.utilities.file_upload import ContentTypeRestrictedFileField
 

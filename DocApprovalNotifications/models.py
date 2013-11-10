@@ -73,6 +73,10 @@ class NotificationManager(models.Manager):
     def get_active_immediate(self):
         return self.filter(recurring=False, dismissed=False)
 
+    def get_active_recurring(self, target_date):
+        effective_date = target_date + timedelta()
+        return self.filter(recurring=True, dismissed=False, event__timestamp__gte=target_date)
+
 
 class Notification(models.Model):
     objects = NotificationManager()
@@ -95,6 +99,8 @@ class Notification(models.Model):
     recurring = models.BooleanField(verbose_name=_(u"Повторяющееся"), default=False)
     dismissed = models.BooleanField(verbose_name=_(u"Погашено"), default=False)
     ui_dismissed = models.BooleanField(verbose_name=_(u"Показано в интерфейсе"), default=False)
+    most_recent_sent = models.DateTimeField(verbose_name=_(u"Отправлено последний раз"), null=True, blank=True,
+                                            default=None)
     notification_type = models.CharField(
         verbose_name=_(u"Тип оповещения"), max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH, null=False, choices=(
             (NotificationType.APPROVE_REQUIRED, _(u"Требуется утверждение заявки")),

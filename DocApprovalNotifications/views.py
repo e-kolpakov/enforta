@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.utils.timezone import now
 from django.shortcuts import render
 from django.views.generic import View
-from DocApproval.utilities.humanization import Humanizer
+from Utilities.humanization import Humanizer
 from DocApprovalNotifications.models import Notification
 
 

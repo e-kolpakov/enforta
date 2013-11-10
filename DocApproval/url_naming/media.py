@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 from names import Media as media_names
 
-from ..views import media
+from DocApproval.views import media
 
 urlpatterns = patterns(
     '',

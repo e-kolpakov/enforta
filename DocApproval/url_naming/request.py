@@ -2,8 +2,8 @@ from django.conf.urls import patterns, url
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from names import Request as request_names
-from ..views import request, approval_list
-from ..utilities.datatables import JsonConfigurableDatatablesBaseView as JCDBV
+from DocApproval.views import request, approval_list
+from DocApproval.utilities.datatables import JsonConfigurableDatatablesBaseView as JCDBV
 
 urlpatterns = patterns(
     '',

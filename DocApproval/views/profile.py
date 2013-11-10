@@ -7,9 +7,9 @@ from django.views.generic import UpdateView, DetailView
 from django.shortcuts import render, get_object_or_404
 from django.views.generic.base import View
 
-from ..models import UserProfile, Request
-from ..forms import UserProfileForm
-from ..messages import ProfileMessages
+from DocApproval.models import UserProfile, Request
+from DocApproval.forms import UserProfileForm
+from DocApproval.messages import ProfileMessages
 
 
 class ImpersonationBackendParameterError(Exception):

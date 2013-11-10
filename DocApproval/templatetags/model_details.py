@@ -4,8 +4,8 @@ from django.db import models
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
-from ..messages import CommonMessages
-from ..models import ModelConstants
+from DocApproval.messages import CommonMessages
+from DocApproval.models import ModelConstants
 
 register = template.Library()
 

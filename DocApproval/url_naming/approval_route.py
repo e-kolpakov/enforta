@@ -1,8 +1,8 @@
 from django.conf.urls import patterns, url
 from names import ApprovalRoute as approval_names
 
-from ..views import approval_route
-from ..utilities.datatables import JsonConfigurableDatatablesBaseView as JCDTV
+from DocApproval.views import approval_route
+from DocApproval.utilities.datatables import JsonConfigurableDatatablesBaseView as JCDTV
 
 urlpatterns = patterns(
     '',

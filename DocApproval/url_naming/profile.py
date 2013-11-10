@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 from names import Profile as profile_names
 
-from ..views import profile
+from DocApproval.views import profile
 
 urlpatterns = patterns(
     '',

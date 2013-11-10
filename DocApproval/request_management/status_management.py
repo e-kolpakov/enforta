@@ -1,8 +1,8 @@
 import logging
 
 from django.db import transaction
-from ..models.approval import ApprovalProcess
-from ..models.request import RequestStatus
+from DocApproval.models.approval import ApprovalProcess
+from DocApproval.models.request import RequestStatus
 
 
 class RequestStatusTransitionBase(object):

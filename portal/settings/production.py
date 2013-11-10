@@ -35,10 +35,12 @@ ADMINS = (
 MANAGERS = ADMINS
 
 #Период времени по истечении которого пользователям будут высылаться напоминания о необходимых действиях
-NOTIFICATIONS_TIMEOUT = '2 days'
+# Формат "D day(s) HH:MM:SS
+NOTIFICATIONS_TIMEOUT = '2 days 00:00:00'
 
 #Частота отправки напоминаний
-NOTIFICATIONS_FREQUENCY = '1 day'
+# Формат "D day(s) HH:MM:SS
+NOTIFICATIONS_FREQUENCY = '1 day 00:00:00'
 
 # Изменения в следующих параметрах могут потребовать реконфигурации сервера.
 # См. инструкцию по настройке приложения

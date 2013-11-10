@@ -2,7 +2,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.timezone import now
 
-from DocApproval.utilities.humanization import Humanizer
+from Utilities.humanization import Humanizer
 
 
 class NotificationRender(object):

@@ -1,10 +1,13 @@
 import smtplib
+import logging
+
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.template.loader import render_to_string
 from django.utils.timezone import now
-import logging
-from DocApproval.utilities.humanization import Humanizer
+
+from Utilities.humanization import Humanizer
+
 
 logger = logging.getLogger(__name__)
 
