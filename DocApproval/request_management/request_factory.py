@@ -30,4 +30,6 @@ class RequestFactory(object):
         assign_perm(wrap_permission(Permissions.Request.CAN_EDIT_REQUEST), self._user, new_request)
         assign_perm(wrap_permission(Permissions.Request.CAN_EDIT_ROUTE), self._user, new_request)
 
+        assign_perm(wrap_permission(Permissions.Request.CAN_VIEW_REQUEST), new_request.send_on_approval.user, new_request)
+
         return new_request

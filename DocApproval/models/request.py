@@ -8,7 +8,7 @@ from django.dispatch.dispatcher import Signal
 from django.core.validators import MinValueValidator
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
-from guardian.shortcuts import get_objects_for_user
+from guardian.shortcuts import get_objects_for_user, get_users_with_perms
 
 from jsonfield import JSONField
 
@@ -206,6 +206,9 @@ class Request(models.Model):
     @property
     def show_process(self):
         return self.status.code == RequestStatus.NEGOTIATION
+
+    def get_related_users(self):
+        return get_users_with_perms(self).select_related('profile')
 
 
 class RequestHistory(models.Model):

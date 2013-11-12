@@ -35,7 +35,7 @@ class NotificationStrategiesRepository(object):
         self.register_strategy(Event.EventType.REQUEST_REJECTED, NotifyApproverRequestRejectedStrategy)
 
         self.register_strategy(Event.EventType.REQUEST_FINAL_APPROVE, NotifyApproverRequestApprovalCompleteStrategy)
-        self.register_strategy(Event.EventType.REQUEST_FINAL_APPROVE, NotifyAllUsersFinalApproveStrategy)
+        self.register_strategy(Event.EventType.REQUEST_FINAL_APPROVE, NotifyAllRelatedUsersFinalApproveStrategy)
 
         self.register_strategy(Event.EventType.CONTRACT_PAYMENT_REQUIRED, NotifyAccountingStrategy)
         self.register_strategy(Event.EventType.CONTRACT_PAYMENT_REQUIRED, RecurringNotificationAccountingStrategy)
@@ -44,7 +44,7 @@ class NotificationStrategiesRepository(object):
 
         # self.register_strategy(Event.EventType.CONTRACT_ACTIVATED, None)
 
-        self.register_strategy(Event.EventType.CONTRACT_EXPIRED, NotifyAllUsersContractExpiredStrategy)
+        self.register_strategy(Event.EventType.CONTRACT_EXPIRED, NotifyAllRelatedUsersContractExpiredStrategy)
 
     @classmethod
     def get_instance(cls):
