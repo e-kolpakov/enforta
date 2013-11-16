@@ -284,9 +284,9 @@ GUARDIAN_RENDER_403 = True
 
 
 #djcelery
-def format_broker(user, password, host, port, queue):
+def format_broker(user, password, host, port, vhost):
     return 'amqp://{user}:{password}@{host}:{port}/{vhost}'.format(
-        user=user, password=password, host=host, port=port, vhost=AMQP_VHOST
+        user=user, password=password, host=host, port=port, vhost=vhost
     )
 
 
