@@ -240,6 +240,11 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False
         },
+        'DocApproval.tasks': {
+            'handlers': ['celery_tasks', 'file'],
+            'level': 'INFO',
+            'propagate': False
+        },
         'DocApprovalNotifications.tasks': {
             'handlers': ['celery_tasks', 'file'],
             'level': 'INFO',
@@ -302,6 +307,10 @@ CELERYBEAT_SCHEDULE = {
         'task': 'DocApprovalNotifications.tasks.send_repeating_notifications',
         'schedule': crontab(hour=3, minute=0),
     },
+    'archive_requests': {
+        'task': 'DocApproval.tasks.archive_requests',
+        'schedule': crontab(hour=0, minute=0)
+    }
 }
 djcelery.setup_loader()
 

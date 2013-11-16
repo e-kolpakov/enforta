@@ -7,6 +7,7 @@ from django.db import models, transaction
 from django.dispatch.dispatcher import Signal
 from django.core.validators import MinValueValidator
 from django.core.urlresolvers import reverse
+from django.utils.timezone import now
 from django.utils.translation import ugettext as _
 from guardian.shortcuts import get_objects_for_user, get_users_with_perms
 
@@ -85,6 +86,11 @@ class Contract(models.Model):
     document_signed = ContentTypeRestrictedFileField(_(u'Подписанный документ'), upload_to=upload_to_signed, null=True,
                                                      blank=True)
 
+    @property
+    def expiration_date(self):
+        timedelta_params = {self.active_period_unit: self.active_period}
+        return self.activation_date + datetime.timedelta(**timedelta_params)
+
     def __unicode__(self):
         return u"{0} {2} {1} {3}".format(_(u"Документ №"), _(u"от"), self.pk, self.date)
 
@@ -119,6 +125,25 @@ class RequestManager(models.Manager):
         return self.get_accessible_requests(user).filter(
             approval_route__steps__approver__in=user.profile.effective_profiles,
             status__code=RequestStatus.NEGOTIATION).distinct()
+
+    def get_expired_requests(self):
+        """
+        Returns a queryset of expired requests in active status
+        @return: QuerySet[Request]
+        """
+
+        # Can't refer to Contract.expiration_date property as it's now in sql
+        # Can't make expiration_date a calculated field, as Django does not support calculated fields yet.
+        # Solution - extra with manual sql manipulation. Will work with PostgreSQL only
+        wrap = lambda name: '"{0}"'.format(name)
+        request_table, contract_table = wrap(Request._meta.db_table), wrap(Contract._meta.db_table)
+        exp_tpl = "{0}.activation_date + ({0}.active_period::varchar || ' ' || {0}.active_period_unit)::interval <= %s"
+        join_tpl = "{req_tbl}.contract_id = {con_tbl}.id"
+        return self.filter(status__code=RequestStatus.ACTIVE).extra(
+            tables=[contract_table],
+            where=[exp_tpl.format(contract_table), join_tpl.format(req_tbl=request_table, con_tbl=contract_table)],
+            params=[str(now())]
+        )
 
 
 class Request(models.Model):

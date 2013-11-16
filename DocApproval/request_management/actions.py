@@ -107,6 +107,7 @@ class SetPaidAction(StatusBasedAction):
             paid_date = parse_string_to_datetime(paid_date_raw)
             _logger.info(u"User {0} set paid date {1} on request {2}", user, paid_date, request)
             request.contract.paid_date = paid_date
+            request.contract.activation_date = paid_date
             request.contract.save()
             request.status = RequestStatus.objects.get(code=RequestStatus.ACTIVE)
             request.save()

@@ -34,6 +34,10 @@ CELERYBEAT_SCHEDULE = {
     'repeating-notifications': {
         'task': 'DocApprovalNotifications.tasks.send_repeating_notifications',
         'schedule': timedelta(minutes=1),
+    },
+    'archive_requests': {
+        'task': 'DocApproval.tasks.archive_requests',
+        'schedule': timedelta(minutes=1)
     }
 }
 
