@@ -7,6 +7,7 @@ from fabric.context_managers import shell_env, settings
 from fabric.contrib import django
 from fabric.operations import sudo, os
 from django.conf import settings as django_settings
+from fabric.utils import abort
 
 from fabfile import get_environment, git_repo, set_environment, virtualenv_location
 from fabfile.db import create_db
@@ -130,17 +131,20 @@ def configure_apache(environment=None):
 
 
 @task
-@with_settings(warn_only=True)
 def configure_rabbitmq(environment=None):
     environment = environment if environment else get_environment()
     try:
-        user, password, host = django_settings.AMQP_USER, django_settings.AMQP_PASS, django_settings.AMQP_HOST
+        user = django_settings.AMQP_USER
     except ImproperlyConfigured:
         logger.warning("Django settings were not configured, configuring using {environment}", environment.NAME)
         prepare_django_conf(environment)
-        user, password, host = django_settings.AMQP_USER, django_settings.AMQP_PASS, django_settings.AMQP_VHOST
-    command = 'rabbitmqctl add_user {user} {password} && rabbitmqctl add_vhost {host} && rabbitmqctl set_permissions -p {host} {user} ".*" ".*" ".*"'
-    sudo(command.format(user=user, password=password, host=host))
+    user, password, host = django_settings.AMQP_USER, django_settings.AMQP_PASS, django_settings.AMQP_VHOST
+    with settings(warn_only=True):
+        result = sudo("rabbitmqctl add_user {user} {password}".format(user=user, password=password))
+        if result.failed and not 'user_already_exists' in result:
+            abort(result)
+        sudo("rabbitmqctl add_vhost {host}".format(host=host))
+        sudo('rabbitmqctl set_permissions -p {host} {user} ".*" ".*" ".*"'.format(user=user, host=host))
 
 
 @task

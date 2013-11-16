@@ -1,5 +1,5 @@
 from datetime import timedelta
-from base import LOGGING
+from base import LOGGING, format_broker, AMQP_USER, AMQP_PASS, AMQP_HOST, AMQP_PORT
 
 ADMINS = ()
 
@@ -26,6 +26,9 @@ EMAIL_HOST_PASSWORD = '1e2e916fef05dfad'
 EMAIL_PORT = '25'
 EMAIL_USE_TLS = False
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+AMQP_VHOST = 'docapprovalnotifications-development'
+BROKER_URL = format_broker(AMQP_USER, AMQP_PASS, AMQP_HOST, AMQP_PORT, AMQP_VHOST)
 
 NOTIFICATIONS_TIMEOUT = '00:05:00'
 NOTIFICATIONS_FREQUENCY = '00:10:00'

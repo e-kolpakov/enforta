@@ -1,4 +1,5 @@
 # -*- coding=utf-8 -*-
+from portal.settings import format_broker
 
 DATABASES = {
     'default': {
@@ -26,6 +27,13 @@ EMAIL_HOST_PASSWORD = 'ctlueess'
 EMAIL_PORT = '25'
 EMAIL_USE_TLS = 'False'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+AMQP_USER = 'rabbit_notifier'
+AMQP_PASS = 'rabbit_notifier_pass'
+AMQP_HOST = 'localhost'
+AMQP_PORT = '5672'
+AMQP_VHOST = 'docapprovalnotifications-production'
+BROKER_URL = format_broker(AMQP_USER, AMQP_PASS, AMQP_HOST, AMQP_PORT, AMQP_VHOST)
 
 # Почтовые адреса для уведомлений о критических ошибках
 ADMINS = (

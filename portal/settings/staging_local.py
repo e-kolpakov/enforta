@@ -1,4 +1,4 @@
-from base import LOGGING
+from base import LOGGING, format_broker, AMQP_USER, AMQP_PASS, AMQP_HOST, AMQP_PORT
 
 DATABASES = {
     'default': {
@@ -19,6 +19,9 @@ EMAIL_USE_TLS = False
 EMAIL_REDIRECT = 'redirect@localhost'
 ROOT_URL = "http://docapproval.ru:8080"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+AMQP_VHOST = 'docapprovalnotifications-staging_local'
+BROKER_URL = format_broker(AMQP_USER, AMQP_PASS, AMQP_HOST, AMQP_PORT, AMQP_VHOST)
 
 for key in LOGGING['loggers'].keys():
     if key not in ('weasyprint', 'django.request', 'DocApproval.middleware'):
