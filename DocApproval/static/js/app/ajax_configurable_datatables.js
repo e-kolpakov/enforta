@@ -100,6 +100,22 @@ define(
                 return result;
             }
 
+            function get_default_sorting(datables_config){
+                var lookup = {};
+                var i;
+                for (i=0; i<datables_config.columns.length; i++){
+                    lookup[datables_config.columns[i].column] = i;
+                }
+
+                var default_sort = [];
+                for (i=0; i<datables_config.default_sort.length; i++){
+                    var col = datables_config.default_sort[i][0];
+                    var dir = datables_config.default_sort[i][1];
+                    default_sort.push([lookup[col], dir]);
+                }
+                return default_sort;
+            }
+
             function transform_params(extra_params) {
                 var result = [];
                 for (var key in extra_params) {
@@ -140,7 +156,8 @@ define(
                     return {
                         options: $.extend({}, default_options, new_options, datatables_options),
                         columns: datables_config.columns,
-                        column_order: datables_config.column_order
+                        column_order: datables_config.column_order,
+                        default_sort: get_default_sorting(datables_config)
                     }
                 }
             }
@@ -204,17 +221,23 @@ define(
             var comm = new Communicator(options.csrftoken);
             var config_promise = comm.make_request({url: options.config_url, type: 'GET'}, options.extra_config_params || {});
             var search_form = options.search_form ? new SearchForm(options.search_form, options.search_form_prefix) : null;
+            search_form.set_fixed_filters(options.fixed_filters || {});
 
             config_promise.done(function (datatables_config, textStatus, jqXHR) {
                 var config = parser.parse_config(datatables_config, datatables_options, search_form);
                 config.options.fnRowCallback = function (row, aData, iDisplayIndex) {
                     row_callback(row, self);
-                }
+                };
+
                 html_helper.make_header(self, config.columns);
                 if (options.caption) {
                     html_helper.add_caption(self, options.caption);
                 }
                 var oTable = html_helper.create_table(self, config.options);
+                if (config.default_sort){
+                    oTable.fnSort(config.default_sort);
+                }
+
                 if (datatables_config.buttons) {
                     html_helper.set_buttons(
                         self.parent(".dataTables_wrapper").find(".btns"),

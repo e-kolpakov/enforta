@@ -18,7 +18,16 @@
             search_form: '#search_form',
             search_form_prefix: '',
             extra_config_params: {
-                show_only: '{{ show_only }}'
+                {% for param_name, param_value in extra_config_params.items %}
+                    {% if param_value %}
+                        '{{ param_name }}': '{{ param_value }}',
+                    {% endif %}
+                {% endfor %}
+            },
+            fixed_filters: {
+                {% for filter_id, filter_value in fixed_filters.items %}
+                    '{{ filter_id }}': '{{ filter_value }}',
+                {% endfor %}
             }
         }
     </script>

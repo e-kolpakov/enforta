@@ -23,18 +23,6 @@
                         </div>
                     </div>
                     <div class="control-group">
-                        <label class='control-label' for='{{ form_prefix }}status'>{% trans "Статус" %}</label>
-
-                        <div class='controls'>
-                            <select id='{{ form_prefix }}status' class='input-xlarge' name='status'>
-                                <option value=''></option>
-                                {% for status in filter_data.statuses %}
-                                    <option value='{{ status.pk }}'>{{ status.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="control-group">
                         <label class='control-label'
                                for='{{ form_prefix }}date-created-from'>{% trans "Создана" %}</label>
 
@@ -68,25 +56,44 @@
                             </div>
                         </div>
                     </div>
+                    <div class="control-group">
+                        <label class='control-label'
+                               for='{{ form_prefix }}date-expired-from'>{% trans "Истек срок действия" %}</label>
+
+                        <div class='controls'>
+                            <div class='date-range-item'>
+                                <span class='date-range-start-label'>{% trans "с" %}</span>
+                                <input type='text' id='{{ form_prefix }}date-expired-from' placeholder=''
+                                       class='datepicker input-small' name='date_expired_from'/>
+                            </div>
+                            <div class='date-range-item'>
+                                <span class='date-range-end-label'>{% trans "по" %}</span>
+                                <input type='text' id='{{ form_prefix }}date-expired-to' placeholder=''
+                                       class='datepicker input-small' name='date_expired_to'/>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class='span5'>
                     <div class="control-group">
-                        <label class='control-label' for='{{ form_prefix }}creator'>{% trans "Инициатор" %}</label>
+                        <label class='control-label' for='{{ form_prefix }}status'>{% trans "Статус" %}</label>
 
                         <div class='controls'>
-                            <select id='{{ form_prefix }}creator' name='creator'
-                                    {% if show_only == 'my_requests' %}
-                                    class='input-xlarge uneditable-input' disabled
-                                    {% else %}
-                                    class='input-xlarge'
-                                    {% endif %}
-                                    >
+                            <select id='{{ form_prefix }}status' class='input-xlarge' name='status'>
+                                <option value=''></option>
+                                {% for status in filter_data.statuses %}
+                                    <option value='{{ status.pk }}'>{{ status.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class='control-label' for='{{ form_prefix }}creator'>{% trans "Инициатор" %}</label>
+                        <div class='controls'>
+                            <select id='{{ form_prefix }}creator' name='creator' class='input-xlarge'>
                                 <option value=''></option>
                                 {% for user_profile in filter_data.users %}
-                                    <option value='{{ user_profile.pk }}'
-                                            {% if show_only == 'my_requests' and user_profile.pk == user.pk %}selected{% endif %}
-                                            >
-                                        {{ user_profile.full_name }}</option>
+                                    <option value='{{ user_profile.pk }}'>{{ user_profile.full_name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -96,20 +103,10 @@
                                for='{{ form_prefix }}current-approver'>{% trans "Утверждающий" %}</label>
 
                         <div class='controls'>
-                            <select id='{{ form_prefix }}current-approver' name='current_approver'
-                                    {% if show_only == 'my_approvals' %}
-                                    class='input-xlarge uneditable-input' disabled
-                                    {% else %}
-                                    class='input-xlarge'
-                                    {% endif %}
-                                    >
+                            <select id='{{ form_prefix }}current-approver' name='current_approver' class='input-xlarge'>
                                 <option value=''></option>
                                 {% for user_profile in filter_data.approvers %}
-                                    <option value='{{ user_profile.pk }}'
-                                            {% if show_only == 'my_approvals' and user_profile.pk == user.pk %}selected{% endif %}
-                                            >
-                                        {{ user_profile.full_name }}
-                                    </option>
+                                    <option value='{{ user_profile.pk }}'>{{ user_profile.full_name }}</option>
                                 {% endfor %}
                             </select>
                         </div>

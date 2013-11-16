@@ -27,7 +27,7 @@ class ColumnDefinition(object):
             'is_virtual': self.is_virtual,
             'column_type': self.column_type
         }
-        if (self.css_class):
+        if self.css_class:
             result['css_class'] = self.css_class
         return result
 
@@ -113,7 +113,6 @@ class JsonConfigurableDatatablesBaseView(BaseDatatableView):
         cols = sorted(columns.iteritems(), key=lambda x: x[1].order)
         return [col[0] for col in cols]
 
-
     def _get_all_columns(self):
         columns = self.get_model_columns()
         columns.update(self.get_other_columns())
@@ -128,10 +127,14 @@ class JsonConfigurableDatatablesBaseView(BaseDatatableView):
     def get_buttons_config(self):
         return None
 
+    def get_default_sort(self):
+        return None
+
     def get_config(self, **kwargs):
         return {
             'columns': self.get_columns_config(),
-            'buttons': self.get_buttons_config()
+            'buttons': self.get_buttons_config(),
+            'default_sort': self.get_default_sort()
         }
 
     def prepare_single_item(self, item):

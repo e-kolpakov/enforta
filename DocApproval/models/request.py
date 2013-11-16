@@ -27,6 +27,14 @@ from DocApproval.utilities.file_upload import ContentTypeRestrictedFileField
 
 _logger = logging.getLogger(__name__)
 
+class RequestStatusManager(models.Manager):
+    _cache = {}
+
+    def get_status(self, code):
+        if code not in self._cache:
+            self._cache[code] = self.get(pk=code)
+        return self._cache[code]
+
 
 class RequestStatus(models.Model):
     PROJECT = "project"
@@ -34,6 +42,8 @@ class RequestStatus(models.Model):
     NEGOTIATED_NO_PAYMENT = "negotiated_no_payment"
     ACTIVE = "active"
     EXPIRED = "expired"
+
+    objects = RequestStatusManager()
 
     code = models.CharField(_(u'Код'), max_length=ModelConstants.MAX_CODE_VARCHAR_LENGTH, primary_key=True,
                             editable=False)
@@ -126,6 +136,9 @@ class RequestManager(models.Manager):
             approval_route__steps__approver__in=user.profile.effective_profiles,
             status__code=RequestStatus.NEGOTIATION).distinct()
 
+    def get_archived_for_year(self, year):
+        return self.filter(status__code=RequestStatus.EXPIRED, created__year=year)
+
     def get_expired_requests(self):
         """
         Returns a queryset of expired requests in active status
@@ -165,6 +178,7 @@ class Request(models.Model):
     created = models.DateField(_(u'Создана'), auto_now_add=True)
     updated = models.DateField(_(u'Изменена'), auto_now=True)
     accepted = models.DateField(_(u'Согласована'), blank=True, null=True)
+    expired = models.DateField(_(u'Истек срок действия'), blank=True, null=True)
 
     comments = models.CharField(_(u'Комментарии'), max_length=ModelConstants.MAX_VARCHAR_LENGTH, null=True,
                                 blank=True)
@@ -234,6 +248,11 @@ class Request(models.Model):
 
     def get_related_users(self):
         return get_users_with_perms(self).select_related('profile')
+
+    def set_expired(self):
+        self.expired = now()
+        self.status = RequestStatus.objects.get_status(RequestStatus.EXPIRED)
+        self.save()
 
 
 class RequestHistory(models.Model):

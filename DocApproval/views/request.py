@@ -17,13 +17,21 @@ from DocApproval.constants import Groups, Periods, Currencies
 from DocApproval.forms import EditRequestForm, EditContractForm
 from DocApproval.messages import CommonMessages, RequestMessages
 from DocApproval.menu import RequestContextMenuManagerExtension, MenuModifierViewMixin
-from DocApproval.models import Request, RequestStatus, Permissions, City, UserProfile, RequestHistory, ApprovalProcessAction
-from DocApproval.request_management import actions as request_actions, request_factory
-from DocApproval.url_naming.names import Request as RequestUrl, Profile as ProfileUrl, ApprovalRoute as ApprovalRouteUrls
-
-from DocApproval.utilities.datatables import JsonConfigurableDatatablesBaseView, LinkColumnDefinition, ColumnDefinition, ActionsColumnDefintion
 from DocApproval.utilities.permission_checker import impersonated_permission_required
 from DocApproval.utilities.utility import get_url_base, reprint_form_errors, parse_string_to_datetime
+from DocApproval.request_management import actions as request_actions, request_factory
+
+from DocApproval.models import (
+    Request, RequestStatus, Permissions, City, UserProfile, RequestHistory, ApprovalProcessAction
+)
+
+from DocApproval.url_naming.names import (
+    Request as RequestUrl, Profile as ProfileUrl, ApprovalRoute as ApprovalRouteUrls
+)
+
+from DocApproval.utilities.datatables import (
+    JsonConfigurableDatatablesBaseView, LinkColumnDefinition, ColumnDefinition, ActionsColumnDefintion, ModelField
+)
 
 
 class CreateUpdateRequestView(TemplateView):
@@ -263,6 +271,7 @@ class RequestApprovalProcessView(DetailView, SingleObjectMixin, MenuModifierView
 
 class ListRequestView(TemplateView):
     SHOW_ONLY_PARAM = 'show_only'
+    IS_ARCHIVE_PARAM = 'is_archive'
     MY_REQUESTS = 'my_requests'
     MY_APPROVALS = 'my_approvals'
 
@@ -276,13 +285,29 @@ class ListRequestView(TemplateView):
             'approvers': UserProfile.objects.get_users_in_group(Groups.APPROVERS)
         }
 
+    def _get_fixed_filter_data(self, request, show_only, is_archive):
+        result = {}
+        if is_archive:
+            result['status'] = RequestStatus.EXPIRED
+        if show_only == self.MY_REQUESTS:
+            result['creator'] = request.user.profile.pk
+        elif show_only == self.MY_APPROVALS:
+            result['current-approver'] = request.user.profile.pk
+        return result
+
     def get(self, request, *args, **kwargs):
         show_only = kwargs.get(self.SHOW_ONLY_PARAM, None)
+        is_archive = kwargs.get(self.IS_ARCHIVE_PARAM, None)
         return render(request, self.template_name, {
             'datatables_data': RequestUrl.LIST_JSON,
             'datatables_config': RequestUrl.LIST_JSON_CONF,
-            'show_only': show_only,
-            'filter_data': self._get_filter_data()
+
+            'filter_data': self._get_filter_data(),
+            'fixed_filters': self._get_fixed_filter_data(request, show_only, is_archive),
+            'extra_config_params': {
+                self.SHOW_ONLY_PARAM: show_only,
+                self.IS_ARCHIVE_PARAM: is_archive
+            }
         })
 
 
@@ -326,6 +351,8 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
         'date_created_to': {'lookup': 'created__lte', 'converter': to_date},
         'date_accepted_from': {'lookup': 'accepted__gte', 'converter': to_date},
         'date_accepted_to': {'lookup': 'accepted__lte', 'converter': to_date},
+        'date_expired_from': {'lookup': 'expired__gte', 'converter': to_date},
+        'date_expired_to': {'lookup': 'expired__lte', 'converter': to_date},
         'creator': {'lookup': 'creator__pk', 'converter': int},
         'city': {'lookup': 'city', 'converter': int},
         'current_approver': {
@@ -338,6 +365,14 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
             'converter': int
         },
     }
+
+    @property
+    def is_archive(self):
+        return self.request.GET.get(ListRequestView.IS_ARCHIVE_PARAM, None) == 'True'
+
+    @property
+    def show_only(self):
+        return self.request.GET.get(ListRequestView.SHOW_ONLY_PARAM, None)
 
     def get_other_columns(self):
         rslt = {
@@ -356,14 +391,19 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
                 field='creator', model=self.model,
                 base_url=get_url_base(reverse(ProfileUrl.PROFILE, kwargs={'pk': 0})),
                 entity_key='creator_pk', order=1001
-            ),
-            'current_approvers': ColumnDefinition(
+            )
+        }
+
+        if not self.is_archive:
+            rslt['current_approvers'] = ColumnDefinition(
                 column='current_approvers',
                 name=RequestMessages.CURRENT_REVIEVERS,
                 is_calculated=True, order=1002
             )
-        }
-        if self.request.GET.get('show_only', None) == ListRequestView.MY_APPROVALS:
+        else:
+            rslt['expired'] = ModelField(field='expired', model=self.model, order=500)
+
+        if self.show_only == ListRequestView.MY_APPROVALS:
             action_repository = request_actions.RequestActionRepository()
             rslt['actions'] = ActionsColumnDefintion(
                 actions=[
@@ -386,6 +426,12 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
             qs = self.model.objects.get_accessible_requests(self.request.user)
         return qs
 
+    def get_default_sort(self):
+        if self.is_archive:
+            return [('expired', 'desc'), ('name', 'asc')]
+        else:
+            return [('name', 'asc')]
+
     def filter_queryset(self, qs):
         filters = {}
         q_lookups = []
@@ -402,7 +448,7 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
         return qs.select_related('city', 'creator', 'status', 'send_on_approval')
 
     def prepare_single_item(self, item):
-        accepted = item.accepted.strftime("%Y-%m-%d") if item.accepted is not None else "---"
+        time_representation = lambda time: time.strftime("%Y-%m-%d") if time is not None else "---"
         return {
             'pk': item.pk,
             'name': item.name,
@@ -411,7 +457,8 @@ class RequestListJson(JsonConfigurableDatatablesBaseView):
             'creator': item.creator.full_name,
             'send_on_approval': item.send_on_approval.full_name,
             'created': item.created.strftime("%Y-%m-%d"),
-            'accepted': accepted,
+            'accepted': time_representation(item.accepted),
+            'expired': time_representation(item.expired),
             'send_on_approval_pk': item.send_on_approval.pk,
             'creator_pk': item.creator.pk,
             'current_approvers': ", ".join(profile.short_name for profile in item.get_current_approvers())
@@ -457,7 +504,3 @@ class RequestActionsJson(View):
                 'errors': [e.message]
             }
         return HttpResponse(json.dumps(data), content_type="application/json")
-
-
-def archive(request, year=None, month=None):
-    return render(request, "request/archive.html", {'year': year, 'month': month})

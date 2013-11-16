@@ -59,7 +59,7 @@ def unique_task(func):
 def send_notifications(notification_ids):
     logger.info("Starting send_notifications")
     target_notifications = Notification.objects.get_active_immediate().filter(pk__in=notification_ids)
-    logger.debug("Fetched target notifications for ids %s", len(target_notifications), notification_ids)
+    logger.debug("Fetched target notifications for ids {0}".format(notification_ids))
 
     def callback(notification):
         notification.dismissed = True

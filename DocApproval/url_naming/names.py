@@ -39,8 +39,6 @@ class Request:
     APPROVAL_SHEET = "approval_sheet"
 
     ARCHIVE = "archive"
-    ARCHIVE_YEAR = "archive_year"
-    ARCHIVE_MONTH = "archive_month"
 
 
 class ApprovalRoute:

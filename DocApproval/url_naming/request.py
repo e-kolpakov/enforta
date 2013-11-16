@@ -38,7 +38,7 @@ urlpatterns = patterns(
         name=request_names.MY_APPROVALS),
 
     # archive request list pages
-    url(r"^archive/(?P<year>\d{4})/(?P<month>\d{2})", request.archive, name=request_names.ARCHIVE_MONTH),
-    url(r"^archive/(?P<year>\d{4})", request.archive, name=request_names.ARCHIVE_YEAR),
-    url(r"^archive/", request.archive, name=request_names.ARCHIVE),
+    url(r"^archive/", ensure_csrf_cookie(request.ListRequestView.as_view()),
+        {request.ListRequestView.IS_ARCHIVE_PARAM: True},
+        name=request_names.ARCHIVE),
 )
