@@ -26,7 +26,7 @@ def configure(environment=None):
             with open(os.path.join(local_tpl_location, config + "_tpl.conf"), "r") as template_file:
                 tpl = template_file.read()
             put(build_config(tpl, environment), remote_file)
-            sudo("cp {filename} /etc/supervisor/conf.d/{filename}-{site_name}".format(filename=remote_file,
+            sudo("cp {filename} /etc/supervisor/conf.d/{site_name}-{filename}".format(filename=remote_file,
                                                                                       site_name=environment.NAME))
 
     restart_supervisor()
