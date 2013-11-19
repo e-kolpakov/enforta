@@ -4,9 +4,7 @@ import logging
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.template.loader import render_to_string
-from django.utils.timezone import now
-
-from Utilities.humanization import Humanizer
+from DocApprovalNotifications.utils import notification_representation
 
 
 logger = logging.getLogger(__name__)
@@ -32,26 +30,12 @@ class Mailer(object):
         logger.info("Connection closed")
         return True
 
-    def _get_notification_data(self, notification):
-        time_elapsed = self._get_elapsed_human(notification)
-
-        return {
-            'notification': notification,
-            'event': notification.event,
-            'req': notification.event.get_entity(),
-            'time_elapsed': time_elapsed,
-            'root_url': settings.ROOT_URL
-        }
-
-    def _get_elapsed_human(self, notification):
-        return Humanizer().humanize_timedelta(now() - notification.event.timestamp, Humanizer.DATE_PRECISION_DAY)
-
     def _render(self, notification, html_template, text_template):
         """
-        @notification Notification - notification to render
+        @type notification: Notification
         @template str - template filename to render against
         """
-        data = self._get_notification_data(notification)
+        data = notification_representation(notification)
         html_body, text_body = render_to_string(html_template, data), render_to_string(text_template, data)
         subject = notification.get_notification_type_display()
 

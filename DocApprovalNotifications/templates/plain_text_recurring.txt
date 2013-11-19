@@ -1,10 +1,6 @@
 {% extends "plain_text_default.txt" %}
 {% load i18n %}
 
-{% trans "Заявка" %}                                {{ req.name }}
-{% trans "Событие" %}                               {{ event.full_name }}
-{% trans "Дата наступления события" %}              {{ event.timestamp }}
-{% if event.sender %}
-{% trans "Пользователь, осуществивший действие" %}  {{ event.sender.full_name }}
-{% endif %}
-{% trans "Время ожидания" %}                        {{ time_elapsed }}
+{% block additional_rows %}
+    {% trans "Время ожидания" %}                        {{ time_elapsed_human }}
+{% endblock additional_rows %}

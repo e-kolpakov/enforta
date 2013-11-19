@@ -1,8 +1,11 @@
 {% load i18n %}
 
-{% trans "Заявка" %}                                {{ req.name }}
-{% trans "Событие" %}                               {{ event.full_name }}
-{% trans "Дата наступления события" %}              {{ event.timestamp }}
-{% if event.sender %}
-{% trans "Пользователь, осуществивший действие" %}  {{ event.sender.full_name }}
+{{ notification_type_name }}
+{% trans "Заявка" %}                                {{ request_name }}
+{% trans "Событие" %}                               {{ event_type_name }}
+{% trans "Дата наступления события" %}              {{ event_timestamp }}
+{% if sender_name %}
+{% trans "Пользователь, осуществивший действие" %}  {{ sender_name }}
 {% endif %}
+{% block additional_rows %}
+{% endblock additional_rows %}

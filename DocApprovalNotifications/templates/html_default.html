@@ -5,24 +5,24 @@
 
 </head>
 <body>
-<h3>{{ notification.full_name }}</h3>
+<h3>{{ notification_type_name }}</h3>
 <table class='table table-bordered'>
     <tr>
         <td class="label-cell text-right">{% trans "Заявка" %}</td>
-        <td class="item"><a href="{{ root_url }}{{ req.get_absolute_url }}">{{ req.name }}</a></td>
+        <td class="item"><a href="{{ request_url }}">{{ request_name }}</a></td>
     </tr>
     <tr>
         <td class="label-cell text-right">{% trans "Событие" %}</td>
-        <td class="item">{{ event.full_name }}</td>
+        <td class="item">{{ event_type_name }}</td>
     </tr>
     <tr>
         <td class="label-cell text-right">{% trans "Дата наступления события" %}</td>
-        <td class="item">{{ event.timestamp }}</td>
+        <td class="item">{{ event_timestamp }}</td>
     </tr>
-    {% if event.sender %}
+    {% if sender_name %}
         <tr>
             <td class="label-cell text-right">{% trans "Пользователь, осуществивший действие" %}</td>
-            <td class="item">{{ event.sender.full_name }}</td>
+            <td class="item">{{ sender_name }}</td>
         </tr>
     {% endif %}
     {% block additional_rows %}

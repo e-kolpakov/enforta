@@ -1,13 +1,17 @@
 import json
 import datetime
 from django.http import HttpResponse
+from Utilities.humanization import Humanizer
 
 
 class CustomJsonEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime.datetime):
-            return obj.strftime('%Y-%m-%dT%H:%M:%S')
+            return obj.strftime('%Y-%m-%d %H:%M:%S %z')
+        if isinstance(obj, datetime.timedelta):
+            return Humanizer().humanize_timedelta(obj, Humanizer.DATE_PRECISION_SECOND)
         return json.JSONEncoder.default(self, obj)
+
 
 class JsonViewMixin(object):
     def _get_json_response(self, callback, *args, **kwargs):

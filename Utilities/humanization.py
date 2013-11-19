@@ -35,6 +35,7 @@ class Humanizer(object):
     DATE_PRECISION_HOUR = 1
     DATE_PRECISION_MINUTE = 2
     DATE_PRECISION_SECOND = 3
+
     _period_names = OrderedDict([
         ('years', {
             EnumerableGrammarForm.SINGULAR: _(u"год"),
@@ -90,8 +91,10 @@ class Humanizer(object):
         values = [(getattr(delta, attr), attr, EnumerableGrammarForm.get_enumerable_form(getattr(delta, attr)))
                   for attr in attributes if getattr(delta, attr)]
 
-        readable = [u"{quantity} {unit}".format(quantity=value, unit=self.get_period_name(attr, grammar_form))
-                    for value, attr, grammar_form in values]
+        readable = [
+            u"{quantity} {unit}".format(quantity=value, unit=self.get_period_name(attr, grammar_form))
+            for value, attr, grammar_form in values
+        ]
 
         if not readable:
             period = self.get_period_name(self._default_period_for_precision.get(precision, 'days'),
@@ -101,6 +104,10 @@ class Humanizer(object):
         return u" ".join(readable)
 
     def humanize_timedelta(self, timedelta, precision=DATE_PRECISION_DAY):
+        """
+        @type timedelta : datetime.timedelta
+        @rtype: str
+        """
         delta = relativedelta(days=timedelta.days, seconds=timedelta.seconds, microseconds=timedelta.microseconds)
         return self._humanize(delta, precision)
 
