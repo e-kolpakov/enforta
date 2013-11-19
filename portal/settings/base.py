@@ -123,7 +123,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     "django.core.context_processors.tz",
     "django.contrib.messages.context_processors.messages",
-    "DocApproval.menu.menu_context_processor"
+    "DocApproval.menu.menu_context_processor",
+    "DocApproval.urls.static_urls_processor",
+    "DocApprovalNotifications.urls.static_urls_processor",
 )
 
 FILE_UPLOAD_HANDLERS = (

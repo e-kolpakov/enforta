@@ -139,6 +139,7 @@ class MenuManager(object):
         if self.permissions_checker.check_permission(class_permissions=Permissions.ApprovalRoute.CAN_MANAGE_TEMPLATES):
             self._add_root_item(self._build_approvals_menu())
         self._add_root_item(self._build_profile_menu())
+        self._add_root_item(self._build_messages_menu())
         for item, order in self._delayed_items:
             self._add_root_item(item, order)
         self._delayed_items[:] = []
@@ -196,6 +197,13 @@ class MenuManager(object):
                 NavigableMenuItem(caption=_(u"Все шаблонные маршруты"), image="icons/approval_routes_list.png",
                                   url=reverse(url_names.ApprovalRoute.LIST)),
             ))
+        return root_item
+
+    def _build_messages_menu(self):
+        root_item = HtmlMenuItem(
+            caption=_(u"Сообщения"), image='icons/no_messages.png',
+            html_id="messages_menu", css_class="messages_menu"
+        )
         return root_item
 
 

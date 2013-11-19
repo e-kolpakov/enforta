@@ -23,7 +23,9 @@
         <script type="text/javascript" language="JavaScript">
             document.getElementById('doc').className = 'JS';
             window.globals = {
-                static_root: "{{ STATIC_URL }}" //need a way to pass the static_root to JS.
+            {% for key, url in static_urls.items %}
+                {{ key }}: "{{ url }}",
+            {% endfor %}
             };
         </script>
         <script type='text/javascript' language="JavaScript" src="{{ STATIC_URL }}js/require.js"
