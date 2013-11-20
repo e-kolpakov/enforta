@@ -26,6 +26,9 @@
             {% for key, url in static_urls.items %}
                 {{ key }}: "{{ url }}",
             {% endfor %}
+            {% for key, url in static_urls_notifications.items %}
+                {{ key }}: "{{ url }}",
+            {% endfor %}
             };
         </script>
         <script type='text/javascript' language="JavaScript" src="{{ STATIC_URL }}js/require.js"

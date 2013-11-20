@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.conf.urls import patterns, url
 from django.core.urlresolvers import reverse
-from django.template import RequestContext
 from DocApprovalNotifications.views import NotificationsJsonView, TemplateDebugView
 
 urlpatterns = patterns(
@@ -11,7 +10,9 @@ urlpatterns = patterns(
 
 
 def static_urls_processor(request):
-    return {}
+    return {'static_urls_notifications': {
+        'notifications_backend': reverse('notifications')
+    }}
 
 
 if settings.DEBUG:
