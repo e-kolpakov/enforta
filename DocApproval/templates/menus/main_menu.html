@@ -15,11 +15,14 @@
                                 {% if item.has_children %}
                                     {{ item.get_dropdown_class }}
                                 {% endif %}'
+                                {% for attr, value in item.extra.items %}
+                                     {{ attr }}='{{ value }}'
+                                {% endfor %}
                             >
                         <a href="{{ item.url|default:"#" }}">
                             {% with caption=item.get_caption image=item.get_image %}
                                 {% if image.url %}
-                                    <img class='menu_img_{{ item.image_location }}' src="{{ STATIC_URL }}img/{{ image.url }}"/>
+                                    <img src="{{ STATIC_URL }}img/{{ image.url }}"/>
                                 {% endif %}
                                 {% if caption %}<span>{{ caption }}</span>{% endif %}
                             {% endwith %}

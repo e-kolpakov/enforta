@@ -36,7 +36,7 @@ class BaseCleanUsersStrategy(BaseCleanStrategy):
                 self._create_notification(event=event, notification_recipient=recipient, recurring=False,
                                           notification_type=self.get_deactivation_notification_type())
 
-        all_notifications.update(dismissed=True)
+        all_notifications.update(dismissed=True, ui_dismissed=True)
 
     def get_approver_ids(self, event):
         return set()

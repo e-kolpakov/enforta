@@ -1,186 +1,156 @@
-@page {
-    size: a4 portrait;
-    margin: 20mm 5mm 12.5mm 12.5mm;
+@page  {
+  size: a4 portrait;
+  margin: 20mm 5mm 12.5mm 12.5mm;
 }
-
 .center {
-    text-align: center;
+  text-align: center;
 }
-
 img.signature {
-    height: 24pt;
-    z-index: 10;
+  height: 24pt;
+  z-index: 10;
 }
-
 body {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
-
 body div.page {
-    font-size: 10pt;
-    color: #000000;
-    font-family: "Times New Roman", Georgia, serif;
-    font-weight: normal;
+  font-size: 10pt;
+  color: #000000;
+  font-family: "Times New Roman", Georgia, serif;
+  font-weight: normal;
 }
-
 body div.page p {
-    margin: 0;
+  margin: 0;
 }
-
 body div.page p.doc-heading {
-    text-align: right;
-    font-size: 10pt;
-    color: #000000;
-    font-family: "Times New Roman", Georgia, serif;
-    font-weight: normal;
-    font-style: italic;
-    margin-right: 1cm;
+  text-align: right;
+  font-size: 10pt;
+  color: #000000;
+  font-family: "Times New Roman", Georgia, serif;
+  font-weight: normal;
+  font-style: italic;
+  margin-right: 1cm;
 }
-
 body div.page p.doc-title {
-    margin-top: 12pt;
-    font-size: 12pt;
-    color: #000000;
-    font-family: "Times New Roman", Georgia, serif;
-    font-weight: bold;
-    text-align: center;
+  margin-top: 12pt;
+  font-size: 12pt;
+  color: #000000;
+  font-family: "Times New Roman", Georgia, serif;
+  font-weight: bold;
+  text-align: center;
 }
-
 body div.page table.main-table {
-    border-collapse: collapse;
-    width: 192mm;
-    font-size: 8pt;
-    color: #000000;
-    font-family: "Times New Roman", Georgia, serif;
-    font-weight: normal;
+  border-collapse: collapse;
+  width: 192mm;
+  font-size: 8pt;
+  color: #000000;
+  font-family: "Times New Roman", Georgia, serif;
+  font-weight: normal;
 }
-
 body div.page table.main-table tr.row-height1 {
-    height: 12pt;
+  height: 12pt;
 }
-
 body div.page table.main-table tr.row-height1 td {
-    height: 12pt;
+  height: 12pt;
 }
-
 body div.page table.main-table tr.row-height2 {
-    height: 24pt;
+  height: 24pt;
 }
-
 body div.page table.main-table tr.row-height2 td {
-    height: 24pt;
-    vertical-align: top;
+  height: 24pt;
+  vertical-align: top;
 }
-
 body div.page table.main-table tr.row-height3 {
-    height: 36pt;
+  height: 36pt;
 }
-
 body div.page table.main-table tr.row-height3 td {
-    height: 36pt;
-    vertical-align: top;
+  height: 36pt;
+  vertical-align: top;
 }
-
 body div.page table.main-table tr.comment-label td {
-    font-size: 8pt;
-    color: #000000;
-    font-family: "Times New Roman", Georgia, serif;
-    font-weight: bold;
-    border-bottom: none;
+  font-size: 8pt;
+  color: #000000;
+  font-family: "Times New Roman", Georgia, serif;
+  font-weight: bold;
+  border-bottom: none;
 }
-
 body div.page table.main-table tr.comment-text td {
-    font-size: 8pt;
-    color: #000000;
-    font-family: "Times New Roman", Georgia, serif;
-    font-weight: normal;
-    font-style: italic;
-    border-top: none;
+  font-size: 8pt;
+  color: #000000;
+  font-family: "Times New Roman", Georgia, serif;
+  font-weight: normal;
+  font-style: italic;
+  border-top: none;
 }
-
 body div.page table.main-table tr td {
-    border: 0.5pt solid black;
-    padding: 0 2mm;
+  border: 0.5pt solid black;
+  padding: 0 2mm;
 }
-
 body div.page table.main-table tr td.cell1 {
-    width: 41mm;
-    font-size: 8pt;
-    color: #000000;
-    font-family: "Times New Roman", Georgia, serif;
-    font-weight: bold;
+  width: 41mm;
+  font-size: 8pt;
+  color: #000000;
+  font-family: "Times New Roman", Georgia, serif;
+  font-weight: bold;
 }
-
 body div.page table.main-table tr td.cell2 {
-    width: 1mm;
+  width: 1mm;
 }
-
 body div.page table.main-table tr td.cell3 {
-    width: 56mm;
-    text-align: center;
+  width: 56mm;
+  text-align: center;
 }
-
 body div.page table.main-table tr td.cell4 {
-    width: 41mm;
-    font-size: 8pt;
-    color: #000000;
-    font-family: "Times New Roman", Georgia, serif;
-    font-weight: bold;
-    text-align: right;
+  width: 41mm;
+  font-size: 8pt;
+  color: #000000;
+  font-family: "Times New Roman", Georgia, serif;
+  font-weight: bold;
+  text-align: right;
 }
-
 body div.page table.main-table tr td.cell5 {
-    width: 1mm;
+  width: 1mm;
 }
-
 body div.page table.main-table tr td.cell6 {
-    width: 28mm;
+  width: 28mm;
 }
-
 body div.page table.main-table tr td.cell1-colspan2 {
-    width: 46mm;
+  width: 46mm;
 }
-
 body div.page table.main-table tr td.cell4-colspan2 {
-    width: 46mm;
-    text-align: center;
+  width: 46mm;
+  text-align: center;
 }
-
 body div.page table.main-table tr td.cell1-colspan3 {
-    width: 106mm;
+  width: 106mm;
 }
-
 body div.page table.main-table tr td.cell1-colspan3.department {
-    font-size: 8pt;
-    color: #000000;
-    font-family: "Times New Roman", Georgia, serif;
-    font-weight: bold;
-    text-transform: uppercase;
+  font-size: 8pt;
+  color: #000000;
+  font-family: "Times New Roman", Georgia, serif;
+  font-weight: bold;
+  text-transform: uppercase;
 }
-
 body div.page table.main-table tr td.cell-colspan6 {
-    width: 182mm;
+  width: 182mm;
 }
-
 body div.page table.main-table tr td div.comment {
-    margin-left: 5px;
-    font-size: 8pt;
-    color: #000000;
-    font-family: "Times New Roman", Georgia, serif;
-    font-weight: normal;
-    font-style: italic;
+  margin-left: 5px;
+  font-size: 8pt;
+  color: #000000;
+  font-family: "Times New Roman", Georgia, serif;
+  font-weight: normal;
+  font-style: italic;
 }
-
 @media screen {
-    body div.page {
-        padding: 20mm 5mm 12.5mm 12.5mm;
-        width: 210mm;
-        height: 297mm;
-        box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        -webkit-box-sizing: border-box;
-        border: 1px solid black;
-        margin: 5px;
-    }
+  body div.page {
+    padding: 20mm 5mm 12.5mm 12.5mm;
+    width: 210mm;
+    height: 297mm;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    border: 1px solid black;
+    margin: 5px;
+  }
 }

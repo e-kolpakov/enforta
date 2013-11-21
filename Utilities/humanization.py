@@ -76,6 +76,9 @@ class Humanizer(object):
         DATE_PRECISION_SECOND: 'seconds',
     }
 
+    def __init__(self, short=False):
+        self._short = short
+
     def get_period_name(self, name, form):
         return self._period_names.get(name, {}).get(form, "")
 
@@ -90,6 +93,9 @@ class Humanizer(object):
 
         values = [(getattr(delta, attr), attr, EnumerableGrammarForm.get_enumerable_form(getattr(delta, attr)))
                   for attr in attributes if getattr(delta, attr)]
+
+        if self._short:
+            values = values[:1]
 
         readable = [
             u"{quantity} {unit}".format(quantity=value, unit=self.get_period_name(attr, grammar_form))

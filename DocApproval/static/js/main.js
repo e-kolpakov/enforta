@@ -2,7 +2,7 @@
 
 requirejs.config({
     baseUrl: globals.static_root + "js/lib",
-    urlArgs: "version=v0.8.4.6",
+    urlArgs: "version=v0.8.4.9",
     paths: {
         'jquery': 'jquery/jquery',
         'jquery-ui': 'jquery/jquery-ui',
@@ -32,7 +32,7 @@ require(
         'jquery', 'bootstrap', 'jquery-ui',
         'app/startup', 'app/dispatcher', 'app/widgets/collapsible-panel',
         // behaviors
-        'app/behaviors/list_approve', 'app/behaviors/impersonation_list',
+        'app/behaviors/list_approve', 'app/behaviors/impersonation_list', 'app/behaviors/notifications',
         //ie media queries support
         'ie/respond.min', 'ie/html5shiv'//, 'ie/css3-mediaqueries'
     ],

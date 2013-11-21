@@ -1,3 +1,4 @@
+import calendar
 import collections
 import types
 from django.conf import settings
@@ -22,9 +23,10 @@ def notification_representation(notification):
         'notification_id': notification.pk,
         'notification_type': notification.notification_type,
         'notification_type_name': notification.get_notification_type_display(),
+        'notification_ui_dismissed': notification.ui_dismissed,
         'event_type': notification.event.event_type,
         'event_type_name': notification.event.get_event_type_display(),
-        'event_timestamp': notification.event.timestamp,
+        'event_timestamp': calendar.timegm(notification.event.timestamp.timetuple()),
         'request_name': request.name,
         'request_url': settings.ROOT_URL + request.get_absolute_url(),
         'time_elapsed': now() - notification.event.timestamp,

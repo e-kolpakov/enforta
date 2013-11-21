@@ -33,7 +33,7 @@ class BaseMenuItem(object):
     MENU_ITEM_CLASS_DROPDOWN = "dropdown"
     MENU_ITEM_CLASS_SUBMENU = "dropdown-submenu"
 
-    def __init__(self, children=None, css_class=None, html_id=None, parent=None, **kwargs):
+    def __init__(self, children=None, css_class=None, html_id=None, parent=None, extra=None, **kwargs):
         self.parent = parent
         self.css_class = self.COMMON_MENU_ITEM_CLASS
         if css_class:
@@ -41,6 +41,7 @@ class BaseMenuItem(object):
         self.html_id = html_id
         self._children = []
         self.add_children(children if children is not None else [])
+        self.extra = extra
         super(BaseMenuItem, self).__init__(**kwargs)
 
     def add_child(self, child, order=None):
@@ -201,8 +202,9 @@ class MenuManager(object):
 
     def _build_messages_menu(self):
         root_item = HtmlMenuItem(
-            caption=_(u"Сообщения"), image='icons/no_messages.png',
-            html_id="messages_menu", css_class="messages_menu"
+            caption=_(u"Сообщения"), image='icons/no_new_messages.png',
+            html_id="messages_menu", css_class="messages_menu",
+            extra={'data-behavior': 'notifications-display'}
         )
         return root_item
 

@@ -96,6 +96,30 @@
       font-style: italic;
     }
   }
+
+  #notifications {
+    .notification-ui-display-title() {
+      @size: @title-font-size;
+      @weight: bold;
+      .define(@size, @color, @family, @weight);
+    }
+
+    .notification-header-font() {
+      @size: @ordinary-font-size;
+      @weight: bold;
+      .define(@size, @color, @family, @weight);
+    }
+
+    .notification-text-font() {
+      @size: @ordinary-font-size;
+      .define(@size, @color, @family, @weight);
+    }
+
+    .notification-comment-font() {
+      @size: @comment-font-size;
+      .define(@size, @color, @family, @weight);
+    }
+  }
 }
 
 .rounded-borders-mixin(@radius: 5px) {
@@ -148,6 +172,17 @@
   .error-popup-window() {
     #popups > .popup-window;
     background-color: @error-popup-background;
+  }
+}
+
+#scrollers() {
+  .horizontal(@width) {
+    overflow-x: auto;
+    max-width: @width;
+  }
+  .vertical(@height) {
+    overflow-y: auto;
+    max-height: @height;
   }
 }
 

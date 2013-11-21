@@ -1,0 +1,43 @@
+@import-once "../variables";
+@import-once "../mixins";
+
+.notification-ui-display {
+  #popups > .popup-window;
+  overflow-x: hidden;
+  #scrollers > .vertical(@notification_display_height);
+  width: @notification_display_width;
+  min-height: 50px;
+  position: fixed;
+  padding: 0;
+
+  .notification-ui-display-title {
+    #fonts > #notifications > .notification-ui-display-title;
+    padding: 5px;
+  }
+
+  .notification-ui-display-body {
+    padding: 5px;
+    background-color: @content-background-color;
+  }
+
+  .notification-message {
+    .rounded-borders-mixin();
+    margin-bottom: 3px;
+    padding: @notification-data-padding;
+    border-bottom: 1px solid @default-border-color;
+  }
+
+  .notification-message-event-type {
+    #fonts > #notifications > .notification-ui-display-title;
+  }
+
+  .notification-message-timestamp {
+    #fonts > #notifications > .notification-comment-font;
+    float: right;
+    margin-right: 4px;
+  }
+
+  .highlight {
+    background-color: @notification-highlight-color;
+  }
+}
