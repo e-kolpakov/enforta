@@ -55,18 +55,25 @@ def unique_task(func):
     return _exec
 
 
+def immediate_sent_callback(notification):
+    notification.email_sent = True
+    notification.save()
+    logger.debug("Notification %d marked as processed", notification.pk)
+
+
+def recurring_sent_callback(notification):
+    time = now()
+    notification.last_sent = time
+    notification.save()
+    logger.debug("Notification %d most_recent_sent set to %s", notification.pk, time)
+
 @task(ignore_result=True)
 def send_notifications(notification_ids):
     logger.info("Starting send_notifications")
-    target_notifications = Notification.objects.get_active_immediate().filter(pk__in=notification_ids)
+    target_notifications = Notification.objects.get_active_immediate().filter(pk__in=notification_ids, email_sent=False)
     logger.debug("Fetched target notifications for ids {0}".format(notification_ids))
 
-    def callback(notification):
-        notification.dismissed = True
-        notification.save()
-        logger.debug("Notification %d marked as processed", notification.pk)
-
-    total, success = do_send_notifications(target_notifications, notification_processing_callback=callback)
+    total, success = do_send_notifications(target_notifications, processing_callback=immediate_sent_callback)
     logger.info("Completed send_notifications, got {0} notifications, sent {1}".format(total, success))
 
 
@@ -76,17 +83,27 @@ def send_repeating_notifications():
     target_notifications = Notification.objects.get_recurring_to_send()
     logger.debug("Fetched target notifications")
 
-    def callback(notification):
-        time = now()
-        notification.last_sent = time
-        notification.save()
-        logger.debug("Notification %d most_recent_sent set to %s", notification.pk, time)
-
-    total, success = do_send_notifications(target_notifications, notification_processing_callback=callback)
+    total, success = do_send_notifications(target_notifications, processing_callback=recurring_sent_callback)
     logger.info("Completed send_repeating_notifications, got {0} notifications, sent {1}".format(total, success))
 
+@task(ignore_result=True)
+def suppress_old_immediate_notifications():
+    logger.info("Starting clean_old_immediate_notifications")
+    Notification.objects.get_old_immediate().update(dismissed=True)
+    logger.info("suppressed old immediate notifications")
 
-def do_send_notifications(target_notifications, notification_processing_callback=None):
+
+@task(ignore_result=True)
+def resend_failed_immediate_notifications():
+    logger.info("Starting resend_failed_immediate_notifications")
+    target_notifications = Notification.objects.get_active_immediate().filter(email_sent=False)
+    logger.debug("Fetched failed immediate notifications")
+
+    total, success = do_send_notifications(target_notifications, processing_callback=immediate_sent_callback)
+    logger.info("Completed resend_failed_immediate_notifications, got {0} notifications, sent {1}".format(total, success))
+
+
+def do_send_notifications(target_notifications, processing_callback=None):
     notifications = list(target_notifications)
     total, success = len(notifications), 0
     if total > 0:
@@ -94,7 +111,7 @@ def do_send_notifications(target_notifications, notification_processing_callback
             for notification in notifications:
                 mailer.email(notification)
                 logger.debug("Notification %d emailed", notification.pk)
-                if notification_processing_callback:
-                    notification_processing_callback(notification)
+                if processing_callback:
+                    processing_callback(notification)
                 success += 1
     return total, success

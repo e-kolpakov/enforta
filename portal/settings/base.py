@@ -1,4 +1,5 @@
 # Django settings for portal project.
+from datetime import timedelta
 import os
 import django
 import djcelery
@@ -309,6 +310,14 @@ CELERYBEAT_SCHEDULE = {
         'task': 'DocApprovalNotifications.tasks.send_repeating_notifications',
         'schedule': crontab(hour=3, minute=0),
     },
+    'suppress-old-immediate-notifications': {
+        'task': 'DocApprovalNotifications.tasks.suppress_old_immediate_notifications',
+        'schedule': crontab(hour=3, minute=15)
+    },
+    'resend-failed-immediate-notifications': {
+        'task': 'DocApprovalNotifications.tasks.resend_failed_immediate_notifications',
+        'schedule': timedelta(hours=1)
+    },
     'archive_requests': {
         'task': 'DocApproval.tasks.archive_requests',
         'schedule': crontab(hour=0, minute=0)
@@ -357,3 +366,5 @@ INSTALLED_APPS += ('DocApprovalNotifications',)
 NOTIFICATIONS_TIMEOUT = '2 days'
 
 NOTIFICATIONS_FREQUENCY = '1 day'
+
+NOTIFICATIONS_SUPPRESS_TIMEOUT = '10 days'

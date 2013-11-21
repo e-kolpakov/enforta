@@ -18,6 +18,7 @@ define(
 
         var display_id_attr = 'display-id';
         var highlight_class = 'highlight';
+        var no_data_class = 'notification-messages-no-data';
 
         var any = function (array, predicate) {
             return $.grep(array, predicate).length > 0;
@@ -40,18 +41,18 @@ define(
             return Math.round(utcMicrosecondsSinceEpoch / 1000);
         }
 
-        function make_notification_row($display, data, highlight) {
+        function make_notification_row(data) {
             var time = new Date(data.event_timestamp * 1000 + new Date().getTimezoneOffset() * 60000);
             var disp_time = time.toLocaleDateString() + " " + time.toLocaleTimeString();
 
-            var div = $("<div></div>").addClass("notification-message").insertAfter($display);
+            var div = $("<div></div>").addClass("notification-message");
             var div_head = $("<div></div>").addClass("notification-message-head").appendTo(div);
             $("<span></span>").addClass("notification-message-event-type").text(data.event_type_name).appendTo(div_head);
             $("<span></span>").addClass("notification-message-timestamp").text(disp_time).appendTo(div_head);
             var request_data = $("<div></div>").addClass("notification-request-data").appendTo(div);
             $("<a></a>").attr('href', data.request_url).text(data.request_name).appendTo(request_data);
 
-            if (data.notification_ui_dismissed === false) {
+            if (!data.notification_shown_in_ui) {
                 div.addClass(highlight_class);
             }
             return div;
@@ -76,21 +77,23 @@ define(
             return $("#"+$control.data(display_id_attr));
         }
 
-        function handleDataLoad($control, response) {
+        function handleDataLoad($control, response, initial) {
             if (response.success) {
                 logger.log(response.data.notifications);
                 var notifications = response.data.notifications;
 
-                if (any(notifications, function (elem) {
-                    return elem.notification_ui_dismissed === false;
-                })) {
-                    setIcon($control, new_messages);
-                }
-
                 var $display = get_display($control);
                 var $insert_marker = $(".notification-ui-display-body", $display);
                 for (var i=0; i<notifications.length; i++) {
-                    make_notification_row($display, notifications[i]).prependTo($insert_marker);
+                    if (!notifications[i].notification_shown_in_ui) {
+                        setIcon($control, new_messages);
+                    }
+                    make_notification_row(notifications[i]).prependTo($insert_marker);
+                    $("."+no_data_class, $insert_marker).remove();
+                }
+
+                if (initial && notifications.length === 0) {
+                    $("<div></div>").addClass(no_data_class).text(Messages.NotificationMessages.no_data).appendTo($insert_marker);
                 }
             } else {
                 ui_manager.error(response.errors.join("\n"));
@@ -127,7 +130,7 @@ define(
             );
 
             data_promise.done(function (data, textStatus, jqXHR) {
-                handleDataLoad($control, data);
+                handleDataLoad($control, data, true);
             });
             data_promise.fail(function (jqXHR, textStatus, errorThrown) {
                 handleDataLoadFailure($control, errorThrown);
@@ -143,7 +146,7 @@ define(
             );
 
             data_promise.done(function (data, textStatus, jqXHR) {
-                handleDataLoad($control, data);
+                handleDataLoad($control, data ,false);
             });
             data_promise.fail(function (jqXHR, textStatus, errorThrown) {
                 handleDataLoadFailure($control, errorThrown);
@@ -154,8 +157,9 @@ define(
             var $display = get_display($control);
             $("body").on('click.behaviors.notifications', function(event){
                 $display.hide();
-                $("body").unbind('click.behaviors.notifications');
                 $("."+highlight_class).removeClass(highlight_class);
+                setIcon($control, no_new_messages);
+                $("body").unbind('click.behaviors.notifications');
             });
             $display.show();
             setIcon($control, no_new_messages);

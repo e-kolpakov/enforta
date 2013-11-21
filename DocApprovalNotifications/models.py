@@ -97,6 +97,12 @@ class NotificationManager(models.Manager):
             Q(last_sent__lte=sent_before) | Q(last_sent__isnull=True),
             Q(event__timestamp__lte=created_before))
 
+    def get_old_immediate(self, target_date=None):
+        target_date = target_date if target_date else now()
+        created_before = target_date - parse_string_to_timedelta(settings.NOTIFICATIONS_SUPPRESS_TIMEOUT)
+
+        return self.get_active_immediate().filter(event__timestamp__lte=created_before)
+
 
 class Notification(models.Model):
     objects = NotificationManager()
@@ -118,7 +124,8 @@ class Notification(models.Model):
     notification_recipient = models.ForeignKey("DocApproval.UserProfile", verbose_name=_(u"Получатель"), null=True)
     recurring = models.BooleanField(verbose_name=_(u"Повторяющееся"), default=False)
     dismissed = models.BooleanField(verbose_name=_(u"Погашено"), default=False)
-    ui_dismissed = models.BooleanField(verbose_name=_(u"Показано в интерфейсе"), default=False)
+    email_sent = models.BooleanField(verbose_name=_(u"Отправлено почтовое оповещение"), default=False)
+    shown_in_ui = models.BooleanField(verbose_name=_(u"Показано в интерфейсе"), default=False)
     last_sent = models.DateTimeField(verbose_name=_(u"Отправлено последний раз"), null=True, blank=True, default=None)
 
     notification_type = models.CharField(

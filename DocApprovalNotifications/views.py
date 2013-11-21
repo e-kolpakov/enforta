@@ -26,14 +26,15 @@ class NotificationsJsonView(View, JsonViewMixin):
     NOTIFICATIONS_PER_PAGE = 20
 
     def _get_data(self, request, timestamp):
-        notifications = Notification.objects.filter(
-            notification_recipient=request.user.profile,
-            recurring=False,
-            ui_dismissed=False).select_related('event').order_by('-event__timestamp')
+        notifications = Notification.objects.get_active_immediate().filter(
+            notification_recipient=request.user.profile
+        ).select_related('event').order_by('-event__timestamp')
         if timestamp:
             notifications = notifications.filter(event__timestamp__gte=timestamp.replace(tzinfo=utc))
         notifications = notifications[:self.NOTIFICATIONS_PER_PAGE:-1]
+        notification_ids = [notification.pk for notification in notifications]
         objects = [notification_representation(notification) for notification in notifications]
+        Notification.objects.filter(pk__in=notification_ids).update(shown_in_ui=True)
         return {'notifications': objects}
 
     def get(self, request, *args, **kwargs):

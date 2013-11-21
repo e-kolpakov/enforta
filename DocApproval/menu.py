@@ -202,7 +202,7 @@ class MenuManager(object):
 
     def _build_messages_menu(self):
         root_item = HtmlMenuItem(
-            caption=_(u"Сообщения"), image='icons/no_new_messages.png',
+            image='icons/no_new_messages.png',
             html_id="messages_menu", css_class="messages_menu",
             extra={'data-behavior': 'notifications-display'}
         )

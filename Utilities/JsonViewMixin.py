@@ -26,7 +26,7 @@ class JsonViewMixin(object):
                 self._logger.exception("Exception while performing ajax request")
             data = {
                 'success': False,
-                'error': [str(e)],
+                'errors': [str(e)],
                 'data': None
             }
         return HttpResponse(json.dumps(data, cls=CustomJsonEncoder), content_type="application/json")

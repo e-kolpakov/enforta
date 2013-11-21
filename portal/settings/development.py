@@ -38,6 +38,14 @@ CELERYBEAT_SCHEDULE = {
         'task': 'DocApprovalNotifications.tasks.send_repeating_notifications',
         'schedule': timedelta(minutes=1),
     },
+    'suppress-old-immediate-notifications': {
+        'task': 'DocApprovalNotifications.tasks.suppress_old_immediate_notifications',
+        'schedule': timedelta(minutes=1)
+    },
+    'resend-failed-immediate-notifications': {
+        'task': 'DocApprovalNotifications.tasks.resend_failed_immediate_notifications',
+        'schedule': timedelta(minutes=5)
+    },
     'archive_requests': {
         'task': 'DocApproval.tasks.archive_requests',
         'schedule': timedelta(minutes=1)

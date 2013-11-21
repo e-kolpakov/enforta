@@ -21,7 +21,8 @@ define(
 
         NotificationMessages : {
             notification_load_failure: "Загрузка оповещений завершилась с ошибкой - оповещения через пользовательский интерфейс недоступны",
-            display_title: "Оповещения"
+            display_title: "Оповещения",
+            no_data: "Нет оповещений"
         }
     }
 );
