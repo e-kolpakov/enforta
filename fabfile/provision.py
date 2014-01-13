@@ -100,7 +100,10 @@ def create_log_and_upload_folders(environment=None):
     sudo(log_tpl.format(environment.LOGGING_DIRECTORY, environment.USER_NAME, environment.LOG_OWNER_GROUP))
     sudo(upload_tpl.format(environment.MEDIA_ROOT, environment.USER_NAME, environment.LOG_OWNER_GROUP))
 
-    sudo("mkdir /var/log/celery && chmod 755 /var/log/celery")
+    with settings(warn_only=True):
+        result = run("test -d /var/log/celery")
+    if result.failed:
+        sudo("mkdir /var/log/celery && chmod 755 /var/log/celery")
 
     tpl = "touch {0}/{1} && chmod 664 {0}/{1}"
     for log_file in log_files:
@@ -125,10 +128,12 @@ def load_initial_fixtures(environment):
 def configure_apache(environment=None):
     environment = environment if environment else get_environment()
     with set_environment(environment, local_dir="deployment/apache-conf"):
-        sudo("cp {0} /etc/apache2/sites-available/{1}".format(environment.NAME, environment.SITE_NAME))
-        deactivate_site(environment.SITE_NAME)
+        sudo("cp {0} /etc/apache2/sites-available/{1}.conf".format(environment.NAME, environment.SITE_NAME))
+        with settings(warn_only=True):
+            deactivate_site(environment.SITE_NAME)
         activate_site(environment.SITE_NAME)
-        deactivate_site("default")
+        with settings(warn_only=True):
+            deactivate_site("*default")
         restart_server()
 
 

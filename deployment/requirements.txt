@@ -2,7 +2,7 @@ Babel==0.9.6
 CairoSVG==0.5
 Django==1.5.1
 Fabric==1.7.0
-PIL==1.1.7
+Pillow==2.3.0
 PyYAML==3.10
 Pyphen==0.7
 South==0.8.1

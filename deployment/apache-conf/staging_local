@@ -20,10 +20,11 @@
 
     # LimitRequestBody 10485760
     DocumentRoot /var/www/docapproval-staging
-	<Directory /var/www/docapproval-staging>
+	<Directory /home/john/doc-approval-staging/portal>
         <Files wsgi.py>
             Order deny,allow
             Allow from all
+            Require all granted
         </Files>
 	</Directory>
 

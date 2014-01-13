@@ -6,21 +6,22 @@
 
 	SetEnv  EnvironmentType development
 
-	Alias /robots.txt /home/john/GitRoot/Enforta/enforta/portal/static/robots.txt
-    Alias /favicon.ico /home/john/GitRoot/Enforta/enforta/portal/static/favicon.ico
+	Alias /robots.txt /home/john/GitRoot/enforta/portal/static/robots.txt
+    Alias /favicon.ico /home/john/GitRoot/enforta/portal/static/favicon.ico
 
-	WSGIScriptAlias / /home/john/GitRoot/Enforta/enforta/portal/wsgi_dev.py
+	WSGIScriptAlias / /home/john/GitRoot/enforta/portal/wsgi_dev.py
 	WSGIDaemonProcess docApproval processes=1 maximum-requests=50 threads=10 user=john \
-	python-path=/home/john/GitRoot/Enforta/enforta:/home/john/.virtualenvs/DocApproval/lib/python2.7/site-packages \
+	python-path=/home/john/GitRoot/enforta:/home/john/.virtualenvs/DocApproval/lib/python2.7/site-packages \
 	lang='en_US.UTF-8' locale='en_US.UTF-8'
     WSGIProcessGroup docApproval
 
     # LimitRequestBody 10485760
     DocumentRoot /var/www/docapproval
-	<Directory /var/www/docapproval>
+	<Directory /home/john/GitRoot/enforta/portal>
         <Files wsgi_dev.py>
             Order deny,allow
             Allow from all
+            Require all granted
         </Files>
 	</Directory>
 </VirtualHost>

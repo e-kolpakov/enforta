@@ -53,7 +53,7 @@ class Environments:
         SITE_NAME = "doc-approval"
         DB = "docapproval"
         BRANCH = "master"
-        SITE_ROOT = '/home/john/GitRoot/Enforta/enforta'
+        SITE_ROOT = '/home/john/GitRoot/enforta'
         LOGGING_DIRECTORY = os.path.join(SITE_ROOT, "log")
         MEDIA_ROOT = "/var/uploads/" + SITE_NAME
         LOG_OWNER_GROUP = "www-data"
