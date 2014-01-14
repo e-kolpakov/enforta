@@ -1,5 +1,7 @@
+import re
 import sys
 import logging
+
 from django.core.exceptions import ImproperlyConfigured
 from fabric.decorators import task, with_settings
 from fabric.api import cd, run
@@ -14,6 +16,17 @@ from fabfile.db import create_db
 from fabfile.supervisor import configure as configure_supervisor
 
 logger = logging.getLogger(__name__)
+
+@task
+@with_settings(warn_only=True)
+def get_apache_version():
+    apache_ver_query = run("apache2ctl -V | grep Apache/2").split("\n")
+    regex = re.compile("Apache/(\d)\.(\d+)\.(\d+)")
+    for line in apache_ver_query:
+        match = regex.search(line)
+        if match:
+            return {'major': int(match.group(1)), 'minor': int(match.group(2)), 'build': int(match.group(3))}
+    return {'major': 2, 'minor': 2, 'build': 22}
 
 
 def prepare_django_conf(environment):
@@ -127,8 +140,12 @@ def load_initial_fixtures(environment):
 @task
 def configure_apache(environment=None):
     environment = environment if environment else get_environment()
+    suffix = '.conf'
+    apache_ver = get_apache_version()
+    if apache_ver['major'] == 2 and apache_ver['minor'] <= 2:
+        suffix = ''
     with set_environment(environment, local_dir="deployment/apache-conf"):
-        sudo("cp {0} /etc/apache2/sites-available/{1}.conf".format(environment.NAME, environment.SITE_NAME))
+        sudo("cp {0} /etc/apache2/sites-available/{1}{2}".format(environment.NAME, environment.SITE_NAME, suffix))
         with settings(warn_only=True):
             deactivate_site(environment.SITE_NAME)
         activate_site(environment.SITE_NAME)

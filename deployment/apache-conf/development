@@ -21,7 +21,7 @@
         <Files wsgi_dev.py>
             Order deny,allow
             Allow from all
-            Require all granted
+            # Require all granted
         </Files>
 	</Directory>
 </VirtualHost>
