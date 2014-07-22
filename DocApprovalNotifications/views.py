@@ -1,3 +1,4 @@
+import calendar
 import logging
 from datetime import datetime
 
@@ -25,6 +26,10 @@ class NotificationsJsonView(View, JsonViewMixin):
     _logger = logging.getLogger(__name__)
     NOTIFICATIONS_PER_PAGE = 20
 
+    def _get_timestamp(self, request, key):
+        raw = request.get(key, None)
+        return datetime.utcfromtimestamp(float(raw)) if raw else None
+
     def _get_data(self, request, timestamp):
         notifications = Notification.objects.get_active_immediate().filter(
             notification_recipient=request.user.profile
@@ -38,6 +43,10 @@ class NotificationsJsonView(View, JsonViewMixin):
         return {'notifications': objects}
 
     def get(self, request, *args, **kwargs):
-        raw_timestamp = request.GET.get('timestamp', None)
-        timestamp = datetime.utcfromtimestamp(float(raw_timestamp)) if raw_timestamp else None
+        timestamp = self._get_timestamp(request.GET, 'timestamp')
+        client_utc_now = self._get_timestamp(request.GET, 'client_utc_now')
+        if timestamp and client_utc_now:
+            server_now = datetime.utcnow()
+            compensation = server_now - client_utc_now
+            timestamp += compensation
         return self._get_json_response(self._get_data, request, timestamp)

@@ -142,7 +142,10 @@ define(
 
             var data_promise = comm.make_request(
                 { url: notifications_backend_url, type: 'GET'},
-                { timestamp: currentUtcTimestamp() - globals.notifications_poll_frequency }
+                {
+                    timestamp: currentUtcTimestamp() - globals.notifications_poll_frequency,
+                    client_utc_now: currentUtcTimestamp(),
+                }
             );
 
             data_promise.done(function (data, textStatus, jqXHR) {
