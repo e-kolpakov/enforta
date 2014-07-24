@@ -4,7 +4,7 @@ enforta
 This is just a freelance side project I made in 2013. 
 
 It was planned to have two iterations and support period. 
-Unfortunately, due to controversy with customer only iteration 1 was deployed.
+Unfortunately, customer cancelled the project, so only iteration 1 was deployed.
 Iteration 2 was completely implemented according to spec, but was never deployed to production, hence branch production
 73 commits back master
 
